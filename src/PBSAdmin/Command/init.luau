@@ -1,5 +1,4 @@
---!nonstrict 
---(cant use strict here because we are requiring modules that 'may or may not exist' according to the linter)
+--!strict 
 
 --[[ Command
 	Handles organising and generating commands to make a really simple API when using them, also contains some util methods for commands
@@ -19,7 +18,7 @@ type cmd = {
 	config: {
 		minRank: number; -- the min rank (see permissions module) to call the command
 		aliases: {string};
-		syntax: any;
+		syntax: {string | {string}};
 		
 		__tostring: ()->string;
 		__call: (...any)->string?;
@@ -45,7 +44,7 @@ type _Command = Command & {
 Command.ClassName = "Command";
 
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
-function Command:GetPlayer(player: Player, other: string, useUserid: string?): Player?
+function Command:GetPlayer(player: Player, other: string, useUserid: string?): Player? | offlinePlayer.OfflinePlayer?
 	self = self :: _Command
 	
 	if not other then return nil end
@@ -83,7 +82,7 @@ function Command:UserHasPermissionsForCommand(player: Player): boolean
 	self = self :: _Command
 	
 	local rank = permissions.GetUserPermissions(player.UserId)
-	if permissions.roleValues[rank] >= self._behaviour.minRank then
+	if permissions.roleValues[rank] >= self._behaviour.config.minRank then
 		return true
 	end
 	
@@ -110,7 +109,7 @@ end
 CommandClass.Members = {}
 
 function Command:ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, enabled: boolean): ()
-	local humanoid = player.Character and player.Character:FindFirstChild("Humanoid") 
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
 	if player.Character then
 		if enabled then
 			if not table.find(CommandClass.Members,player.UserId) then
@@ -165,7 +164,9 @@ function CommandClass.new(commandName: string): Command
 	-- dont create a new command if one already exists, instead return the one thats already been created
 	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
 	
-	local behaviour:cmd = require(script:FindFirstChild(commandName)) -- if i could get the strict typechecker to work with this arrangement then i would use strict here
+	local component:ModuleScript = script:WaitForChild(commandName)
+	local success,behaviour:cmd = pcall(require, component)
+	assert(success, `{commandName} is not a valid command`)
 	local metatable = CommandClass.metatable
 	metatable.__tostring = behaviour.config.__tostring
 	metatable.__call = behaviour.config.__call
