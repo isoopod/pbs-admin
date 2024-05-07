@@ -4,10 +4,10 @@ PBS Admin exists to make it simple to manage permissions in your PBS. Compared t
 ## Usage
 PBS Admin by default currently includes 2 commands:
 
-> /role {use userid} {player / userid} {role}
+`/role {use userid} {player / userid} {role}`
 sets the role of a player to any of banned, none (omitted from command), member, admin, owner.
 
-> /tool {player}
+`/tool {player}`
 gives a player tools until the server restarts or they rejoin.
 
 you can run any command with `-help` after it (e.g. `/role -help`) for ingame info on the command
