@@ -34,7 +34,7 @@ export type Command = {
 	UserHasPermissionsForCommand: (self: Command, player: Player)->boolean;
 	CanUserModifyOther: (self: Command, player: Player, other: Player)->boolean;
 	IsUserVerified: (self: Command, player: Player, other: Player)->boolean;
-	ToggleMemberEquipmentForPlayer: (self: Command, player: Player, enabled: boolean)->();
+	GiveToolsForRole: (self: Command, player: Player, role: string)->();
 	Destroy: (self: Command)->();
 };
 type _Command = Command & {
@@ -106,8 +106,8 @@ function Command:IsUserVerified(player: Player, other: Player): boolean
 	return true
 end
 
-function Command:ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
-	CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player, role)
+function Command:GiveToolsForRole(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+	CommandClass.PublicUtils.GiveToolsForRole(player, role)
 end
 
 function Command:Destroy(): ()
@@ -160,7 +160,8 @@ for _,i in script.Parent.RoleAssets:GetChildren() do
 end
 -- Does not accept offlinePlayers
 -- If called each time the character resets, you can use GUIs that reset on spawn
-function CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+function CommandClass.PublicUtils.GiveToolsForRole(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+	if role == "" then role = "none" end
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
 	
 	-- Build a list of assets to give to the player

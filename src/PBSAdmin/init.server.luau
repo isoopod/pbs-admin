@@ -29,9 +29,7 @@ players.PlayerAdded:Connect(function(player: Player)
 		adminLocal.Parent = player:WaitForChild("PlayerGui")
 	end
 	
-	if rankValue >= 1 then
-		--TODO GIVE TOOLS HERE
-	end
+	Command.PublicUtils.GiveToolsForRole(player::any, rank)
 
 	-- creating leaderstats may yield so keep at bottom
 	if script:GetAttribute("leaderstats") then

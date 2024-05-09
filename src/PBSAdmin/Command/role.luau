@@ -35,7 +35,7 @@ cmd.config = {
 											target:Kick("You have been banned")
 										end
 
-										self:ToggleMemberEquipmentForPlayer(target,if role == "" then "none" else role)
+										self:GiveToolsForRole(target,role)
 										
 										if permissions.roleValues[role] > 1 and not target.PlayerGui:FindFirstChild("PBSAdmin_Local") then
 											script.Parent.Parent.PBSAdmin_Local:Clone().Parent = target:WaitForChild("PlayerGui")
