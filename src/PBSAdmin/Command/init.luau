@@ -106,8 +106,6 @@ function Command:IsUserVerified(player: Player, other: Player): boolean
 	return true
 end
 
-CommandClass.Members = {}
-
 function Command:ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
 	CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player, role)
 end
@@ -154,48 +152,51 @@ end
 
 CommandClass.PublicUtils = {}
 
+local assets = {}
+for _,i in script.Parent.RoleAssets:GetChildren() do
+	for _,j in i:GetChildren() do
+		table.insert(assets,j)
+	end
+end
 -- Does not accept offlinePlayers
+-- If called each time the character resets, you can use GUIs that reset on spawn
 function CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
-	--local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
 	
-	
-	-- if enabled then
-	-- 	if not table.find(CommandClass.Members,player.UserId) then
-	-- 		table.insert(CommandClass,player.UserId)
-	-- 		local function parentTools(container: Instance)
-	-- 			for _,v in script.Tools:GetChildren() do
-	-- 				v:Clone().Parent = container
-	-- 			end
-	-- 		end
+	-- Build a list of assets to give to the player
+	-- where most assets from lower ranks may be shared with higher ranks
+	local toClone = {}
+	for _,v in assets do
+		local rank = v.Parent.Name
+		if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
+		if permissions.roleValues[if role == "none" then "" else role] >= permissions.roleValues[if rank == "none" then "" else rank]  then
+			table.insert(toClone,v)
+		end
+	end
 
-	-- 		parentTools(player:WaitForChild("Backpack"))
-	-- 		parentTools(player:WaitForChild("StarterGear"))
+	-- Cleanup existing assets
+	if humanoid then humanoid:UnequipTools() end
+	for _,v in assets do
+		local item = player.Backpack:FindFirstChild(v.Name)
+		local item2 = player.StarterGear:FindFirstChild(v.Name)
+		if item then item:Destroy() end
+		if item2 then item2:Destroy() end
 
-	-- 		for _,v in script.GUIs:GetChildren() do
-	-- 			local c = v:Clone()
-	-- 			if c:IsA("ScreenGui") then
-	-- 				c.ResetOnSpawn = false
-	-- 			end
-	-- 			c.Parent = player:WaitForChild("PlayerGui")
-	-- 		end
-	-- 	end
-	-- else
-	-- 	local index = table.find(CommandClass.Members,player.UserId) 
-	-- 	if index then
-	-- 		table.remove(CommandClass.Members,index)
-	-- 	end
-		
-	-- 	if humanoid then humanoid:UnequipTools() end
-	-- 	for _,v in script.Tools:GetChildren() do
-	-- 		local item = player.Backpack:FindFirstChild(v.Name); if item then item:Destroy() end
-	-- 		item = player.StarterGear:FindFirstChild(v.Name); if item then item:Destroy() end
-	-- 	end
-	-- 	for _,v in script.GUIs:GetChildren() do
-	-- 		local item = player.PlayerGui:FindFirstChild(v.Name); if item then item:Destroy() end
-	-- 	end
-		
-	-- 	local item = player.PlayerGui:FindFirstChild("PBSAdmin_Local"); if item then item:Destroy() end
-	-- end
+		local guiItem = player.PlayerGui:FindFirstChild(v.Name) 
+		if guiItem then guiItem:Destroy() end
+	end
+
+	-- Apply assets for the player
+	for _,v in toClone do
+		if v:IsA("ObjectValue") then v = v.Value end
+
+		if v:IsA("Tool") then
+			v:Clone().Parent = player.StarterGear
+			v:Clone().Parent = player.Backpack
+		else
+			v:Clone().Parent = player.PlayerGui
+		end
+	end
 end
 
 return CommandClass;

@@ -11,14 +11,7 @@
             "leaderstats": {"Bool": true}
           }
         },
-        "$path": "src/PBSAdmin",
-        "RoleAssets": {
-          "$className": "Folder",
-          "none": {"$className": "Folder"},
-          "member": {"$className": "Folder"},
-          "admin": {"$className": "Folder"},
-          "owner": {"$className": "Folder"}
-        }
+        "$path": "src/PBSAdmin"
       }
     },
 
