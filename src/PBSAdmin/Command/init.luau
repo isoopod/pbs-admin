@@ -7,12 +7,12 @@
 	Aliases are also generated, sharing a reference to the main command object in the .Commands dictionary
 --]]
 
-local replicatedStorage = game:GetService("ReplicatedStorage")
+--local replicatedStorage = game:GetService("ReplicatedStorage")
 local players = game:GetService("Players")
 local offlinePlayer = require(script.Parent.offlinePlayer)
 local permissions = require(script.Parent.Permissions)
 
-local _messagePlayer = replicatedStorage:WaitForChild("PBSAdminRemote")
+--local messagePlayer = replicatedStorage:WaitForChild("PBSAdminRemote")
 
 type cmd = {
 	config: {
