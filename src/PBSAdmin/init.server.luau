@@ -20,13 +20,9 @@ players.PlayerAdded:Connect(function(player: Player)
 	local rank = perms.GetUserPermissions(player.UserId)
 	local rankValue = perms.roleValues[rank]
 	
+	--TODO implement roblox ban and alt detection apis
 	if rankValue == -1 then
 		player:Kick("You are banned from this PBS")
-	end
-	
-	if rankValue >= 2 then
-		local adminLocal = script.PBSAdmin_Local:Clone()
-		adminLocal.Parent = player:WaitForChild("PlayerGui")
 	end
 	
 	Command.PublicUtils.GiveToolsForRole(player::any, rank)
