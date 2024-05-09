@@ -15,25 +15,6 @@ local textChatService = game:GetService("TextChatService")
 local Command = require(script.Command)
 local perms = require(script.Permissions)
 
-local function giveTools(player: Player)
-	local function parentTools(container: Instance)
-		for _,v in script.Tools:GetChildren() do
-			v:Clone().Parent = container
-		end
-	end
-	
-	parentTools(player:WaitForChild("Backpack"))
-	parentTools(player:WaitForChild("StarterGear"))
-	
-	for _,v in script.GUIs:GetChildren() do
-		local c = v:Clone()
-		if c:IsA("ScreenGui") then
-			c.ResetOnSpawn = false
-		end
-		c.Parent = player:WaitForChild("PlayerGui")
-	end
-end
-
 -- needs to run first
 players.PlayerAdded:Connect(function(player: Player) 
 	local rank = perms.GetUserPermissions(player.UserId)
@@ -49,8 +30,7 @@ players.PlayerAdded:Connect(function(player: Player)
 	end
 	
 	if rankValue >= 1 then
-		giveTools(player)
-		table.insert(Command.Members,player.UserId)
+		--TODO GIVE TOOLS HERE
 	end
 
 	-- creating leaderstats may yield so keep at bottom
@@ -88,8 +68,4 @@ end)
 
 players.PlayerRemoving:Connect(function(player: Player)
 	perms.PlayerRemoving(player)
-	local index = table.find(Command.Members,player.UserId)
-	if index then
-		table.remove(Command.Members,index)
-	end
 end)
