@@ -108,47 +108,8 @@ end
 
 CommandClass.Members = {}
 
-function Command:ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, enabled: boolean): ()
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
-	if player.Character then
-		if enabled then
-			if not table.find(CommandClass.Members,player.UserId) then
-				table.insert(CommandClass,player.UserId)
-				local function parentTools(container: Instance)
-					for _,v in script.Tools:GetChildren() do
-						v:Clone().Parent = container
-					end
-				end
-
-				parentTools(player:WaitForChild("Backpack"))
-				parentTools(player:WaitForChild("StarterGear"))
-
-				for _,v in script.GUIs:GetChildren() do
-					local c = v:Clone()
-					if c:IsA("ScreenGui") then
-						c.ResetOnSpawn = false
-					end
-					c.Parent = player:WaitForChild("PlayerGui")
-				end
-			end
-		else
-			local index = table.find(CommandClass.Members,player.UserId) 
-			if index then
-				table.remove(CommandClass.Members,index)
-			end
-			
-			if humanoid then humanoid:UnequipTools() end
-			for _,v in script.Tools:GetChildren() do
-				local item = player.Backpack:FindFirstChild(v.Name); if item then item:Destroy() end
-				item = player.StarterGear:FindFirstChild(v.Name); if item then item:Destroy() end
-			end
-			for _,v in script.GUIs:GetChildren() do
-				local item = player.PlayerGui:FindFirstChild(v.Name); if item then item:Destroy() end
-			end
-			
-			local item = player.PlayerGui:FindFirstChild("PBSAdmin_Local"); if item then item:Destroy() end
-		end
-	end
+function Command:ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+	CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player, role)
 end
 
 function Command:Destroy(): ()
@@ -189,6 +150,52 @@ function CommandClass.generateCommands(): ()
 	for _,cmd:ModuleScript in script:GetChildren() do
 		CommandClass.new(cmd.Name)
 	end
+end
+
+CommandClass.PublicUtils = {}
+
+-- Does not accept offlinePlayers
+function CommandClass.PublicUtils.ToggleMemberEquipmentForPlayer(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+	--local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid") 
+	
+	
+	-- if enabled then
+	-- 	if not table.find(CommandClass.Members,player.UserId) then
+	-- 		table.insert(CommandClass,player.UserId)
+	-- 		local function parentTools(container: Instance)
+	-- 			for _,v in script.Tools:GetChildren() do
+	-- 				v:Clone().Parent = container
+	-- 			end
+	-- 		end
+
+	-- 		parentTools(player:WaitForChild("Backpack"))
+	-- 		parentTools(player:WaitForChild("StarterGear"))
+
+	-- 		for _,v in script.GUIs:GetChildren() do
+	-- 			local c = v:Clone()
+	-- 			if c:IsA("ScreenGui") then
+	-- 				c.ResetOnSpawn = false
+	-- 			end
+	-- 			c.Parent = player:WaitForChild("PlayerGui")
+	-- 		end
+	-- 	end
+	-- else
+	-- 	local index = table.find(CommandClass.Members,player.UserId) 
+	-- 	if index then
+	-- 		table.remove(CommandClass.Members,index)
+	-- 	end
+		
+	-- 	if humanoid then humanoid:UnequipTools() end
+	-- 	for _,v in script.Tools:GetChildren() do
+	-- 		local item = player.Backpack:FindFirstChild(v.Name); if item then item:Destroy() end
+	-- 		item = player.StarterGear:FindFirstChild(v.Name); if item then item:Destroy() end
+	-- 	end
+	-- 	for _,v in script.GUIs:GetChildren() do
+	-- 		local item = player.PlayerGui:FindFirstChild(v.Name); if item then item:Destroy() end
+	-- 	end
+		
+	-- 	local item = player.PlayerGui:FindFirstChild("PBSAdmin_Local"); if item then item:Destroy() end
+	-- end
 end
 
 return CommandClass;

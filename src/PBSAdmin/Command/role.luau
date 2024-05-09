@@ -33,14 +33,14 @@ cmd.config = {
 									if string.lower(useUserid) == "false" then
 										if role == "banned" then
 											target:Kick("You have been banned")
-										elseif role == "" then
-											self:ToggleMemberEquipmentForPlayer(target,false)
-										else
-											self:ToggleMemberEquipmentForPlayer(target,true)
-											if permissions.roleValues[role] > 1 and not target.PlayerGui:FindFirstChild("PBSAdmin_Local") then
-												script.Parent.Parent.PBSAdmin_Local:Clone().Parent = target:WaitForChild("PlayerGui")
-											end
 										end
+
+										self:ToggleMemberEquipmentForPlayer(target,if role == "" then "none" else role)
+										
+										if permissions.roleValues[role] > 1 and not target.PlayerGui:FindFirstChild("PBSAdmin_Local") then
+											script.Parent.Parent.PBSAdmin_Local:Clone().Parent = target:WaitForChild("PlayerGui")
+										end
+										
                                         local leaderstats = script.Parent.Parent:GetAttribute("leaderstats") and target:FindFirstChild("leaderstats")
 										if leaderstats then
 											leaderstats.Role.Value = role
