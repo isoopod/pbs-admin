@@ -15,7 +15,7 @@ cmd.config = {
 		player name should match the start of someones name in the server if use userid is false, otherwise an exact userid \n 
 		role can be left blank to remove their role entirely]] 
 	end;
-	__call = function(self: command.Command, player: Player, ...: string): (boolean, string)
+	__call = function(self: command.Command, player: Player, verified: boolean, ...: string): (number, string)
 		local args = {...}
 		local useUserid = args[1]
 		local other = args[2]
@@ -24,7 +24,7 @@ cmd.config = {
 			if self:UserHasPermissionsForCommand(player) then
 				local target = self:GetPlayer(player,other,useUserid)
 				if target then
-					if self:IsUserVerified(player,target) then
+					if self:IsUserVerified(player,target) or verified then
 						if self:CanUserModifyOther(player,target) then
 							if table.find(cmd.config.syntax[3],role) then
 								if permissions.roleValues[role] < permissions.roleValues[permissions.GetUserPermissions(player.UserId)] or permissions.GetUserPermissions(player.UserId) == "owner" then
@@ -47,27 +47,31 @@ cmd.config = {
 										end
 									end
 									
-									return true, `{target} now has role {role}`
+									if verified then
+										return self.Responses.Success, `{target} now has role {role}`
+									else
+										return self.Responses.Verify, `Are you sure you want to give user '{target}' the '{if role == "" then "none" else role}' role? Y/N`
+									end
 								else
-									return false, "Can only modify roles to ones lower than yours"
+									return self.Responses.Error, "Can only modify roles to ones lower than yours"
 								end
 							else
-								return false, "Invalid role name"
+								return self.Responses.Error, "Invalid role name"
 							end
 						else
-							return false, "Cannot modify other users permissions as they are higher"
+							return self.Responses.Error, "Cannot modify other users permissions as they are higher"
 						end
 					else
-						return false, "This user is not phone or government id verified so can only be modified by an owner"
+						return self.Responses.Verify, "This user is not phone or government id verified, are you sure you want to authorize this user? Y/N"
 					end
 				else
-					return false, "Other player not found, make sure they aren't the only person with that approximate name and you set UseUserid to the correct value"
+					return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name and you set UseUserid to the correct value"
 				end
 			else
-				return false, "You do not have permissions to run this command"
+				return self.Responses.Error, "You do not have permissions to run this command"
 			end
 		else
-			return false, "Invalid Parameters"
+			return self.Responses.Error, "Invalid Parameters"
 		end
 	end;
 }

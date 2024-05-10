@@ -15,19 +15,20 @@ local textChatService = game:GetService("TextChatService")
 local Command = require(script.Command)
 local perms = require(script.Permissions)
 
--- needs to run first
-players.PlayerAdded:Connect(function(player: Player) 
+-- Initialize the commands
+Command.generateCommands()
+
+local function PlayerAdded(player: Player)
 	local rank = perms.GetUserPermissions(player.UserId)
 	local rankValue = perms.roleValues[rank]
 	
-	--TODO implement roblox ban and alt detection apis
+	--TODO implement roblox ban and alt detection apis when released
 	if rankValue == -1 then
 		player:Kick("You are banned from this PBS")
 	end
 	
 	Command.PublicUtils.GiveToolsForRole(player::any, rank)
 
-	-- creating leaderstats may yield so keep at bottom
 	if script:GetAttribute("leaderstats") then
 		local leaderstats = player:WaitForChild("LeaderStats",5)
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
@@ -42,7 +43,12 @@ players.PlayerAdded:Connect(function(player: Player)
 		role.Value = rank
 		role.Parent = leaderstats
 	end
-end)
+end
+
+players.PlayerAdded:Connect(PlayerAdded) 
+for _,v in players:GetPlayers() do
+	PlayerAdded(v)
+end
 
 -- PBS Admin used to use text chat service but has moved completley to a custom command console.
 -- The chat un-archiver functionality has remained however to avoid extra dependancies.
@@ -56,8 +62,31 @@ messagePlayer.Name = "PBSAdminRemote"
 messagePlayer.Archivable = false
 messagePlayer.Parent = replicatedStorage
 
+local cachedCommands = {}
+
 messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
-	
+	-- Handle verification of previous command if applicable
+	if cachedCommands[player] and (command:lower() == "Y" or command:lower() == "N") then
+		-- cached commands will definitely have a valid command
+		local content = string.split(cachedCommands[player], " ")
+		local cmd = Command.new(content[1])
+		local response, body = cmd(player, true, table.unpack(content,2))
+		messagePlayer:FireClient(player, response, body)
+		cachedCommands[player] = nil
+	else
+		cachedCommands[player] = nil
+		local content = string.split(command, " ")
+		local cmd = Command.new(content[1])
+		if cmd then
+			local response, body = cmd(player, false, table.unpack(content,2)) 
+			messagePlayer:FireClient(player, response, body)
+			if response == 3 then -- cache for verification
+				cachedCommands[player] = command
+			end
+		else
+			messagePlayer:FireClient(player,2,"Invalid command")
+		end
+	end
 end)
 
 players.PlayerRemoving:Connect(function(player: Player)

@@ -5,6 +5,8 @@
 	
 	call Command.generateCommands to automatically generate all commands, then when you need to index a specific command call .new with the command name
 	Aliases are also generated, sharing a reference to the main command object in the .Commands dictionary
+
+	TODO: find a convenient way to pass all the command syntax over to the console gui
 --]]
 
 --local replicatedStorage = game:GetService("ReplicatedStorage")
@@ -29,6 +31,7 @@ local Command = {};
 local CommandClass = {metatable = {__index = Command}};
 export type Command = {
 	ClassName: "Command";
+	Responses: {Error: number, Success: number, Verify: number};
 	
 	GetPlayer: (self: Command, player: Player, name: string, useUserId : string?)->(Player?);
 	UserHasPermissionsForCommand: (self: Command, player: Player)->boolean;
@@ -42,6 +45,11 @@ type _Command = Command & {
 };
 
 Command.ClassName = "Command";
+Command.Responses = {
+	Error = 1;
+	Success = 2;
+	Verify = 3; --Y/N to verify the command
+}
 
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
 function Command:GetPlayer(player: Player, other: string, useUserid: string?): Player? | offlinePlayer.OfflinePlayer?
@@ -119,13 +127,15 @@ end
 CommandClass.Commands = {}
 
 -- Generate a new command object from the selected behaviour module
-function CommandClass.new(commandName: string): Command
+function CommandClass.new(commandName: string): Command?
 	-- dont create a new command if one already exists, instead return the one thats already been created
 	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
 	
 	local component:ModuleScript = script:WaitForChild(commandName)
 	local success,behaviour:cmd = pcall(require, component)
-	assert(success, `{commandName} is not a valid command`)
+	
+	if not success then return end
+
 	local metatable = CommandClass.metatable
 	metatable.__tostring = behaviour.config.__tostring
 	metatable.__call = behaviour.config.__call
@@ -144,6 +154,7 @@ function CommandClass.new(commandName: string): Command
 end
 
 -- Generate commands from within the commands folder which can be accessed from the .Commands dictionary
+-- or by using command.new with the name of the command
 function CommandClass.generateCommands(): ()
 	for _,cmd:ModuleScript in script:GetChildren() do
 		CommandClass.new(cmd.Name)
