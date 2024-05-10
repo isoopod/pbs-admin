@@ -52,10 +52,12 @@ end
 
 -- PBS Admin used to use text chat service but has moved completley to a custom command console.
 -- The chat un-archiver functionality has remained however to avoid extra dependancies.
-local TextChannels = textChatService:WaitForChild("TextChannels")
-local TextChatCommands = textChatService:WaitForChild("TextChatCommands")
-TextChannels.Archivable = false
-TextChatCommands.Archivable = false
+if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+	local TextChannels = textChatService:WaitForChild("TextChannels")
+	local TextChatCommands = textChatService:WaitForChild("TextChatCommands")
+	TextChannels.Archivable = false
+	TextChatCommands.Archivable = false
+end
 
 local messagePlayer = Instance.new("RemoteEvent")
 messagePlayer.Name = "PBSAdminRemote"

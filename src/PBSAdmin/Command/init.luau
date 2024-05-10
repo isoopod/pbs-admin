@@ -131,7 +131,7 @@ function CommandClass.new(commandName: string): Command?
 	-- dont create a new command if one already exists, instead return the one thats already been created
 	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
 	
-	local component:ModuleScript = script:WaitForChild(commandName)
+	local component:ModuleScript = script:WaitForChild(commandName,1)
 	local success,behaviour:cmd = pcall(require, component)
 	
 	if not success then return end
