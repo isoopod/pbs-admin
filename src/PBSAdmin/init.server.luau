@@ -62,6 +62,11 @@ messagePlayer.Name = "PBSAdminRemote"
 messagePlayer.Archivable = false
 messagePlayer.Parent = replicatedStorage
 
+local GetAutofill = Instance.new("RemoteFunction")
+GetAutofill.Name = "PBSAdminGetAutofill"
+GetAutofill.Archivable = false
+GetAutofill.Parent = replicatedStorage
+
 local cachedCommands = {}
 
 messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
@@ -78,7 +83,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local content = string.split(command, " ")
 		local cmd = Command.new(content[1])
 		if cmd then
-			local response, body = cmd(player, false, table.unpack(content,2)) 
+			local response, body = cmd(player, false, table.unpack(content,2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
 				cachedCommands[player] = command
@@ -88,6 +93,11 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		end
 	end
 end)
+
+GetAutofill.OnServerInvoke = function (player)
+	local rank = perms.GetUserPermissions(player.UserId)
+	return Command.getAutofillForRank(rank)
+end
 
 players.PlayerRemoving:Connect(function(player: Player)
 	perms.PlayerRemoving(player)
