@@ -21,8 +21,8 @@ type cmd = {
 		minRank: number; -- the min rank (see permissions module) to call the command
 		aliases: {string};
 		syntax: {string | {string}};
+		help: string;
 		
-		__tostring: ()->string;
 		__call: (...any)->string?;
 	};
 }
@@ -137,7 +137,6 @@ function CommandClass.new(commandName: string): Command?
 	if not success then return end
 
 	local metatable = CommandClass.metatable
-	metatable.__tostring = behaviour.config.__tostring
 	metatable.__call = behaviour.config.__call
 	
 	local self: _Command = setmetatable({}, metatable) :: any

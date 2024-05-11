@@ -10,13 +10,12 @@ cmd.config = {
 	aliases = {};
 	syntax = {{"true", "false"}, "any", {"banned", "", "member", "admin", "owner"}};
 	
-	__tostring = function(): string
-		return [[Changes a players role. Format: <use userid> <player name> <role> \n \n 
+	help = [[Changes a players role. Format: <use userid> <player name> <role> \n \n 
 		use userid should be either true or false \n \n 
 		player name should match the start of someones name in the server if use userid is false, otherwise an exact userid \n 
 		using 'me' as the player name will use yourself \n \n 
-		valid roles are 'banned', 'none' or left blank, 'member', 'admin', 'owner']] 
-	end;
+		valid roles are 'banned', 'none' or left blank, 'member', 'admin', 'owner']];
+
 	__call = function(self: command.Command, player: Player, verified: boolean, ...: string?): (number, string)
 		local args = {...}
 		local useUserid = args[1]

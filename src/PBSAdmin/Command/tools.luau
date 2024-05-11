@@ -1,17 +1,17 @@
 local cmd = {}
 
 local command = require(script.Parent)
+local permissions = require(script.Parent.Parent.Permissions)
 
 cmd.config = {
 	minRank = 2;
 	aliases = {};
 	syntax = {"any"};
 	
-	__tostring = function(): string
-		return [[Gives a player tools until they leave. Format: <player> \n \n
+	help = [[Gives a player tools until they leave. Format: <player> \n \n
 		player should match the name of a player in the server \n
-		using 'me' as the player name will use yourself]] 
-	end;
+		using 'me' as the player name will use yourself]]; 
+
 	__call = function(self: command.Command, player: Player, verified: boolean, ...: string?): (number, string)
 		local args = {...}
 		local useUserid = args[1]
@@ -23,7 +23,9 @@ cmd.config = {
 					if self:IsUserVerified(player,target) or verified then
                         if verified then
                             self:GiveToolsForRole(target, "member")
-                            return self.Responses.Success, `'{target}' has been given tools until they leave.`
+                            -- add them to the role cache so they can use those assets
+                            permissions._CachedPermissions[other] = true
+                            return self.Responses.Success, `'{target}' has been given tools until the server restarts.`
                         else
                             return self.Responses.Verify, `Are you sure you want to give tools to user '{target}'? Y/N`
                         end
