@@ -7,10 +7,6 @@ PBS Admin exists to make it simple to manage permissions in your PBS. Compared t
 
 ### [Modding/Integration Guide](docs/Modding.md)
 
-
-## Setup Instructions
-All PBS Admin requires to set up is for it to be placed into ServerScriptService and for tools to be placed in the folder. You should also add yourself as owner by adding an attribute with Type set to string to the permissions module with the attribute name as your roblox UserId and the value as "owner".
-
 ### PBS Admin can integrate with our discord server.
 This feature is only available for PBS's hosted under our roblox group, to ensure the safety of the API key. To enable this feature you will need to message @isoopod, and I will create the Secret for your PBS. Note that you can only test this feature in a team test or the live game, as Secrets do not work in local tests.
 We aim to make hosting PBSes under the group much easier in the future.
