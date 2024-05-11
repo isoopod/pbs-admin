@@ -13,12 +13,11 @@ cmd.config = {
 		using 'me' as the player name will use yourself]]; 
 
 	__call = function(self: command.Command, player: Player, verified: boolean, ...: string?): (number, string)
-		local args = {...}
-		local useUserid = args[1]
-		local other = args[2]
+        local args = {...}
+		local other = args[1]
 		if player and other then
 			if self:UserHasPermissionsForCommand(player) then
-				local target = self:GetPlayer(player,other,useUserid)
+				local target = self:GetPlayer(player,other,"false")
 				if target then
 					if self:IsUserVerified(player,target) or verified then
                         if verified then

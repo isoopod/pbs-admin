@@ -22,7 +22,7 @@ type cmd = {
 		aliases: {string};
 		syntax: {string | {string}};
 		help: string;
-		
+
 		__call: (...any)->string?;
 	};
 }
@@ -136,7 +136,7 @@ function CommandClass.new(commandName: string): Command?
 	
 	if not success then return end
 
-	local metatable = CommandClass.metatable
+	local metatable = table.clone(CommandClass.metatable)
 	metatable.__call = behaviour.config.__call
 	
 	local self: _Command = setmetatable({}, metatable) :: any

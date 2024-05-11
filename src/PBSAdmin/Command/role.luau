@@ -66,7 +66,7 @@ cmd.config = {
 						return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 					end
 				else
-					return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name and you set UseUserid to the correct value"
+					return self.Responses.Error, `Other player matching '{target}' not found, make sure they aren't the only person with that approximate name and you set UseUserid ('{useUserid}') to 'true' or 'false'`
 				end
 			else
 				return self.Responses.Error, "You do not have permissions to run this command"
