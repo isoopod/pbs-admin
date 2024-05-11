@@ -1,6 +1,12 @@
 # PBS Admin
 PBS Admin exists to make it simple to manage permissions in your PBS. Compared to its predecessor, PBS Admin includes a simplified set of commands and the ability to manage players not currently in the server by using their UserId. PBS Admin can also be used to verify a players permissions in other scripts, allowing you to make sure a player should be able to do something.
 
+### [Installation Guide](Installation.md)
+
+### [Usage Guide](Usage.md)
+
+### [Modding Guide](Modding.md)
+
 ## Usage
 PBS Admin by default currently includes 2 commands:
 
