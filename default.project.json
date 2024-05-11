@@ -8,7 +8,8 @@
         "$properties": {
           "Attributes": {
             "isVerified_only": {"Bool": false},
-            "leaderstats": {"Bool": true}
+            "leaderstats": {"Bool": true},
+            "resetAssetsOnDeath": {"Bool": false}
           }
         },
         "$path": "src/PBSAdmin"

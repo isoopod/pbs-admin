@@ -27,6 +27,11 @@ local function PlayerAdded(player: Player)
 	end
 	
 	Command.PublicUtils.GiveToolsForRole(player::any, rank)
+	if script:GetAttribute("resetAssetsOnDeath") then
+		player.CharacterAdded:Connect(function()
+			Command.PublicUtils.GiveToolsForRole(player::any, rank)
+		end)
+	end
 
 	if script:GetAttribute("leaderstats") then
 		local leaderstats = player:WaitForChild("LeaderStats",5)
