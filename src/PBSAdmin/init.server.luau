@@ -11,7 +11,6 @@ This is pretty strict so i'd only use this if you are having serious issues with
 ]]
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
-local textChatService = game:GetService("TextChatService")
 local Command = require(script.Command)
 local perms = require(script.Permissions)
 
@@ -50,15 +49,6 @@ for _,v in players:GetPlayers() do
 	PlayerAdded(v)
 end
 
--- PBS Admin used to use text chat service but has moved completley to a custom command console.
--- The chat un-archiver functionality has remained however to avoid extra dependancies.
-if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-	local TextChannels = textChatService:WaitForChild("TextChannels")
-	local TextChatCommands = textChatService:WaitForChild("TextChatCommands")
-	TextChannels.Archivable = false
-	TextChatCommands.Archivable = false
-end
-
 local messagePlayer = Instance.new("RemoteEvent")
 messagePlayer.Name = "PBSAdminRemote"
 messagePlayer.Archivable = false
@@ -73,7 +63,7 @@ local cachedCommands = {}
 
 messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 	-- Handle verification of previous command if applicable
-	if cachedCommands[player] and (command:lower() == "Y" or command:lower() == "N") then
+	if cachedCommands[player] and (command:lower() == "y" or command:lower() == "n") then
 		-- cached commands will definitely have a valid command
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
