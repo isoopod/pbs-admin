@@ -61,7 +61,7 @@ gives a player tools until the server restarts (if they rejoin and the server ha
 If a player already has tools for any role, it will replace them with tools/assets for the member role
 
 
-you can run any command with `-help` after it (e.g. `role -help`) for ingame info on the command (currently todo)
+you can run any command with `-help` after it (e.g. `role -help`) for ingame info on the command
 These commands can called by owners and admins. Admins cannot modify the roles of other admins or owners, owners can modify anyone.
 
 ## Extra commands pack
