@@ -67,8 +67,24 @@ GetAutofill.Parent = replicatedStorage
 local cachedCommands = {}
 
 messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
+	-- Check if the user is using the -help command
+	local splitCommand = string.split(command, " ")
+	if splitCommand[2] == "-help" then
+		local cmd = Command.new(splitCommand[1])
+		if cmd then
+			messagePlayer:FireClient(player,2,cmd._behaviour.config.help)
+		else
+			messagePlayer:FireClient(player,1,"Invalid command")
+		end
+		return
+	end
 	-- Handle verification of previous command if applicable
-	if cachedCommands[player] and (command:lower() == "y" or command:lower() == "n") then
+	if command:lower() == "n" then
+		messagePlayer:FireClient(player,2,"")
+		cachedCommands[player] = nil
+		return
+	end
+	if cachedCommands[player] and command:lower() == "y" then
 		-- cached commands will definitely have a valid command
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
@@ -77,16 +93,15 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		cachedCommands[player] = nil
 	else
 		cachedCommands[player] = nil
-		local content = string.split(command, " ")
-		local cmd = Command.new(content[1])
+		local cmd = Command.new(splitCommand[1])
 		if cmd then
-			local response, body = cmd(player, false, table.unpack(content,2))
+			local response, body = cmd(player, false, table.unpack(splitCommand,2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
 				cachedCommands[player] = command
 			end
 		else
-			messagePlayer:FireClient(player,2,"Invalid command")
+			messagePlayer:FireClient(player,1,"Invalid command")
 		end
 	end
 end)
