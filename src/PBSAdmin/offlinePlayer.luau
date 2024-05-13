@@ -14,6 +14,7 @@ end
 export type OfflinePlayer = {
 	Name: string;
 	UserId: number;
+	ClassName: string;
 	
 	Charater: nil;
 	FindFirstChild: () -> nil
@@ -24,6 +25,7 @@ function OfflinePlayer.new(name: string, UserId: number): OfflinePlayer
 	
 	self.Name = name
 	self.UserId = UserId
+	self.ClassName = "OfflinePlayer"
 	
 	self.Character = nil --another option to seperate a real player
 	
