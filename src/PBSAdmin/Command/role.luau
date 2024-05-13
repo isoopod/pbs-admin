@@ -8,13 +8,18 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 cmd.config = {
 	minRank = 2;
 	aliases = {};
-	syntax = {{"true", "false"}, "any", {"banned", "", "member", "admin", "owner"}};
+	syntax = {{"true", "false"}, "<player or userid>", {"banned", "", "member", "admin", "owner"}};
 	
-	help = [[Changes a players role. Format: <use userid> <player name> <role> \n \n 
-		use userid should be either true or false \n \n 
-		player name should match the start of someones name in the server if use userid is false, otherwise an exact userid \n 
-		using 'me' as the player name will use yourself \n \n 
-		valid roles are 'banned', 'none' or left blank, 'member', 'admin', 'owner']];
+	help = [[Changes a players role. 
+	Format: &lt;use userid&gt; &lt;player or userid&gt; &lt;role&gt;
+
+	use userid should be either true or false
+
+	player name should match the start of someones name in the server if use userid is false, otherwise an exact userid
+		using 'me' as the player name will use yourself
+	
+	valid roles are 'banned', 'none' or left blank, 'member', 'admin', 'owner'
+	]];
 
 	__call = function(self: command.Command, player: Player, verified: boolean, ...: string?): (number, string)
 		local args = {...}

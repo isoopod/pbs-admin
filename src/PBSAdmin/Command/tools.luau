@@ -6,10 +6,12 @@ local permissions = require(script.Parent.Parent.Permissions)
 cmd.config = {
 	minRank = 2;
 	aliases = {};
-	syntax = {"any"};
+	syntax = {"<player>"};
 	
-	help = [[Gives a player tools until they leave. Format: <player> \n \n
-		player should match the name of a player in the server \n
+	help = [[Gives a player tools until they leave. 
+	Format: &lt;player&gt;
+		
+	player should match the name of a player in the server
 		using 'me' as the player name will use yourself]]; 
 
 	__call = function(self: command.Command, player: Player, verified: boolean, ...: string?): (number, string)
