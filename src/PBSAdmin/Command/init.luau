@@ -16,15 +16,13 @@ local permissions = require(script.Parent.Permissions)
 
 --local messagePlayer = replicatedStorage:WaitForChild("PBSAdminRemote")
 
-type cmd = {
-	config: {
-		minRank: number; -- the min rank (see permissions module) to call the command
-		aliases: {string};
-		syntax: {string | {string}};
-		help: string;
+export type cmd = {
+	minRank: number; -- the min rank (see permissions module) to call the command
+	aliases: {[string]: any};
+	syntax: {string | {string}};
+	help: string;
 
-		__call: (...any)->string?;
-	};
+	__call: (self: Command, player: Player, verified: boolean, aliasData: any?, ...string?) -> (number, string);
 }
 
 local Command = {};
@@ -52,9 +50,7 @@ Command.Responses = {
 }
 
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
-function Command:GetPlayer(player: Player, other: string, useUserid: string?): Player? | offlinePlayer.OfflinePlayer?
-	self = self :: _Command
-	
+function Command.GetPlayer(self: _Command, player: Player, other: string, useUserid: string?): Player? | offlinePlayer.OfflinePlayer?
 	if not other then return nil end
 	useUserid = useUserid and string.lower(useUserid) or "false"
 
@@ -86,18 +82,16 @@ function Command:GetPlayer(player: Player, other: string, useUserid: string?): P
 	return nil
 end
 
-function Command:UserHasPermissionsForCommand(player: Player): boolean
-	self = self :: _Command
-	
+function Command.UserHasPermissionsForCommand(self: _Command, player: Player): boolean
 	local rank = permissions.GetUserPermissions(player.UserId)
-	if permissions.roleValues[rank] >= self._behaviour.config.minRank then
+	if permissions.roleValues[rank] >= self._behaviour.minRank then
 		return true
 	end
 	
 	return false
 end
 
-function Command:CanUserModifyOther(player: Player, other: Player): boolean
+function Command.CanUserModifyOther(self: _Command, player: Player, other: Player): boolean
 	if permissions.roleValues[permissions.GetUserPermissions(player.UserId)] < permissions.roleValues[permissions.GetUserPermissions(other.UserId)] and permissions.GetUserPermissions(player.UserId) ~= "owner" then
 		return false
 	end
@@ -105,7 +99,7 @@ function Command:CanUserModifyOther(player: Player, other: Player): boolean
 end
 
 -- when isVerified_Only is enabled then check if the user has phone or government id attached to their account, otherwise returns true
-function Command:IsUserVerified(player: Player, other: Player): boolean
+function Command.IsUserVerified(self: _Command, player: Player, other: Player): boolean
 	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" then
 		if not other:IsVerified() then
 			return false
@@ -114,7 +108,7 @@ function Command:IsUserVerified(player: Player, other: Player): boolean
 	return true
 end
 
-function Command:GiveToolsForRole(player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
+function Command.GiveToolsForRole(self: _Command, player: Player&{Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui}, role: string): ()
 	CommandClass.PublicUtils.GiveToolsForRole(player, role)
 end
 
@@ -137,7 +131,7 @@ function CommandClass.new(commandName: string): Command?
 	if not success then return end
 
 	local metatable = table.clone(CommandClass.metatable)
-	metatable.__call = behaviour.config.__call
+	metatable.__call = behaviour.__call
 	
 	local self: _Command = setmetatable({}, metatable) :: any
 	
@@ -145,8 +139,8 @@ function CommandClass.new(commandName: string): Command?
 	
 	CommandClass.Commands[commandName] = self
 	-- generate aliases with reference to the main object
-	for _,v in self._behaviour.config.aliases do
-		CommandClass.Commands[v] = CommandClass.Commands[commandName]
+	for i,v in self._behaviour.aliases do
+		CommandClass.Commands[i] = CommandClass.Commands[commandName]
 	end
 	
 	return self
@@ -166,8 +160,8 @@ function CommandClass.getAutofillForRank(rank: string): {[string]: {string | {st
 	local rankValue = permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name,v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.config.minRank then
-			autofill[name] = v._behaviour.config.syntax
+		if rankValue >= v._behaviour.minRank then
+			autofill[name] = v._behaviour.syntax
 		end
 	end
 
