@@ -7,4 +7,4 @@
 
 *.lock
 
-/sourcemap.json
+sourcemap.json
