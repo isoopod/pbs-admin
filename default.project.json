@@ -5,7 +5,13 @@
 
     "ReplicatedStorage": {
       "Utils": {
-        "$path": "Packages"
+        "$className": "Folder",
+        "_Index": {
+          "$path": "Packages/_Index"
+        },
+        "Iris": {
+          "$path": "Packages/iris.lua"
+        }
       }
     },
 
