@@ -72,7 +72,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 	if splitCommand[2] == "-help" then
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
-			messagePlayer:FireClient(player,2,cmd._behaviour.config.help)
+			messagePlayer:FireClient(player,2,cmd._behaviour.help)
 		else
 			messagePlayer:FireClient(player,1,"Invalid command")
 		end
@@ -88,14 +88,16 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		-- cached commands will definitely have a valid command
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
-		local response, body = cmd(player, true, table.unpack(content,2))
+		local aliasData = cmd._behaviour.aliases[content[1]]
+		local response, body = cmd(player, true, aliasData, table.unpack(content,2))
 		messagePlayer:FireClient(player, response, body)
 		cachedCommands[player] = nil
 	else
 		cachedCommands[player] = nil
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
-			local response, body = cmd(player, false, table.unpack(splitCommand,2))
+			local aliasData = cmd._behaviour.aliases[splitCommand[1]]
+			local response, body = cmd(player, false, aliasData, table.unpack(splitCommand,2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
 				cachedCommands[player] = command
