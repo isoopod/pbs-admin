@@ -3,6 +3,12 @@
   "tree": {
     "$className": "DataModel",
 
+    "ReplicatedStorage": {
+      "Utils": {
+        "$path": "Packages"
+      }
+    },
+
     "ServerScriptService": {
       "PBSAdmin": {
         "$properties": {

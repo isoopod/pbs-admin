@@ -1,0 +1,8 @@
+[package]
+name = "infin/pbs-admin"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+iris = "michael-48/iris@2.2.0"
