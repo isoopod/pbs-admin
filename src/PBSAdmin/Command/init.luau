@@ -5,8 +5,6 @@
 	
 	call Command.generateCommands to automatically generate all commands, then when you need to index a specific command call .new with the command name
 	Aliases are also generated, sharing a reference to the main command object in the .Commands dictionary
-
-	TODO: find a convenient way to pass all the command syntax over to the console gui
 --]]
 
 --local replicatedStorage = game:GetService("ReplicatedStorage")

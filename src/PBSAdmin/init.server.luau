@@ -3,11 +3,6 @@ See comments at start of the Permissions module for details on how to add permis
 Use this to give yourself owner
 
 See the GitHub (https://github.com/isoopod/pbs-admin) for further instructions and documentation
-
-SCRIPT ATTRIBUTES
-leaderstats | if we should show the users role in leaderstats (will wait to see if leaderstats is created before falling back to creating a new leaderstats)
-isVerified_Only | Only players who have verified a non VOIP phone number or government id on their account can have permissions. (in studio everyone is verified for testing)
-This is pretty strict so i'd only use this if you are having serious issues with alts, meaning only owners can give an unverified player permissions
 ]]
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
