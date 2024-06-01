@@ -5,40 +5,37 @@ local permissions = require(script.Parent.Parent.Permissions)
 
 local cmd: command.cmd = {}::command.cmd
 
-cmd.minRank = 2;
+cmd.minRank = 3;
 cmd.aliases = {};
-cmd.syntax = {{"true", "false"}, "<player or userid>", {"banned", "", "member", "admin", "owner"}};
+cmd.syntax = {"<player or #userid>", {"banned", "", "member", "trusted", "admin", "owner"}};
 
 cmd.help = [[Changes a players role. 
-Format: &lt;use userid&gt; &lt;player or userid&gt; &lt;role&gt;
+Format: &lt;player or #userid&gt; &lt;role&gt;
 
-use userid should be either true or false
-
-player name should match the start of someones name in the server if use userid is false, otherwise an exact userid
+player should match the start of a player in the servers name, or if it starts with '#' will attempt to use a UserId
 	using 'me' as the player name will use yourself
 
-valid roles are 'banned', 'none' or left blank, 'member', 'admin', 'owner'
+valid roles are 'banned', 'none' or left blank, 'member', 'trusted', 'admin', 'owner'
 ]];
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = {...}
-	local useUserid = args[1]
-	local other = args[2]
-	local role = args[3]
+	local other = args[1]
+	local role = args[2]
 	if role and role == "none" then role = nil end
 	local roleName = if not role then "" else role
-	if player and useUserid and other and role then
+	if player and other and role then
 		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player,other,useUserid)
+			local target = self:GetPlayer(player,other,true)
 			if target then
 				if self:IsUserVerified(player,target) or verified then
 					if self:CanUserModifyOther(player,target) then
-						if table.find(cmd.syntax[3]::any,roleName) then
+						if table.find(cmd.syntax[2]::any,roleName) then
 							if permissions.roleValues[roleName] < permissions.roleValues[permissions.GetUserPermissions(player.UserId)] or permissions.GetUserPermissions(player.UserId) == "owner" then
 								if verified then
 									permissions.EditPersistentRole(target.UserId, role)
 									
-									if string.lower(useUserid) == "false" then
+									if other:sub(1,1) ~= "#" then
 										if roleName == "banned" then
 											target:Kick("You have been banned")
 										else
@@ -70,7 +67,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 					return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 				end
 			else
-				return self.Responses.Error, `Other player matching '{target}' not found, make sure they aren't the only person with that approximate name and you set UseUserid ('{useUserid}') to 'true' or 'false'`
+				return self.Responses.Error, `Other player matching '{target}' not found, make sure they aren't the only person with that approximate name, or you put a '#' in front for a UserId`
 			end
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"

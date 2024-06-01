@@ -2,7 +2,7 @@ local command = require(script.Parent)
 
 local cmd: command.cmd = {}::command.cmd
 
-cmd.minRank = 2;
+cmd.minRank = 3;
 cmd.aliases = {teleport = nil};
 cmd.syntax = {"<player>", "<player>"};
 
@@ -18,8 +18,8 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	local otherB = args[2]
 	if player and otherA and otherB then
 		if self:UserHasPermissionsForCommand(player) then
-			local targetA = self:GetPlayer(player,otherA,"false")
-			local targetB = self:GetPlayer(player,otherB,"false")
+			local targetA = self:GetPlayer(player,otherA)
+			local targetB = self:GetPlayer(player,otherB)
 			if targetA and targetB then
 				if targetA.Character and targetB.Character then
 					targetA.Character:PivotTo(targetB.Character:GetPivot())

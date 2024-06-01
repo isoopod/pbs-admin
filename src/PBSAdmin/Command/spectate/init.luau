@@ -2,7 +2,7 @@ local command = require(script.Parent)
 
 local cmd: command.cmd = {}::command.cmd
 
-cmd.minRank = 2;
+cmd.minRank = 3;
 cmd.aliases = {watch = nil};
 cmd.syntax = {"<player>"};
 
@@ -17,7 +17,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	local other = args[1]
 	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player,other,"false")
+			local target = self:GetPlayer(player,other)
 			if target then
 				local gui = player.Character and player.Character:FindFirstChild("PBSADMIN_Spectate")
 				if gui then

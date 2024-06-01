@@ -3,7 +3,7 @@ local permissions = require(script.Parent.Parent.Permissions)
 
 local cmd: command.cmd = {}::command.cmd
 
-cmd.minRank = 2;
+cmd.minRank = 3;
 cmd.aliases = {unTools = false};
 cmd.syntax = {"<player>"};
 
@@ -18,7 +18,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	local other = args[1]
 	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player,other,"false")
+			local target = self:GetPlayer(player,other)
 			if target then
 				if self:IsUserVerified(player,target) or verified then
 					if verified then

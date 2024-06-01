@@ -29,7 +29,7 @@ export type Command = {
 	ClassName: "Command";
 	Responses: {Error: number, Success: number, Verify: number};
 	
-	GetPlayer: (self: Command, player: Player, name: string, useUserId : string?)->(Player?);
+	GetPlayer: (self: Command, player: Player, name: string, canUseUserId : boolean?)->(Player?);
 	UserHasPermissionsForCommand: (self: Command, player: Player)->boolean;
 	CanUserModifyOther: (self: Command, player: Player, other: Player)->boolean;
 	IsUserVerified: (self: Command, player: Player, other: Player)->boolean;
@@ -48,11 +48,12 @@ Command.Responses = {
 }
 
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
-function Command.GetPlayer(self: _Command, player: Player, other: string, useUserid: string?): Player? | offlinePlayer.OfflinePlayer?
+function Command.GetPlayer(self: _Command, player: Player, other: string, canUseUserId: boolean?): Player? | offlinePlayer.OfflinePlayer?
 	if not other then return nil end
-	useUserid = useUserid and string.lower(useUserid) or "false"
+	local useUserid = other:sub(1,1) == "#"
+	if not canUseUserId then useUserid = false end
 
-	if useUserid == "false" then
+	if useUserid == false then
 		-- just match a player in the server
 		-- OR if the other is 'me' then return the player
 		if other == "me" then
@@ -66,9 +67,9 @@ function Command.GetPlayer(self: _Command, player: Player, other: string, useUse
 				return players[i]
 			end
 		end
-	elseif useUserid == "true" then
+	else
 		-- match a user by their exact userid and return an offlineplayer to stand in
-		local userId = tonumber(other)
+		local userId = tonumber(other:sub(2))
 		if typeof(userId) ~= "number" then return nil end
 		local s,user:string = pcall(players.GetNameFromUserIdAsync,players,userId)
 		if s then

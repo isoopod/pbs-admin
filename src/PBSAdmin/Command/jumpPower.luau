@@ -2,7 +2,7 @@ local command = require(script.Parent)
 
 local cmd: command.cmd = {}::command.cmd
 
-cmd.minRank = 2;
+cmd.minRank = 3;
 cmd.aliases = {};
 cmd.syntax = {"<player>", "<number>"};
 
@@ -18,7 +18,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	local power = tonumber(args[2])
 	if player and other and power then
 		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player,other,"false")
+			local target = self:GetPlayer(player,other)
 			if target then
 				if target.Character and target.Character:FindFirstChild("Humanoid") then
 					target.Character.Humanoid.JumpPower = power
