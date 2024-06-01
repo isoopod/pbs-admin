@@ -34,8 +34,9 @@ verif.roleValues = {
 	["banned"] = -1,
 	[""] = 0, -- no role assigned / no permissions
 	["member"] = 1,
-	["admin"] = 2,
-	["owner"] = 3,
+	["trusted"] = 2,
+	["admin"] = 3,
+	["owner"] = 4,
 }
 
 verif._CachedPermissions = {}
