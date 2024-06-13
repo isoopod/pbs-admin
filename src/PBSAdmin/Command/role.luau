@@ -30,7 +30,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 			if target then
 				if self:IsUserVerified(player,target) or verified then
 					if self:CanUserModifyOther(player,target) then
-						if table.find(cmd.syntax[2]::any,roleName) then
+						if table.find(cmd.syntax[2]::any, string.lower(roleName)) then
 							if permissions.roleValues[roleName] < permissions.roleValues[permissions.GetUserPermissions(player.UserId)] or permissions.GetUserPermissions(player.UserId) == "owner" then
 								if verified then
 									permissions.EditPersistentRole(target.UserId, role)

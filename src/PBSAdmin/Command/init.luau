@@ -153,7 +153,7 @@ function CommandClass.generateCommands(): ()
 	end
 end
 
-function CommandClass.getAutofillForRank(rank: string): {[string]: {string | {string}}}
+function CommandClass.getAutofillForRank(rank: string)
 	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
 	local autofill = {}
 	local rankValue = permissions.roleValues[rank]
@@ -161,6 +161,21 @@ function CommandClass.getAutofillForRank(rank: string): {[string]: {string | {st
 	for name,v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
 			autofill[name] = v._behaviour.syntax
+		end
+	end
+
+	return autofill
+end
+
+-- Same as autofill but returns as an array where key 1 is the syntax and key 2 is the help string
+function CommandClass.getCmdInformationForRank(rank: string)
+	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
+	local autofill:{[string]: {any}} = {}
+	local rankValue = permissions.roleValues[rank]
+	-- aliases are already generated in the commands table
+	for name,v: _Command in CommandClass.Commands do
+		if rankValue >= v._behaviour.minRank then
+			autofill[name] = {v._behaviour.syntax, v._behaviour.help}
 		end
 	end
 

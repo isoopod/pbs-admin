@@ -4,15 +4,7 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
-      "Utils": {
-        "$className": "Folder",
-        "_Index": {
-          "$path": "Packages/_Index"
-        },
-        "Iris": {
-          "$path": "Packages/iris.lua"
-        }
-      }
+      "$path": "src/ReplicatedStorage"
     },
 
     "ServerScriptService": {

@@ -39,7 +39,7 @@ local function PlayerAdded(player: Player)
 
 		local role = Instance.new("StringValue")
 		role.Name = "Role"
-		role.Value = rank
+		role.Value = rank:gsub("^%l", string.upper)
 		role.Parent = leaderstats
 	end
 end
@@ -103,8 +103,11 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 	end
 end)
 
-GetAutofill.OnServerInvoke = function (player)
+GetAutofill.OnServerInvoke = function (player, fullInfo: boolean?)
 	local rank = perms.GetUserPermissions(player.UserId)
+	if fullInfo then
+		return Command.getCmdInformationForRank(rank)
+	end
 	return Command.getAutofillForRank(rank)
 end
 
