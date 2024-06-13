@@ -1,3 +1,4 @@
+--!nocheck
 local command = require(script.Parent)
 
 local cmd: command.cmd = {}::command.cmd
