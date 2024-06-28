@@ -6,8 +6,14 @@
 -- set type to string
 -- set value to your role name (e.g member / admin / owner)
 
+local DataStoreService = game:GetService("DataStoreService")
 local httpService = game:GetService("HttpService")
 local _, roverKey = pcall(httpService.GetSecret, httpService, "GET_Trusted")
+
+local datastore
+if script.Parent:GetAttribute("permsUsesDatastore") then
+	datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS")
+end
 
 local untrustedRole = ""
 
@@ -31,7 +37,6 @@ local verif = {}
 
 -- You can add your roles here and give them a value then use this to check if a uses is privileged enough to do something
 verif.roleValues = {
-	["banned"] = -1,
 	[""] = 0, -- no role assigned / no permissions
 	["member"] = 1,
 	["trusted"] = 2,
@@ -42,19 +47,26 @@ verif.roleValues = {
 verif._CachedPermissions = {}
 
 function verif.GetUserPermissions(UserId: number): string
-	-- if user permissions are already stored use those
-	local saved = script:GetAttribute(tostring(UserId))
-	if saved then
-		return saved
-	end
-
 	-- For testing, local tests set the UserId to -1 so this poses no risk in-game
 	if UserId == -1 then
 		return "owner"
 	end
 
+	-- if user permissions are already stored use those
 	if verif._CachedPermissions[UserId] then
-		return trustedDefualtRole
+		return verif._CachedPermissions[UserId]
+	end
+
+	if datastore then
+		local s, saved = pcall(datastore.GetAsync, datastore, tostring(UserId))
+		if s then
+			verif._CachedPermissions[UserId] = saved
+		end
+	else
+		local saved = script:GetAttribute(tostring(UserId))
+		if saved then
+			return saved
+		end
 	end
 
 	if typeof(roverKey) == "Secret" then
@@ -72,7 +84,7 @@ function verif.GetUserPermissions(UserId: number): string
 			for _, user in data["discordUsers"] do
 				for _, role in user["roles"] do
 					if role == trustedID then
-						verif._CachedPermissions[UserId] = true
+						verif._CachedPermissions[UserId] = trustedDefualtRole
 						return trustedDefualtRole
 					end
 				end
@@ -89,7 +101,11 @@ function verif.EditPersistentRole(UserId: number, role: string?): ()
 	-- role can be set to nil or omitted to remove the attribute
 	-- setting to the untrusted role has the same effect except the attribute remains
 	-- keep in mind this has to be manually removed if the user submits a right to erasure request
-	script:SetAttribute(tostring(UserId), role)
+	if datastore then
+		pcall(datastore.SetAsync, datastore, tostring(UserId), role, { UserId })
+	else
+		script:SetAttribute(tostring(UserId), role)
+	end
 end
 
 -- Connect to players.PlayerRemoving somewhere else

@@ -14,12 +14,6 @@ Command.generateCommands()
 
 local function PlayerAdded(player: Player)
 	local rank = perms.GetUserPermissions(player.UserId)
-	local rankValue = perms.roleValues[rank]
-
-	--TODO implement roblox ban and alt detection apis when released
-	if rankValue == -1 then
-		player:Kick("You are banned from this PBS")
-	end
 
 	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 	if script:GetAttribute("resetAssetsOnDeath") then

@@ -14,7 +14,8 @@
             "Attributes": {
               "isVerified_only": {"Bool": false},
               "leaderstats": {"Bool": true},
-              "resetAssetsOnDeath": {"Bool": false}
+              "resetAssetsOnDeath": {"Bool": false},
+              "permsUsesDatastore": {"Bool": false}
             }
           },
           "$path": "src/PBSAdmin"
