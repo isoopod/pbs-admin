@@ -1,24 +1,30 @@
 local command = require(script.Parent)
 
-local cmd: command.cmd = {}::command.cmd
+local cmd: command.cmd = {} :: command.cmd
 
-cmd.minRank = 3;
-cmd.aliases = {};
-cmd.syntax = {"<player>", "<number>"};
+cmd.minRank = 3
+cmd.aliases = {}
+cmd.syntax = { "<player>", "<number>" }
 
 cmd.help = [[Sets a players JumpPower. Default JumpPower is 50. 
 Format: &lt;player&gt; &lt;number&gt;
 	
 both players should match the name of a player in the server
-	using 'me' as the player name will use yourself]]; 
+	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
-	local args = {...}
+cmd.__call = function(
+	self: command.Command,
+	player: Player,
+	verified: boolean,
+	aliasData: any?,
+	...: string?
+): (number, string)
+	local args = { ... }
 	local other = args[1]
 	local power = tonumber(args[2])
 	if player and other and power then
 		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player,other)
+			local target = self:GetPlayer(player, other)
 			if target then
 				if target.Character and target.Character:FindFirstChild("Humanoid") then
 					target.Character.Humanoid.JumpPower = power

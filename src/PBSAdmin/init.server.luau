@@ -15,21 +15,21 @@ Command.generateCommands()
 local function PlayerAdded(player: Player)
 	local rank = perms.GetUserPermissions(player.UserId)
 	local rankValue = perms.roleValues[rank]
-	
+
 	--TODO implement roblox ban and alt detection apis when released
 	if rankValue == -1 then
 		player:Kick("You are banned from this PBS")
 	end
-	
-	Command.PublicUtils.GiveToolsForRole(player::any, rank)
+
+	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 	if script:GetAttribute("resetAssetsOnDeath") then
 		player.CharacterAdded:Connect(function()
-			Command.PublicUtils.GiveToolsForRole(player::any, rank)
+			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 		end)
 	end
 
 	if script:GetAttribute("leaderstats") then
-		local leaderstats = player:WaitForChild("LeaderStats",5)
+		local leaderstats = player:WaitForChild("LeaderStats", 5)
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
 		if not leaderstats then
 			leaderstats = Instance.new("Folder")
@@ -44,8 +44,8 @@ local function PlayerAdded(player: Player)
 	end
 end
 
-players.PlayerAdded:Connect(PlayerAdded) 
-for _,v in players:GetPlayers() do
+players.PlayerAdded:Connect(PlayerAdded)
+for _, v in players:GetPlayers() do
 	PlayerAdded(v)
 end
 
@@ -67,15 +67,15 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 	if splitCommand[2] == "-help" then
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
-			messagePlayer:FireClient(player,2,cmd._behaviour.help)
+			messagePlayer:FireClient(player, 2, cmd._behaviour.help)
 		else
-			messagePlayer:FireClient(player,1,"Invalid command")
+			messagePlayer:FireClient(player, 1, "Invalid command")
 		end
 		return
 	end
 	-- Handle verification of previous command if applicable
 	if command:lower() == "n" then
-		messagePlayer:FireClient(player,2,"")
+		messagePlayer:FireClient(player, 2, "")
 		cachedCommands[player] = nil
 		return
 	end
@@ -84,7 +84,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
 		local aliasData = cmd._behaviour.aliases[content[1]]
-		local response, body = cmd(player, true, aliasData, table.unpack(content,2))
+		local response, body = cmd(player, true, aliasData, table.unpack(content, 2))
 		messagePlayer:FireClient(player, response, body)
 		cachedCommands[player] = nil
 	else
@@ -92,18 +92,18 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
 			local aliasData = cmd._behaviour.aliases[splitCommand[1]]
-			local response, body = cmd(player, false, aliasData, table.unpack(splitCommand,2))
+			local response, body = cmd(player, false, aliasData, table.unpack(splitCommand, 2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
 				cachedCommands[player] = command
 			end
 		else
-			messagePlayer:FireClient(player,1,"Invalid command")
+			messagePlayer:FireClient(player, 1, "Invalid command")
 		end
 	end
 end)
 
-GetAutofill.OnServerInvoke = function (player, fullInfo: boolean?)
+GetAutofill.OnServerInvoke = function(player, fullInfo: boolean?)
 	local rank = perms.GetUserPermissions(player.UserId)
 	if fullInfo then
 		return Command.getCmdInformationForRank(rank)
