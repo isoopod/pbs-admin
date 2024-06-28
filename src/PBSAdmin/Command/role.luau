@@ -7,7 +7,7 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
 cmd.aliases = {}
-cmd.syntax = { "<player or #userid>", { "banned", "", "member", "trusted", "admin", "owner" } }
+cmd.syntax = { "<player / #userid>", { "", "member", "trusted", "admin", "owner" } }
 
 cmd.help = [[Changes a players role. 
 Format: &lt;player or #userid&gt; &lt;role&gt;
@@ -15,7 +15,9 @@ Format: &lt;player or #userid&gt; &lt;role&gt;
 player should match the start of a player in the servers name, or if it starts with '#' will attempt to use a UserId
 	using 'me' as the player name will use yourself
 
-valid roles are 'banned', 'none' or left blank, 'member', 'trusted', 'admin', 'owner'
+valid roles are 'none' or left blank, 'member', 'trusted', 'admin', 'owner'
+
+To ban a user, use the ban commands.
 ]]
 
 cmd.__call = function(
