@@ -10,7 +10,7 @@ cmd.aliases = {}
 cmd.syntax = {
 	"<player / #userid>",
 	"<number>",
-	{ "seconds", "minutes", "hours", "days", "weeks", "months", "years" },
+	{ "seconds", "minutes", "hours", "days", "weeks", "months", "years", "eons" },
 	"<reason?>",
 }
 
@@ -29,6 +29,7 @@ local function convertUnit(number: number, unit: string): number
 		weeks = 604800,
 		months = 2592000, -- Assuming 30 days in a month
 		years = 31536000, -- Assuming 365 days in a year
+		eons = 3.1536e16,
 	}
 
 	local converted = number * unitsInSeconds[unit]
