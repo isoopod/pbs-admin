@@ -32,9 +32,7 @@ cmd.__call = function(
 			local target = self:GetPlayer(player, other, true)
 			if target then
 				if verified then
-					local displayReason = `You have been banned from this PBS.{if reason
-						then `\nAn additional reason has been attached: {reason}`
-						else ""}`
+					local displayReason = "You have been permanently banned from this PBS."
 					local s, e = pcall(Players.BanAsync, Players, {
 						UserIds = { target.UserId },
 						ApplyToUniverse = true,

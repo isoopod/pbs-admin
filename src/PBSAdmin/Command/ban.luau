@@ -59,12 +59,11 @@ cmd.__call = function(
 				if table.find(cmd.syntax[3] :: { string }, units) then
 					if verified then
 						local length = convertUnit(duration, units)
-						local unbanDate = DateTime.fromUnixTimestamp(os.time() + length)
-						local displayReason =
-							`You have been banned from this PBS.\nYour ban expires on {unbanDate:FormatUniversalTime(
+						--local unbanDate = DateTime.fromUnixTimestamp(os.time() + length)
+						local displayReason = "You have been banned from this PBS."--[[\nYour ban expires on {unbanDate:FormatUniversalTime(
 								"LLLL",
 								"en-us"
-							)}{if reason then `\nAn additional reason has been attached: {reason}` else ""}`
+							)}{if reason then `\nAn additional reason has been attached: {reason}` else ""}` This part comes with the ban notice]]
 						local s, e = pcall(Players.BanAsync, Players, {
 							UserIds = { target.UserId },
 							ApplyToUniverse = true,
