@@ -15,13 +15,6 @@ Command.generateCommands()
 local function PlayerAdded(player: Player)
 	local rank = perms.GetUserPermissions(player.UserId)
 
-	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-	if script:GetAttribute("resetAssetsOnDeath") then
-		player.CharacterAdded:Connect(function()
-			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-		end)
-	end
-
 	if script:GetAttribute("leaderstats") then
 		local leaderstats = player:WaitForChild("LeaderStats", 5)
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
@@ -35,6 +28,16 @@ local function PlayerAdded(player: Player)
 		role.Name = "Role"
 		role.Value = rank:gsub("^%l", string.upper)
 		role.Parent = leaderstats
+	end
+
+	if not player.Character then
+		player.CharacterAdded:Wait()
+	end
+	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
+	if script:GetAttribute("resetAssetsOnDeath") then
+		player.CharacterAdded:Connect(function()
+			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
+		end)
 	end
 end
 

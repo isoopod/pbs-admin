@@ -64,7 +64,7 @@ cmd.__call = function(
 										local leaderstats = script.Parent.Parent:GetAttribute("leaderstats")
 											and target:FindFirstChild("leaderstats")
 										if leaderstats then
-											leaderstats.Role.Value = role
+											leaderstats.Role.Value = role:gsub("^%l", string.upper)
 										end
 									end
 
