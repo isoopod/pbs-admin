@@ -3,10 +3,6 @@
   "tree": {
     "$className": "DataModel",
 
-    "ReplicatedStorage": {
-      "$path": "src/ReplicatedStorage"
-    },
-
     "ServerScriptService": {
       "PBSServer": {
         "PBSAdmin": {
@@ -18,7 +14,29 @@
               "permsUsesDatastore": {"Bool": false}
             }
           },
-          "$path": "src/PBSAdmin"
+          "$path": "src/PBSAdmin",
+          "RoleAssets": {
+            "$className": "Folder",
+            "admin": {
+              "$className": "Folder"
+            },
+            "member": {
+              "$className": "Folder"
+            },
+            "none": {
+              "$className": "Folder",
+              "PBSAdmin_Local": {
+                "$className": "ScreenGui",
+                "$path": "src/PBSAdmin_Local"
+              }
+            },
+            "owner": {
+              "$className": "Folder"
+            },
+            "trusted": {
+              "$className": "Folder"
+            }
+          }
         },
         "$path": "src/PBSServer"
       }
