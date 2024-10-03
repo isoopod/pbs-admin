@@ -18,11 +18,10 @@ local command = require(script.Parent)
 local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
-cmd.aliases = { unNoclip = false }
+cmd.aliases = { reclip = false }
 cmd.syntax = { "<player>" }
 
 cmd.help = [[Toggles noclip for a player. 
-Format: &lt;player&gt;
 	
 player should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
@@ -43,8 +42,9 @@ cmd.__call = function(
 				-- Toggle the flight script for this palyer
 				-- If they already have flight, disable it
 				-- Alternatively, if the command was unNoclip, then dont give noclip
-				if target.Character and target.Character:FindFirstChild("PBSADMIN_NoClip") then
-					target.Character.PBSADMIN_NoClip:Destroy()
+				local noclip = target.Character and target.Character:FindFirstChild("PBSADMIN_NoClip")
+				if noclip then
+					noclip:Destroy()
 					return self.Responses.Success, `Noclip removed for '{target}'`
 				elseif target.Character and aliasData ~= false then
 					script.PBSADMIN_NoClip:Clone().Parent = target.Character

@@ -28,8 +28,9 @@ cmd.__call = function(
 				-- Toggle the flight script for this palyer
 				-- If they already have flight, disable it
 				-- Alternativley, if the command was unfly then dont give it
-				if target.Character and target.Character:FindFirstChild("PBSADMIN_FlyScript") then
-					target.Character.PBSADMIN_FlyScript:Destroy()
+				local flyscript = target.Character and target.Character:FindFirstChild("PBSADMIN_FlyScript")
+				if flyscript then
+					flyscript:Destroy()
 					return self.Responses.Success, `Flight removed for '{target}'`
 				elseif target.Character and aliasData ~= false then
 					script.PBSADMIN_FlyScript:Clone().Parent = target.Character

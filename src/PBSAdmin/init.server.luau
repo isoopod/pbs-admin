@@ -9,14 +9,25 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local Command = require(script.Command)
 local perms = require(script.Permissions)
 
+local externalLeaderstatsDetected = nil
+
 -- Initialize the commands
 Command.generateCommands()
 
 local function PlayerAdded(player: Player)
+	-- Timeout thread if player quits before character loads
+	local thread = coroutine.running()
+	task.delay(60, function()
+		if ({ running = true, suspended = true })[coroutine.status(thread)] then
+			task.cancel(thread)
+		end
+	end)
+
 	local rank = perms.GetUserPermissions(player.UserId)
 
 	if script:GetAttribute("leaderstats") then
-		local leaderstats = player:WaitForChild("LeaderStats", 5)
+		local leaderstats = player:WaitForChild("LeaderStats", externalLeaderstatsDetected == false and 0 or 5)
+		externalLeaderstatsDetected = leaderstats ~= nil
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
 		if not leaderstats then
 			leaderstats = Instance.new("Folder")
@@ -26,13 +37,14 @@ local function PlayerAdded(player: Player)
 
 		local role = Instance.new("StringValue")
 		role.Name = "Role"
-		role.Value = rank:gsub("^%l", string.upper)
+		role.Value = rank:gsub("^%l", string.upper) -- makes first character uppercase
 		role.Parent = leaderstats
 	end
 
 	if not player.Character then
 		player.CharacterAdded:Wait()
 	end
+
 	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 	if script:GetAttribute("resetAssetsOnDeath") then
 		player.CharacterAdded:Connect(function()
@@ -43,7 +55,7 @@ end
 
 players.PlayerAdded:Connect(PlayerAdded)
 for _, v in players:GetPlayers() do
-	PlayerAdded(v)
+	task.spawn(PlayerAdded, v)
 end
 
 local messagePlayer = Instance.new("RemoteEvent")
@@ -81,7 +93,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
 		local aliasData = cmd._behaviour.aliases[content[1]]
-		local response, body = cmd(player, true, aliasData, table.unpack(content, 2))
+		local response, body = cmd(player, true, aliasData, unpack(content, 2))
 		messagePlayer:FireClient(player, response, body)
 		cachedCommands[player] = nil
 	else
@@ -89,7 +101,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
 			local aliasData = cmd._behaviour.aliases[splitCommand[1]]
-			local response, body = cmd(player, false, aliasData, table.unpack(splitCommand, 2))
+			local response, body = cmd(player, false, aliasData, unpack(splitCommand, 2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
 				cachedCommands[player] = command

@@ -11,7 +11,8 @@ cmd.minRank = 1
 cmd.aliases = { remove = "remove" }
 cmd.syntax = { "<player or #userid>" }
 
-cmd.help = [[Gives a player build permissions (or removes it when using remove)
+cmd.help = [[Gives a player build permissions for you plot (if plots are enabled) 
+alternatively removes it when using the remove alias
 ]]
 
 cmd.__call = function(

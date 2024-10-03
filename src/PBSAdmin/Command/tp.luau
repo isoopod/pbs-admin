@@ -7,7 +7,6 @@ cmd.aliases = { teleport = nil }
 cmd.syntax = { "<player>", "<player>" }
 
 cmd.help = [[Teleports one player to another.
-Format: &lt;player&gt; &lt;player&gt;
 	
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]

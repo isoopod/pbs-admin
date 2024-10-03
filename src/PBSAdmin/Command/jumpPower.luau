@@ -7,7 +7,6 @@ cmd.aliases = {}
 cmd.syntax = { "<player>", "<number>" }
 
 cmd.help = [[Sets a players JumpPower. Default JumpPower is 50. 
-Format: &lt;player&gt; &lt;number&gt;
 	
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
