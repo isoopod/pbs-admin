@@ -12,13 +12,7 @@ Format: &lt;player&gt; &lt;number&gt;
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local speed = tonumber(args[2])

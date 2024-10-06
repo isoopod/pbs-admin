@@ -14,8 +14,7 @@ cmd.syntax = {
 	"<reason?>",
 }
 
-cmd.help =
-	[[Bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
+cmd.help = [[Bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
 The third argument is the unit used for the length of the ban (seconds, days, years ect)
 The second argument is how many of that unit the user should be banned for.
 ]]
@@ -33,19 +32,11 @@ local function convertUnit(number: number, unit: string): number
 	}
 
 	local converted = number * unitsInSeconds[unit]
-	if converted == 0 then
-		converted = 1
-	end
+	if converted == 0 then converted = 1 end
 	return math.clamp(converted, -1, math.huge)
 end
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local duration = tonumber(args[2])
@@ -72,9 +63,7 @@ cmd.__call = function(
 							PrivateReason = reason,
 							ExcludeAltAccounts = true,
 						})
-						if not s then
-							return self.Responses.Error, `BanAsync error: {e}`
-						end
+						if not s then return self.Responses.Error, `BanAsync error: {e}` end
 						permissions.EditPersistentRole(target.UserId)
 						return self.Responses.Success, `{target} has been banned for {duration} {units}`
 					else

@@ -1,6 +1,6 @@
-local runService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
 
 local KeyCode = Enum.KeyCode.Space
 
@@ -28,24 +28,15 @@ local function getMoveDirection()
 		MoveDirection -= Vector3.yAxis
 	end
 	-- Normalizing a zero vector results in not a number
-	if MoveDirection == Vector3.zero then
-		return Vector3.zero
-	end
+	if MoveDirection == Vector3.zero then return Vector3.zero end
 
 	MoveDirection = MoveDirection.Unit
 
 	local dir = (Camera.CFrame * CFrame.new(
-		(
-			CFrame.new(
-				Camera.CFrame.Position,
-				Camera.CFrame.Position + Vector3.new(Camera.CFrame.lookVector.X, 0, Camera.CFrame.lookVector.Z)
-			):VectorToObjectSpace(MoveDirection)
-		)
+		(CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + Vector3.new(Camera.CFrame.lookVector.X, 0, Camera.CFrame.lookVector.Z)):VectorToObjectSpace(MoveDirection))
 	)).Position - Camera.CFrame.Position
 	-- Normalizing a zero vector results in not a number
-	if dir == Vector3.zero then
-		return dir
-	end
+	if dir == Vector3.zero then return dir end
 	return dir.Unit
 end
 
@@ -53,9 +44,7 @@ local function updateFly()
 	Humanoid.PlatformStand = true
 	alignOrientation.CFrame = game.Workspace.Camera.CFrame
 	-- This is infact fine since after the tween completes, there is no reference to it so it will automatically get gc'd
-	TweenService
-		:Create(linearVelocity, TweenInfo.new(0.3), { VectorVelocity = getMoveDirection() * 3 * Humanoid.WalkSpeed })
-		:Play()
+	TweenService:Create(linearVelocity, TweenInfo.new(0.3), { VectorVelocity = getMoveDirection() * 3 * Humanoid.WalkSpeed }):Play()
 end
 
 local originalCollisionGroup: { [BasePart]: string } = {}
@@ -76,9 +65,7 @@ local function noclip(enabled: boolean)
 end
 
 runService:BindToRenderStep("PBSADMIN_NOCLIP", Enum.RenderPriority.Input.Value + 1, updateFly)
-if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then
-	Humanoid.RootPart.Running.Volume = 0
-end
+if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0 end
 
 noclip(true)
 
@@ -88,9 +75,7 @@ local lastInputTime = 0 -- to toggle flight you have to double press the key
 local maxInputDelta = 0.25 -- max time in seconds between pressing the key again to toggle flight
 
 UIS.InputBegan:Connect(function(key, gameProcessed)
-	if gameProcessed then
-		return
-	end
+	if gameProcessed then return end
 	if key.KeyCode == KeyCode then
 		if os.clock() - lastInputTime <= maxInputDelta then
 			if Flying == false then
@@ -98,9 +83,7 @@ UIS.InputBegan:Connect(function(key, gameProcessed)
 				if Humanoid.RootPart then
 					Humanoid.PlatformStand = true
 
-					if Humanoid.RootPart:FindFirstChild("Running") then
-						Humanoid.RootPart.Running.Volume = 0
-					end
+					if Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0 end
 
 					linearVelocity.Attachment0 = Humanoid.RootPart.RootAttachment
 					alignOrientation.Attachment0 = linearVelocity.Attachment0
@@ -115,9 +98,7 @@ UIS.InputBegan:Connect(function(key, gameProcessed)
 
 				Humanoid.PlatformStand = false
 
-				if Humanoid.RootPart:FindFirstChild("Running") then
-					Humanoid.RootPart.Running.Volume = 0.65
-				end
+				if Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
 
 				linearVelocity.Attachment0 = nil
 				alignOrientation.Attachment0 = nil
@@ -132,9 +113,7 @@ script.Destroying:Connect(function()
 	runService:UnbindFromRenderStep("PBSADMIN_NOCLIP")
 	if Humanoid then
 		Humanoid.PlatformStand = false
-		if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then
-			Humanoid.RootPart.Running.Volume = 0.65
-		end
+		if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
 		noclip(false)
 	end
 end)

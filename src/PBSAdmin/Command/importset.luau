@@ -6,8 +6,7 @@ cmd.minRank = 4
 cmd.aliases = {}
 cmd.syntax = { "<number>", "<boolean>" }
 
-cmd.help =
-	[[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets ]]
+cmd.help = [[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets ]]
 
 function insert(assetId, name, ModelParent)
 	local InsertService = game:GetService("InsertService")
@@ -22,13 +21,7 @@ function insert(assetId, name, ModelParent)
 	return nil
 end
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local boolean1 = args[2]

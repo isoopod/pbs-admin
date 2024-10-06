@@ -14,13 +14,7 @@ The r6 and r15 aliases will set their avatar to r6 or r15.
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local speed = tonumber(args[2])
@@ -33,8 +27,7 @@ cmd.__call = function(
 					-- forcing the rigtype is different
 					if aliasData then
 						local desc = Players:GetHumanoidDescriptionFromUserId(target.CharacterAppearanceId)
-						local morph =
-							Players:CreateHumanoidModelFromDescription(desc, aliasData :: Enum.HumanoidRigType)
+						local morph = Players:CreateHumanoidModelFromDescription(desc, aliasData :: Enum.HumanoidRigType)
 						morph:PivotTo(target.Character:GetPivot())
 						morph.Name = target.Name
 						local oldChar = target.Character

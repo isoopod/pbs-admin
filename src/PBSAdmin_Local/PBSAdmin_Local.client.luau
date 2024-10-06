@@ -1,8 +1,8 @@
 -- This script is assinged to players with admin permissions to send them messages involving thier commands
 -- Cannot actually do anything
 
-local replicatedStorage = game:GetService("ReplicatedStorage")
 local contextActionService = game:GetService("ContextActionService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
 local keys = { Enum.KeyCode.Quote, Enum.KeyCode.QuotedDouble }
 
@@ -38,9 +38,7 @@ local clientSideCommands = {
 
 			local cmds = {}
 			for i in autofill do
-				if i ~= "Y" and i ~= "N" then
-					table.insert(cmds, i)
-				end
+				if i ~= "Y" and i ~= "N" then table.insert(cmds, i) end
 			end
 			table.sort(cmds)
 
@@ -92,9 +90,7 @@ end
 buildAutofill()
 
 input.FocusLost:Connect(function(enterPressed: boolean)
-	if not enterPressed then
-		return
-	end
+	if not enterPressed then return end
 	cmd.Output.Text = ""
 
 	local commandData = string.split(input.Text, " ")
@@ -113,9 +109,7 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	historyI = #cmdHistory + 1
 	input.Text = ""
 	task.wait(0.1)
-	if cmd.Visible then
-		input:CaptureFocus()
-	end
+	if cmd.Visible then input:CaptureFocus() end
 end)
 
 remote.OnClientEvent:Connect(function(response: number | string, body: string)
@@ -150,12 +144,8 @@ function closestMatch(input: string, targets: { string }): string
 	-- Only consider targets that start with input
 	local filteredTargets = {}
 	for _, target in targets do
-		if typeof(target) ~= "string" then
-			print(target, targets, autofill)
-		end
-		if target:sub(1, #input) == input then
-			table.insert(filteredTargets, target)
-		end
+		if typeof(target) ~= "string" then print(target, targets, autofill) end
+		if target:sub(1, #input) == input then table.insert(filteredTargets, target) end
 	end
 
 	if #filteredTargets == 0 then
@@ -175,13 +165,7 @@ function closestMatch(input: string, targets: { string }): string
 end
 
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
-	if
-		cmd.Visible
-		and _inputObject
-		and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down)
-	then
-		return Enum.ContextActionResult.Sink
-	end
+	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then return Enum.ContextActionResult.Sink end
 	if inputState == Enum.UserInputState.Begin then
 		input:ReleaseFocus(false)
 		cmd.Visible = not cmd.Visible
@@ -198,13 +182,9 @@ end
 
 local function checkKeyMatches(text: string): boolean
 	for _, v in keys do
-		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then
-			continue
-		end
+		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then continue end
 		local key = string.char(v.Value)
-		if text:match(key) then
-			return true
-		end
+		if text:match(key) then return true end
 	end
 	return false
 end
@@ -238,9 +218,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the command closest to whatever is currently input
 		local targets = {}
 		for i in autofill do
-			if (i == "Y" or i == "N") and LastResponseType ~= 3 then
-				continue
-			end
+			if (i == "Y" or i == "N") and LastResponseType ~= 3 then continue end
 			table.insert(targets, i)
 		end
 		prediciton ..= closestMatch(words[1], targets)

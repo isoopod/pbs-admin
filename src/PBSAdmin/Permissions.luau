@@ -11,9 +11,7 @@ local httpService = game:GetService("HttpService")
 local _, roverKey = pcall(httpService.GetSecret, httpService, "GET_Trusted")
 
 local datastore
-if script.Parent:GetAttribute("permsUsesDatastore") then
-	datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS")
-end
+if script.Parent:GetAttribute("permsUsesDatastore") then datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS") end
 
 local untrustedRole = ""
 
@@ -48,14 +46,10 @@ verif._CachedPermissions = {}
 
 function verif.GetUserPermissions(UserId: number): string
 	-- For testing, local tests set the UserId to -1 so this poses no risk in-game
-	if UserId == -1 then
-		return "owner"
-	end
+	if UserId == -1 then return "owner" end
 
 	-- if user permissions are already stored use those
-	if verif._CachedPermissions[UserId] then
-		return verif._CachedPermissions[UserId]
-	end
+	if verif._CachedPermissions[UserId] then return verif._CachedPermissions[UserId] end
 
 	if datastore then
 		local s, saved = pcall(datastore.GetAsync, datastore, tostring(UserId))
@@ -65,9 +59,7 @@ function verif.GetUserPermissions(UserId: number): string
 		end
 	else
 		local saved = script:GetAttribute(tostring(UserId))
-		if saved then
-			return saved
-		end
+		if saved then return saved end
 	end
 
 	if typeof(roverKey) == "Secret" then

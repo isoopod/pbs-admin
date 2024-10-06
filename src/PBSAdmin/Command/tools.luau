@@ -13,13 +13,7 @@ Format: &lt;player&gt;
 player should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	if player and other then
@@ -35,19 +29,15 @@ cmd.__call = function(
 							self:GiveToolsForRole(target, "none")
 							permissions._CachedPermissions[other] = nil
 						end
-						return self.Responses.Success,
-							`tools {if aliasData == nil then "given to" else "removed from"} {target}`
+						return self.Responses.Success, `tools {if aliasData == nil then "given to" else "removed from"} {target}`
 					else
-						return self.Responses.Verify,
-							`Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{target}'? Y/N`
+						return self.Responses.Verify, `Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{target}'? Y/N`
 					end
 				else
-					return self.Responses.Verify,
-						`'{target}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
+					return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
 				end
 			else
-				return self.Responses.Error,
-					"Other player not found, make sure they aren't the only person with that approximate name"
+				return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"
 			end
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"

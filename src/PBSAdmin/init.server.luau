@@ -18,9 +18,7 @@ local function PlayerAdded(player: Player)
 	-- Timeout thread if player quits before character loads
 	local thread = coroutine.running()
 	task.delay(60, function()
-		if ({ running = true, suspended = true })[coroutine.status(thread)] then
-			task.cancel(thread)
-		end
+		if ({ running = true, suspended = true })[coroutine.status(thread)] then task.cancel(thread) end
 	end)
 
 	local rank = perms.GetUserPermissions(player.UserId)
@@ -41,16 +39,12 @@ local function PlayerAdded(player: Player)
 		role.Parent = leaderstats
 	end
 
-	if not player.Character then
-		player.CharacterAdded:Wait()
-	end
+	if not player.Character then player.CharacterAdded:Wait() end
 
 	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-	if script:GetAttribute("resetAssetsOnDeath") then
-		player.CharacterAdded:Connect(function()
-			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-		end)
-	end
+	if script:GetAttribute("resetAssetsOnDeath") then player.CharacterAdded:Connect(function()
+		Command.PublicUtils.GiveToolsForRole(player :: any, rank)
+	end) end
 end
 
 players.PlayerAdded:Connect(PlayerAdded)
@@ -114,9 +108,7 @@ end)
 
 GetAutofill.OnServerInvoke = function(player, fullInfo: boolean?)
 	local rank = perms.GetUserPermissions(player.UserId)
-	if fullInfo then
-		return Command.getCmdInformationForRank(rank)
-	end
+	if fullInfo then return Command.getCmdInformationForRank(rank) end
 	return Command.getAutofillForRank(rank)
 end
 

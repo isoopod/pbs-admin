@@ -11,13 +11,7 @@ cmd.help = [[Teleports one player to another.
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local otherA = args[1]
 	local otherB = args[2]
@@ -30,8 +24,7 @@ cmd.__call = function(
 					targetA.Character:PivotTo(targetB.Character:GetPivot())
 					return self.Responses.Success, `Successfully teleported '{targetA}' to '{targetB}'`
 				end
-				return self.Responses.Error,
-					`'{targetA}' or '{targetB}' currently do not have a character, try again later.`
+				return self.Responses.Error, `'{targetA}' or '{targetB}' currently do not have a character, try again later.`
 			else
 				return self.Responses.Error, "Could not find both players"
 			end

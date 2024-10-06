@@ -13,13 +13,7 @@ cmd.syntax = {
 cmd.help = [[Unbans a given user from the game.
 ]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	if player and other then
@@ -31,9 +25,7 @@ cmd.__call = function(
 						UserIds = { target.UserId },
 						ApplyToUniverse = true,
 					})
-					if not s then
-						return self.Responses.Error, `UnbanAsync error: {e}`
-					end
+					if not s then return self.Responses.Error, `UnbanAsync error: {e}` end
 					return self.Responses.Success, `{target} has been unbanned`
 				else
 					return self.Responses.Verify, `Are you sure you want to unban {target}`

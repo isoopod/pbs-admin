@@ -48,40 +48,25 @@ Command.Responses = {
 }
 
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
-function Command.GetPlayer(
-	self: _Command,
-	player: Player,
-	other: string,
-	canUseUserId: boolean?
-): Player? | offlinePlayer.OfflinePlayer?
-	if not other then
-		return nil
-	end
+function Command.GetPlayer(self: _Command, player: Player, other: string, canUseUserId: boolean?): Player? | offlinePlayer.OfflinePlayer?
+	if not other then return nil end
 	local useUserid = other:sub(1, 1) == "#"
-	if not canUseUserId then
-		useUserid = false
-	end
+	if not canUseUserId then useUserid = false end
 
 	if useUserid == false then
 		-- just match a player in the server
 		-- OR if the other is 'me' then return the player
-		if other == "me" then
-			return player
-		end
+		if other == "me" then return player end
 
 		local players = players:GetPlayers()
 
 		for i = 1, #players do
-			if string.find(string.lower(players[i].Name), other) == 1 then
-				return players[i]
-			end
+			if string.find(string.lower(players[i].Name), other) == 1 then return players[i] end
 		end
 	else
 		-- match a user by their exact userid and return an offlineplayer to stand in
 		local userId = tonumber(other:sub(2))
-		if typeof(userId) ~= "number" then
-			return nil
-		end
+		if typeof(userId) ~= "number" then return nil end
 		local s, user: string = pcall(players.GetNameFromUserIdAsync, players, userId)
 		if s then
 			local offlineUser = offlinePlayer.new(user, userId)
@@ -94,17 +79,14 @@ end
 
 function Command.UserHasPermissionsForCommand(self: _Command, player: Player): boolean
 	local rank = permissions.GetUserPermissions(player.UserId)
-	if permissions.roleValues[rank] >= self._behaviour.minRank then
-		return true
-	end
+	if permissions.roleValues[rank] >= self._behaviour.minRank then return true end
 
 	return false
 end
 
 function Command.CanUserModifyOther(self: _Command, player: Player, other: Player): boolean
 	if
-		permissions.roleValues[permissions.GetUserPermissions(player.UserId)]
-			< permissions.roleValues[permissions.GetUserPermissions(other.UserId)]
+		permissions.roleValues[permissions.GetUserPermissions(player.UserId)] < permissions.roleValues[permissions.GetUserPermissions(other.UserId)]
 		and permissions.GetUserPermissions(player.UserId) ~= "owner"
 	then
 		return false
@@ -114,19 +96,11 @@ end
 
 -- when isVerified_Only is enabled then check if the user has phone or government id attached to their account, otherwise returns true
 function Command.IsUserVerified(self: _Command, player: Player, other: Player): boolean
-	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" then
-		if not other:IsVerified() then
-			return false
-		end
-	end
+	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then return false end
 	return true
 end
 
-function Command.GiveToolsForRole(
-	self: _Command,
-	player: Player & { Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui },
-	role: string
-): ()
+function Command.GiveToolsForRole(self: _Command, player: Player & { Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui }, role: string): ()
 	CommandClass.PublicUtils.GiveToolsForRole(player, role)
 end
 
@@ -141,16 +115,12 @@ CommandClass.Commands = {}
 -- Generate a new command object from the selected behaviour module
 function CommandClass.new(commandName: string): Command?
 	-- dont create a new command if one already exists, instead return the one thats already been created
-	if CommandClass.Commands[commandName] then
-		return CommandClass.Commands[commandName]
-	end
+	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
 
 	local component: ModuleScript = script:WaitForChild(commandName, 1)
 	local success, behaviour: cmd = pcall(require, component)
 
-	if not success then
-		return
-	end
+	if not success then return end
 
 	local metatable = table.clone(CommandClass.metatable)
 	metatable.__call = behaviour.__call
@@ -182,9 +152,7 @@ function CommandClass.getAutofillForRank(rank: string)
 	local rankValue = permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.minRank then
-			autofill[name] = v._behaviour.syntax
-		end
+		if rankValue >= v._behaviour.minRank then autofill[name] = v._behaviour.syntax end
 	end
 
 	return autofill
@@ -197,9 +165,7 @@ function CommandClass.getCmdInformationForRank(rank: string)
 	local rankValue = permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.minRank then
-			autofill[name] = { v._behaviour.syntax, v._behaviour.help }
-		end
+		if rankValue >= v._behaviour.minRank then autofill[name] = { v._behaviour.syntax, v._behaviour.help } end
 	end
 
 	return autofill
@@ -223,9 +189,7 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	},
 	role: string
 ): ()
-	if role == "" then
-		role = "none"
-	end
+	if role == "" then role = "none" end
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 
 	-- Build a list of assets to give to the player
@@ -233,42 +197,25 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	local toClone = {}
 	for _, v in assets do
 		local rank = v.Parent.Name
-		if rank ~= role and v:HasTag("DontShareWithHigherRank") then
-			continue
-		end
-		if
-			permissions.roleValues[if role == "none" then "" else role]
-			>= permissions.roleValues[if rank == "none" then "" else rank]
-		then
-			table.insert(toClone, v)
-		end
+		if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
+		if permissions.roleValues[if role == "none" then "" else role] >= permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
 	end
 
 	-- Cleanup existing assets
-	if humanoid then
-		humanoid:UnequipTools()
-	end
+	if humanoid then humanoid:UnequipTools() end
 	for _, v in assets do
 		local item = player.Backpack:FindFirstChild(v.Name)
 		local item2 = player.StarterGear:FindFirstChild(v.Name)
-		if item then
-			item:Destroy()
-		end
-		if item2 then
-			item2:Destroy()
-		end
+		if item then item:Destroy() end
+		if item2 then item2:Destroy() end
 
 		local guiItem = player.PlayerGui:FindFirstChild(v.Name)
-		if guiItem then
-			guiItem:Destroy()
-		end
+		if guiItem then guiItem:Destroy() end
 	end
 
 	-- Apply assets for the player
 	for _, v in toClone do
-		if v:IsA("ObjectValue") then
-			v = v.Value
-		end
+		if v:IsA("ObjectValue") then v = v.Value end
 
 		if v:IsA("Tool") then
 			v:Clone().Parent = player.StarterGear

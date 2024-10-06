@@ -12,13 +12,7 @@ Format: &lt;player&gt;
 player should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	if player and other then
@@ -38,8 +32,7 @@ cmd.__call = function(
 
 				return self.Responses.Error, `'{target}' currently does not have a character, try again later.`
 			else
-				return self.Responses.Error,
-					"Other player not found, make sure they aren't the only person with that approximate name"
+				return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"
 			end
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"

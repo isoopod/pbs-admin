@@ -15,13 +15,7 @@ cmd.help = [[Gives a player build permissions for you plot (if plots are enabled
 alternatively removes it when using the remove alias
 ]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 
@@ -38,8 +32,7 @@ cmd.__call = function(
 					end
 					return self.Responses.Success, "TODO"
 				else
-					return self.Responses.Verify,
-						`'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
+					return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 				end
 			else
 				return self.Responses.Error,

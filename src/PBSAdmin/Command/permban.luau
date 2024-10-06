@@ -12,18 +12,11 @@ cmd.syntax = {
 	"<reason?>",
 }
 
-cmd.help =
-	[[Permanently bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
+cmd.help = [[Permanently bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
 	The ban will last until removed through the unban command
 ]]
 
-cmd.__call = function(
-	self: command.Command,
-	player: Player,
-	verified: boolean,
-	aliasData: any?,
-	...: string?
-): (number, string)
+cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local reason = args[2]
@@ -41,9 +34,7 @@ cmd.__call = function(
 						PrivateReason = reason,
 						ExcludeAltAccounts = true,
 					})
-					if not s then
-						return self.Responses.Error, `BanAsync error: {e}`
-					end
+					if not s then return self.Responses.Error, `BanAsync error: {e}` end
 					permissions.EditPersistentRole(target.UserId)
 					return self.Responses.Success, `{target} has been permanently banned`
 				else
