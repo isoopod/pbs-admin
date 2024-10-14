@@ -121,23 +121,36 @@ remote.OnClientEvent:Connect(function(response: number | string, body: string)
 	end
 end)
 
--- gets the 'distance' between two strings
-function levenshteinDistance(str1: string, str2: string): number
-	local len1, len2 = #str1, #str2
-	local matrix = {}
-	for i = 0, len1 do
-		matrix[i] = { [0] = i }
-	end
-	for j = 0, len2 do
-		matrix[0][j] = j
-	end
-	for i = 1, len1 do
-		for j = 1, len2 do
-			local cost = str1:sub(i, i) == str2:sub(j, j) and 0 or 1
-			matrix[i][j] = math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost)
+local function fuzzySearch(query: string, target: string): (number, boolean)
+	-- Convert both query and target to lowercase for case-insensitive matching
+	query = query:lower()
+	target = target:lower()
+
+	local queryLen = #query
+	local targetLen = #target
+
+	-- Early exit if query is longer than target
+	if queryLen > targetLen then return 0, false end
+
+	local queryIndex = 1
+	local matchCount = 0
+
+	-- Loop through each character of the target string
+	for targetIndex = 1, targetLen do
+		if queryIndex <= queryLen and query:sub(queryIndex, queryIndex) == target:sub(targetIndex, targetIndex) then
+			-- Character match found, move to the next query character
+			queryIndex += 1
+			matchCount += 1
 		end
 	end
-	return matrix[len1][len2]
+
+	-- Check if all characters in the query were matched
+	local matched = (queryIndex > queryLen)
+
+	-- Similarity score based on number of matches and length of the target
+	local score = matchCount / targetLen
+
+	return score, matched
 end
 
 function closestMatch(input: string, targets: { string }): string
@@ -152,12 +165,12 @@ function closestMatch(input: string, targets: { string }): string
 		return "" -- No matching targets found
 	end
 
-	local minDistance = math.huge
+	local maxScore = 0
 	local closest
 	for _, target in filteredTargets do
-		local distance = levenshteinDistance(input, target)
-		if distance < minDistance then
-			minDistance = distance
+		local score = fuzzySearch(input, target)
+		if score > maxScore then
+			maxScore = score
 			closest = target
 		end
 	end
