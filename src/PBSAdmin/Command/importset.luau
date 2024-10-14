@@ -4,7 +4,7 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 4
 cmd.aliases = {}
-cmd.syntax = { "<number>", "<boolean>" }
+cmd.syntax = { "<number>", { "true", "false" } }
 
 cmd.help = [[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets ]]
 
@@ -24,11 +24,11 @@ end
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
-	local boolean1 = args[2]
+	local boolean1 = args[2] and args[2]:lower() or ""
 	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
 			local HTTPS = game:GetService("HttpService")
-			if HTTPS and boolean1 == false then
+			if HTTPS and boolean1 == "false" then
 				local URL_ASTROS = `https://sets.pizzaboxer.xyz/api/sets/{other}/assets?page=1`
 				local URL_1 = `https://sets.pizzaboxer.xyz/api/sets/{other}`
 				-- Make the request to our endpoint URL
@@ -51,7 +51,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 				else
 					return self.Responses.Error, "Invalid"
 				end
-			else
+			elseif boolean1 == "true" then
 				local Model = insert(other, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets)
 				print(Model)
 				for _, Child in pairs(Model:FindFirstChild("Sets"):GetChildren()) do
@@ -62,6 +62,8 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 				end
 				Model:Destroy()
 				return self.Responses.Success, "Set Imported"
+			else
+				return self.Responses.Error, "Nothing got done"
 			end
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"
