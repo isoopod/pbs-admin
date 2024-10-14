@@ -38,6 +38,7 @@ function gui.BakeCommandBar(): CommandBar
 	input.Size = UDim2.new(1, -20, 1, 0)
 	input.ClearTextOnFocus = false
 	input.Font = Enum.Font.Code
+	input.ZIndex = 2
 	input.PlaceholderColor3 = Color3.fromRGB(178, 178, 178)
 	input.Text = ""
 	input.TextColor3 = Color3.new(1, 1, 1)
@@ -65,7 +66,6 @@ function gui.BakeCommandBar(): CommandBar
 	autofill.AnchorPoint = Vector2.new(0.5, 0)
 	autofill.Position = UDim2.new(0.5, 0, 0, 0)
 	autofill.Size = UDim2.new(1, -20, 1, 0)
-	autofill.ZIndex = 0
 	autofill.Font = Enum.Font.Code
 	autofill.Text = ""
 	autofill.TextColor3 = Color3.new(1, 1, 1)

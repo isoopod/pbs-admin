@@ -17,19 +17,22 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	local otherB = args[2]
 	if player and otherA and otherB then
 		if self:UserHasPermissionsForCommand(player) then
-			local targetA = self:GetPlayer(player, otherA)
-			local humanoid: Humanoid? = targetA and targetA.Character and targetA.Character:FindFirstChildOfClass("Humaniod")
+			local targetA = self:GetBulkPlayers(player, otherA)
 			local targetB = self:GetPlayer(player, otherB)
-			if humanoid and targetB then
-				if targetA.Character and targetB.Character then
-					humanoid.Sit = false
-					targetA.Character:PivotTo(targetB.Character:GetPivot())
-					return self.Responses.Success, `Successfully teleported '{targetA}' to '{targetB}'`
+
+			if not targetB then return self.Responses.Error, "Could not find destination player" end
+
+			for _, target in targetA do
+				local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid and targetB then
+					if target.Character and targetB.Character then
+						humanoid.Sit = false
+						task.wait(0.1)
+						target.Character:PivotTo(targetB.Character:GetPivot())
+					end
 				end
-				return self.Responses.Error, `'{targetA}' or '{targetB}' currently do not have a character, try again later.`
-			else
-				return self.Responses.Error, "Could not find both players"
 			end
+			return self.Responses.Success, `Successfully teleported {if #targetA == 1 then targetA[1] else otherA} to {targetB}`
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"
 		end

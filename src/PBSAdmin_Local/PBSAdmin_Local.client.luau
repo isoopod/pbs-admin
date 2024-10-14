@@ -144,7 +144,7 @@ function closestMatch(input: string, targets: { string }): string
 	-- Only consider targets that start with input
 	local filteredTargets = {}
 	for _, target in targets do
-		if typeof(target) ~= "string" then print(target, targets, autofill) end
+		target = tostring(target)
 		if target:sub(1, #input) == input then table.insert(filteredTargets, target) end
 	end
 
@@ -229,10 +229,13 @@ end)
 
 userInputService.InputBegan:Connect(function(_inputObject: InputObject)
 	if cmd.Visible then
+		-- Navigate up in command history
 		if _inputObject.KeyCode == Enum.KeyCode.Up and #cmdHistory > 0 then
 			historyI = math.clamp(historyI - 1, 1, #cmdHistory + 1)
 			input.Text = cmdHistory[historyI]
+			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
 			input:CaptureFocus()
+		-- Navigate down in command history
 		elseif _inputObject.KeyCode == Enum.KeyCode.Down and #cmdHistory > 0 then
 			historyI = math.clamp(historyI + 1, 1, #cmdHistory + 1)
 			if historyI > #cmdHistory then
@@ -240,11 +243,16 @@ userInputService.InputBegan:Connect(function(_inputObject: InputObject)
 			else
 				input.Text = cmdHistory[historyI]
 			end
+			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
 			input:CaptureFocus()
+		-- Autocomplete
+		elseif _inputObject.KeyCode == Enum.KeyCode.Tab and (input.Text:len() > cmd.autofill.Text:len()) then
+			input.Text = cmd.autofill.Text
 		end
 	end
 end)
 
+-- This just sinsk the input
 table.insert(keys, Enum.KeyCode.Up)
 table.insert(keys, Enum.KeyCode.Down)
-contextActionService:BindAction("openPBSAdminConsole", openConsole, true, table.unpack(keys))
+contextActionService:BindAction("openPBSAdminConsole", openConsole, true, unpack(keys))

@@ -19,6 +19,7 @@ export type cmd = {
 	aliases: { [string]: any },
 	syntax: { string | { string } },
 	help: string,
+	aliasHelp: { [string]: string }?, -- Replaces the help info for specific aliases of the command
 
 	__call: (self: Command, player: Player, verified: boolean, aliasData: any?, ...string?) -> (number, string),
 }
@@ -30,6 +31,7 @@ export type Command = {
 	Responses: { Error: number, Success: number, Verify: number },
 
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
+	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
 	UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean,
 	CanUserModifyOther: (self: Command, player: Player, other: Player) -> boolean,
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
@@ -47,6 +49,38 @@ Command.Responses = {
 	Verify = 3, --Y/N to verify the command
 }
 
+local function fuzzySearch(query: string, target: string): (number, boolean)
+	-- Convert both query and target to lowercase for case-insensitive matching
+	query = query:lower()
+	target = target:lower()
+
+	local queryLen = #query
+	local targetLen = #target
+
+	-- Early exit if query is longer than target
+	if queryLen > targetLen then return 0, false end
+
+	local queryIndex = 1
+	local matchCount = 0
+
+	-- Loop through each character of the target string
+	for targetIndex = 1, targetLen do
+		if queryIndex <= queryLen and query:sub(queryIndex, queryIndex) == target:sub(targetIndex, targetIndex) then
+			-- Character match found, move to the next query character
+			queryIndex += 1
+			matchCount += 1
+		end
+	end
+
+	-- Check if all characters in the query were matched
+	local matched = (queryIndex > queryLen)
+
+	-- Similarity score based on number of matches and length of the target
+	local score = matchCount / targetLen
+
+	return score, matched
+end
+
 -- may return an 'offline player' which just contains essential information, check for a real player by calling FindFirstChild on something that should be there or checking the character exists
 function Command.GetPlayer(self: _Command, player: Player, other: string, canUseUserId: boolean?): Player? | offlinePlayer.OfflinePlayer?
 	if not other then return nil end
@@ -58,11 +92,24 @@ function Command.GetPlayer(self: _Command, player: Player, other: string, canUse
 		-- OR if the other is 'me' then return the player
 		if other == "me" then return player end
 
-		local players = players:GetPlayers()
-
-		for i = 1, #players do
-			if string.find(string.lower(players[i].Name), other) == 1 then return players[i] end
+		local nameMap = {}
+		for _, p in players:GetPlayers() do
+			nameMap[p.Name] = p
+			nameMap[p.DisplayName] = p
 		end
+
+		local closest
+		local bestScore = 0
+
+		for name in nameMap do
+			local score, matched = fuzzySearch(name, other)
+			if matched and score > bestScore then
+				bestScore = score
+				closest = name
+			end
+		end
+
+		return nameMap[closest]
 	else
 		-- match a user by their exact userid and return an offlineplayer to stand in
 		local userId = tonumber(other:sub(2))
@@ -75,6 +122,26 @@ function Command.GetPlayer(self: _Command, player: Player, other: string, canUse
 	end
 
 	return nil
+end
+
+function Command.GetBulkPlayers(self: _Command, player: Player, other: string): { Player }
+	if other == "all" then return players:GetPlayers() end
+	if other == "others" then
+		local plrs = {}
+		for _, v in players:GetPlayers() do
+			if v ~= player then table.insert(plrs, v) end
+		end
+		return plrs
+	end
+	if other == "team" then
+		local plrs = {}
+		for _, v in players:GetPlayers() do
+			if v.Team == player.Team then table.insert(plrs, v) end
+		end
+		return plrs
+	end
+
+	return { self:GetPlayer(player, other) :: Player }
 end
 
 function Command.UserHasPermissionsForCommand(self: _Command, player: Player): boolean
@@ -165,7 +232,10 @@ function CommandClass.getCmdInformationForRank(rank: string)
 	local rankValue = permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.minRank then autofill[name] = { v._behaviour.syntax, v._behaviour.help } end
+		if rankValue >= v._behaviour.minRank then
+			local help = v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help
+			autofill[name] = { v._behaviour.syntax, help }
+		end
 	end
 
 	return autofill

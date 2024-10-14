@@ -8,6 +8,7 @@ local humaniod: Humanoid = character:WaitForChild("Humanoid")
 local prevState = humaniod:GetStateEnabled(Enum.HumanoidStateType.Seated)
 humaniod.Sit = false
 humaniod:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+task.wait(0.1)
 
 function handleInput(_, inputState: Enum.UserInputState)
 	if inputState == Enum.UserInputState.Begin then
