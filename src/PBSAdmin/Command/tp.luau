@@ -18,9 +18,11 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	if player and otherA and otherB then
 		if self:UserHasPermissionsForCommand(player) then
 			local targetA = self:GetPlayer(player, otherA)
+			local humanoid: Humanoid? = targetA and targetA.Character and targetA.Character:FindFirstChildOfClass("Humaniod")
 			local targetB = self:GetPlayer(player, otherB)
-			if targetA and targetB then
+			if humanoid and targetB then
 				if targetA.Character and targetB.Character then
+					humanoid.Sit = false
 					targetA.Character:PivotTo(targetB.Character:GetPivot())
 					return self.Responses.Success, `Successfully teleported '{targetA}' to '{targetB}'`
 				end
