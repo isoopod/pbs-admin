@@ -17,8 +17,7 @@ both players should match the name of a player in the server
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
-	local speed = tonumber(args[2])
-	if player and other and speed then
+	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
 			local target = self:GetPlayer(player, other)
 			if target then
@@ -43,7 +42,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 						target.Character:PivotTo(cf)
 					end
 
-					return self.Responses.Success, `Successfully set the WalkSpeed of '{target}' to '{speed}'`
+					return self.Responses.Success, if aliasData then `Set {target.DisplayName} ({target}) to {aliasData.Name}` else `Reset {target.DisplayName} ({target})`
 				end
 				return self.Responses.Error, `'{target}' currently does not have a character, try again later.`
 			else
