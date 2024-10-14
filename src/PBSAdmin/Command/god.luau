@@ -4,13 +4,9 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
 cmd.aliases = {}
-cmd.syntax = { "<player>" }
+cmd.syntax = { "<player(s)>" } --TODO
 
-cmd.help = [[Toggles invincibility for a player. 
-Format: &lt;player&gt;
-	
-player should match the name of a player in the server
-	using 'me' as the player name will use yourself]]
+cmd.help = [[Toggles invincibility for players.]]
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }

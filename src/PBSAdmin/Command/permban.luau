@@ -7,10 +7,7 @@ local permissions = require(script.Parent.Parent.Permissions)
 
 cmd.minRank = 3
 cmd.aliases = {}
-cmd.syntax = {
-	"<player / #userid>",
-	"<reason?>",
-}
+cmd.syntax = { "<player / #userid>", "<reason?>" }
 
 cmd.help = [[Permanently bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
 	The ban will last until removed through the unban command

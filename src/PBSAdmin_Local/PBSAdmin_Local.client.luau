@@ -166,7 +166,7 @@ function closestMatch(input: string, targets: { string }): string
 	end
 
 	local maxScore = 0
-	local closest
+	local closest = ""
 	for _, target in filteredTargets do
 		local score = fuzzySearch(input, target)
 		if score > maxScore then
@@ -211,10 +211,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	local len = table.maxn(words)
 
 	-- fill the rest of the command thats already been written
-	local prediciton = ""
-	for i = 1, len - 1 do
-		prediciton ..= words[i] .. " "
-	end
+	local prediciton = table.concat(words, " ", 1, len - 1)
 
 	local alias = autofill[words[1]]
 	if alias and len > 1 then

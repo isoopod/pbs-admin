@@ -10,14 +10,10 @@ cmd.aliases = {}
 cmd.syntax = { "<player / #userid>", { "", "member", "trusted", "admin", "owner" } }
 
 cmd.help = [[Changes a players role. 
-Format: &lt;player or #userid&gt; &lt;role&gt;
-
-player should match the start of a player in the servers name, or if it starts with '#' will attempt to use a UserId
-	using 'me' as the player name will use yourself
 
 valid roles are 'none' or left blank, 'member', 'trusted', 'admin', 'owner'
 
-To ban a user, use the ban commands.
+To ban a user, see the ban commands.
 ]]
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)

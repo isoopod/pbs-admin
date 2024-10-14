@@ -9,15 +9,19 @@ cmd.aliases = { r15 = Enum.HumanoidRigType.R15, r6 = Enum.HumanoidRigType.R6 }
 cmd.syntax = { "<player>" }
 
 cmd.help = [[Refreshes a player, instantly resetting them in place.
-The r6 and r15 aliases will set their avatar to r6 or r15.
 	
 both players should match the name of a player in the server
 	using 'me' as the player name will use yourself]]
 
+cmd.aliasHelp = {
+	r15 = [[Refreshes a player and forces their avatar into r15]],
+	r6 = [[Refreshes a player and forces their avatar into r6]],
+}
+
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
-	local other = args[1]
-	if player and other then
+	local other = args[1] or "me"
+	if player then
 		if self:UserHasPermissionsForCommand(player) then
 			local target = self:GetPlayer(player, other)
 			if target then
@@ -25,6 +29,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 				if humanoid then
 					-- forcing the rigtype is different
 					if aliasData then
+						target:SetAttribute("ForcedRigtype", aliasData.Name)
 						local desc = Players:GetHumanoidDescriptionFromUserId(target.CharacterAppearanceId)
 						local morph = Players:CreateHumanoidModelFromDescription(desc, aliasData :: Enum.HumanoidRigType)
 						morph:PivotTo(target.Character:GetPivot())

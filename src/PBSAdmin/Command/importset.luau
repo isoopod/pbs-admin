@@ -6,7 +6,7 @@ cmd.minRank = 4
 cmd.aliases = {}
 cmd.syntax = { "<number>", { "true", "false" } }
 
-cmd.help = [[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets ]]
+cmd.help = [[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets]]
 
 function insert(assetId, name, ModelParent)
 	local InsertService = game:GetService("InsertService")

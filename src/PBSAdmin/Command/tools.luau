@@ -4,19 +4,16 @@ local permissions = require(script.Parent.Parent.Permissions)
 local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
-cmd.aliases = { unTools = false }
+cmd.aliases = { untools = false }
 cmd.syntax = { "<player>" }
 
-cmd.help = [[Gives a player tools until they leave. 
-Format: &lt;player&gt;
-	
-player should match the name of a player in the server
-	using 'me' as the player name will use yourself]]
+cmd.help = [[Gives a player tools until they leave.]]
+cmd.aliasHelp = { untools = "Removes a player's tools" }
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
-	local other = args[1]
-	if player and other then
+	local other = args[1] or "me"
+	if player then
 		if self:UserHasPermissionsForCommand(player) then
 			local target = self:GetPlayer(player, other)
 			if target then

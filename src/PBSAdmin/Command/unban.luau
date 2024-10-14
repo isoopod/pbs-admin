@@ -6,9 +6,7 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
 cmd.aliases = {}
-cmd.syntax = {
-	"<player / #userid>",
-}
+cmd.syntax = { "<player / #userid>" }
 
 cmd.help = [[Unbans a given user from the game.
 ]]

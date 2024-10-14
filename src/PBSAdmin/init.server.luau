@@ -16,9 +16,9 @@ Command.generateCommands()
 
 local function PlayerAdded(player: Player)
 	-- Timeout thread if player quits before character loads
-	local thread = coroutine.running()
+	local thread
 	task.delay(60, function()
-		if ({ running = true, suspended = true })[coroutine.status(thread)] then task.cancel(thread) end
+		if thread and ({ running = true, suspended = true })[coroutine.status(thread)] then task.cancel(thread) end
 	end)
 
 	local rank = perms.GetUserPermissions(player.UserId)
@@ -39,17 +39,41 @@ local function PlayerAdded(player: Player)
 		role.Parent = leaderstats
 	end
 
-	if not player.Character then player.CharacterAdded:Wait() end
-
-	Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-	if script:GetAttribute("resetAssetsOnDeath") then player.CharacterAdded:Connect(function()
+	thread = task.spawn(function()
+		if not player.Character then player.CharacterAdded:Wait() end
 		Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-	end) end
+	end)
+
+	player.CharacterAdded:Connect(function(character: any)
+		-- If the player has a forced rig type apply it each time they respawn
+		if player:GetAttribute("ForcedRigtype") then
+			local rigtype = Enum.HumanoidRigType[player:GetAttribute("ForcedRigtype")]
+			local humanoid: Humanoid? = character:WaitForChild("Humanoid", 3)
+			local current = humanoid and humanoid.RigType
+			if rigtype and rigtype ~= current then
+				local desc = players:GetHumanoidDescriptionFromUserId(player.CharacterAppearanceId)
+				local morph = players:CreateHumanoidModelFromDescription(desc, rigtype)
+				morph:PivotTo(character:GetPivot())
+				morph.Name = player.Name
+				local oldChar = player.Character
+				player.Character = morph
+				morph.Parent = workspace
+				oldChar:Destroy()
+			end
+		end
+
+		if script:GetAttribute("resetAssetsOnDeath") then Command.PublicUtils.GiveToolsForRole(player :: any, rank) end
+	end)
 end
 
 players.PlayerAdded:Connect(PlayerAdded)
 for _, v in players:GetPlayers() do
 	task.spawn(PlayerAdded, v)
+end
+
+if not script:GetAttribute("resetAssetsOnDeath") then
+	local gui: ScreenGui? = script.RoleAssets:FindFirstChild("PBSAdmin_Local", true) :: any
+	if gui then gui.ResetOnSpawn = false end
 end
 
 local messagePlayer = Instance.new("RemoteEvent")

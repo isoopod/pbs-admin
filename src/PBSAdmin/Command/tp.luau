@@ -4,12 +4,9 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
 cmd.aliases = { teleport = nil }
-cmd.syntax = { "<player>", "<player>" }
+cmd.syntax = { "<player(s)>", "<player>" }
 
-cmd.help = [[Teleports one player to another.
-	
-both players should match the name of a player in the server
-	using 'me' as the player name will use yourself]]
+cmd.help = [[Teleports players to one other player.]]
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
@@ -21,6 +18,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 			local targetB = self:GetPlayer(player, otherB)
 
 			if not targetB then return self.Responses.Error, "Could not find destination player" end
+			if #targetA == 0 then return self.Responses.Error, "Affected 0 players" end
 
 			for _, target in targetA do
 				local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
