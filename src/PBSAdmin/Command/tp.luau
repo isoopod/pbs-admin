@@ -30,7 +30,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 					end
 				end
 			end
-			return self.Responses.Success, `Successfully teleported {if #targetA == 1 then targetA[1] else otherA} to {targetB}`
+			return self.Responses.Success, `Successfully teleported {if #targetA == 1 then targetA[1] else otherA} to {self.FormatUsername(targetB)}`
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"
 		end

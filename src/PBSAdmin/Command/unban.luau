@@ -24,9 +24,9 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 						ApplyToUniverse = true,
 					})
 					if not s then return self.Responses.Error, `UnbanAsync error: {e}` end
-					return self.Responses.Success, `{target} has been unbanned`
+					return self.Responses.Success, `{self.FormatUsername(target)} has been unbanned`
 				else
-					return self.Responses.Verify, `Are you sure you want to unban {target}`
+					return self.Responses.Verify, `Are you sure you want to unban {self.FormatUsername(target)}`
 				end
 			else
 				return self.Responses.Error, "Player could not be found"

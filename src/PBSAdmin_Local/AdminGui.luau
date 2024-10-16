@@ -6,7 +6,10 @@ local gui = {}
 
 export type CommandBar = Frame & {
 	input: TextBox,
-	Output: TextLabel,
+	OutputFrame: ScrollingFrame & {
+		Output: TextLabel,
+		Cleanup: ImageButton,
+	},
 	autofill: TextLabel,
 }
 function gui.BakeCommandBar(): CommandBar
@@ -15,7 +18,13 @@ function gui.BakeCommandBar(): CommandBar
 	local cmd = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local input = Instance.new("TextBox")
+	local OutputFrame = Instance.new("ScrollingFrame")
 	local Output = Instance.new("TextLabel")
+	local BG = Instance.new("Frame")
+	local UIGradient = Instance.new("UIGradient")
+	local CleanUp = Instance.new("ImageButton")
+	local UIPadding = Instance.new("UIPadding")
+	local SizeConstraint = Instance.new("UISizeConstraint")
 	local autofill = Instance.new("TextLabel")
 
 	--Properties:
@@ -46,10 +55,60 @@ function gui.BakeCommandBar(): CommandBar
 	input.TextXAlignment = Enum.TextXAlignment.Left
 	input.Parent = cmd
 
+	local function updOutSize()
+		OutputFrame.CanvasSize = UDim2.fromOffset(0, math.max(Output.TextBounds.Y + 10, 24))
+		OutputFrame.Size = UDim2.new(1, 0, 0, OutputFrame.CanvasSize.Y.Offset)
+		BG.Size = UDim2.new(1, 0, 0, math.clamp(OutputFrame.Size.Y.Offset, 0, 240))
+	end
+	OutputFrame.Name = "OutputFrame"
+	OutputFrame.BackgroundTransparency = 1
+	Output:GetPropertyChangedSignal("Text"):Connect(updOutSize)
+	updOutSize()
+	OutputFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+		BG.Visible = OutputFrame.Visible
+	end)
+	OutputFrame.Size = UDim2.fromScale(1, 0)
+	OutputFrame.Position = UDim2.fromScale(0, 1.5)
+	OutputFrame.ScrollBarThickness = 0
+	OutputFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+	OutputFrame.Visible = false
+	OutputFrame.Parent = cmd
+
+	SizeConstraint.MaxSize = Vector2.new(math.huge, 240)
+	SizeConstraint.Parent = OutputFrame
+
+	CleanUp.Name = "Cleanup"
+	CleanUp.AnchorPoint = Vector2.new(1, 0)
+	CleanUp.Position = UDim2.new(1, -4, 0, 4)
+	CleanUp.Size = UDim2.fromOffset(24, 24)
+	CleanUp.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+	CleanUp.BackgroundTransparency = 0.3
+	CleanUp.Image = "rbxasset://textures/RoduxDevtools/ClearList.png"
+	UICorner:Clone().Parent = CleanUp
+	CleanUp.Parent = OutputFrame
+
+	BG.Name = "BG"
+	BG.ZIndex = 0
+	BG.Position = UDim2.fromScale(0, 1.5)
+	BG.Visible = false
+	UICorner:Clone().Parent = BG
+	BG.Parent = cmd
+
+	UIGradient.Color = ColorSequence.new(Color3.fromRGB(65, 65, 65))
+	UIGradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.49375),
+		NumberSequenceKeypoint.new(0.440873, 0.625),
+		NumberSequenceKeypoint.new(0.768083, 0.65),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	UIGradient.Rotation = 90
+	UIGradient.Parent = BG
+
 	Output.Name = "Output"
 	Output.BackgroundTransparency = 1
-	Output.Position = UDim2.new(0, 0, 1.5, 0)
-	Output.Size = UDim2.new(1, 0, 5, 0)
+	Output.AutomaticSize = Enum.AutomaticSize.Y
+	Output.Size = UDim2.fromScale(1, 0)
+	Output.Position = UDim2.fromOffset(0, 4)
 	Output.FontFace = Font.new("rbxasset://fonts/families/Inconsolata.json", Enum.FontWeight.Bold)
 	Output.Text = ""
 	Output.TextColor3 = Color3.new(1, 1, 1)
@@ -59,7 +118,11 @@ function gui.BakeCommandBar(): CommandBar
 	Output.TextXAlignment = Enum.TextXAlignment.Left
 	Output.TextYAlignment = Enum.TextYAlignment.Top
 	Output.RichText = true
-	Output.Parent = cmd
+	Output.Parent = OutputFrame
+
+	UIPadding.PaddingLeft = UDim.new(0, 12)
+	UIPadding.PaddingRight = UDim.new(0, 24)
+	UIPadding.Parent = Output
 
 	autofill.Name = "autofill"
 	autofill.BackgroundTransparency = 1

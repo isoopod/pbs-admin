@@ -32,6 +32,7 @@ export type Command = {
 
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
 	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
+	FormatUsername: (player: Player) -> string,
 	UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean,
 	CanUserModifyOther: (self: Command, player: Player, other: Player) -> boolean,
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
@@ -47,6 +48,8 @@ Command.Responses = {
 	Error = 1,
 	Success = 2,
 	Verify = 3, --Y/N to verify the command
+	Minimize = 4, --Greyed out response
+	Warning = 5,
 }
 
 local function fuzzySearch(query: string, target: string): (number, boolean)
@@ -142,6 +145,10 @@ function Command.GetBulkPlayers(self: _Command, player: Player, other: string): 
 	end
 
 	return { self:GetPlayer(player, other) :: Player }
+end
+
+function Command.FormatUsername(player: Player): string
+	return player.DisplayName == player.Name and player.Name or `{player.DisplayName} ({player.Name})`
 end
 
 function Command.UserHasPermissionsForCommand(self: _Command, player: Player): boolean

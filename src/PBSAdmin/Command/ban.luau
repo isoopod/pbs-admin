@@ -65,9 +65,9 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 						})
 						if not s then return self.Responses.Error, `BanAsync error: {e}` end
 						permissions.EditPersistentRole(target.UserId)
-						return self.Responses.Success, `{target} has been banned for {duration} {units}`
+						return self.Responses.Success, `{self.FormatUsername(target)} has been banned for {duration} {units}`
 					else
-						return self.Responses.Verify, `Are you sure you want to ban {target}?`
+						return self.Responses.Verify, `Are you sure you want to ban {self.FormatUsername(target)}?`
 					end
 				else
 					return self.Responses.Error, `{units} is not a valid unit.`

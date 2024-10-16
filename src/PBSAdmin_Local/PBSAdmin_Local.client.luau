@@ -4,7 +4,7 @@
 local contextActionService = game:GetService("ContextActionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
-local keys = { Enum.KeyCode.Quote, Enum.KeyCode.QuotedDouble }
+local keys = { Enum.KeyCode.BackSlash }
 
 local AdminGui = require(script.Parent.AdminGui)
 
@@ -19,6 +19,8 @@ local responseTags = {
 	'<font color="#ff3d3d">', -- error
 	'<font color="#fff">', -- success
 	'<font color="#6ec0ff">', -- confirmation request
+	'<font color="#b0b0b0">', -- de-emphasis
+	'<font color="#fbdc27">', -- warning
 }
 local LastResponseType = 1
 
@@ -89,9 +91,14 @@ function buildAutofill()
 end
 buildAutofill()
 
+cmd.OutputFrame.Cleanup.Activated:Connect(function()
+	cmd.OutputFrame.Output.Text = ""
+	cmd.OutputFrame.Visible = false
+	input:CaptureFocus()
+end)
+
 input.FocusLost:Connect(function(enterPressed: boolean)
 	if not enterPressed then return end
-	cmd.Output.Text = ""
 
 	local commandData = string.split(input.Text, " ")
 	local command = commandData[1]
@@ -100,8 +107,6 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 		remote:FireServer(input.Text)
 	else
 		aliasMap[command](unpack(commandData))
-		-- does not support output information
-		cmd.Output.Text = ""
 		LastResponseType = 2
 	end
 
@@ -112,11 +117,17 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	if cmd.Visible then input:CaptureFocus() end
 end)
 
+local function timeNow(): string
+	local dt = DateTime.now()
+	return dt:FormatLocalTime("LTS", "en-us")
+end
+
 remote.OnClientEvent:Connect(function(response: number | string, body: string)
 	if typeof(response) == "string" then
 		buildAutofill()
 	else
-		cmd.Output.Text = responseTags[response] .. body .. "</font>"
+		cmd.OutputFrame.Output.Text = `{responseTags[4]}[{timeNow()}]:</font> {responseTags[response]}{body}</font>\n\n{cmd.OutputFrame.Output.Text}`
+		if cmd.OutputFrame.Output.Text ~= "" then cmd.OutputFrame.Visible = true end
 		LastResponseType = response
 	end
 end)

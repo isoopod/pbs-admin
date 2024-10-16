@@ -14,17 +14,15 @@ local command = require(script.Parent)
 local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
-cmd.aliases = { reclip = false }
+cmd.aliases = { unnoclip = false }
 cmd.syntax = { "<player>" }
 
-cmd.help = [[Toggles noclip for a player. 
-	
-player should match the name of a player in the server
-	using 'me' as the player name will use yourself]]
+cmd.help = [[Toggles noclip for a player.]]
+cmd.aliasHelp = { unnoclip = [[Removes flight for a player.]] }
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
-	local other = args[1]
+	local other = args[1] or "me"
 	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
 			local target = self:GetPlayer(player, other)

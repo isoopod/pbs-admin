@@ -33,9 +33,9 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 					})
 					if not s then return self.Responses.Error, `BanAsync error: {e}` end
 					permissions.EditPersistentRole(target.UserId)
-					return self.Responses.Success, `{target} has been permanently banned`
+					return self.Responses.Success, `{self.FormatUsername(target)} has been permanently banned`
 				else
-					return self.Responses.Verify, `Are you sure you want to permanently ban {target}?`
+					return self.Responses.Verify, `Are you sure you want to permanently ban {self.FormatUsername(target)}?`
 				end
 			else
 				return self.Responses.Error, "Player could not be found"

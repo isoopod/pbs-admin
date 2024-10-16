@@ -47,7 +47,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 						target.Character:PivotTo(cf)
 					end
 
-					return self.Responses.Success, if aliasData then `Set {target.DisplayName} ({target}) to {aliasData.Name}` else `Reset {target.DisplayName} ({target})`
+					return self.Responses.Success, if aliasData then `Set {self.FormatUsername(target)} to {aliasData.Name}` else `Reset {self.FormatUsername(target)}`
 				end
 				return self.Responses.Error, `'{target}' currently does not have a character, try again later.`
 			else

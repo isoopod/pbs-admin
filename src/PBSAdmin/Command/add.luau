@@ -11,9 +11,8 @@ cmd.minRank = 1
 cmd.aliases = { remove = "remove" }
 cmd.syntax = { "<player or #userid>" }
 
-cmd.help = [[Gives a player build permissions for you plot (if plots are enabled) 
-alternatively removes it when using the remove alias
-]]
+cmd.help = [[Gives a player build permissions for you plot (if plots are enabled)]]
+cmd.aliasHelp = { remove = [[Removes a player's build permissions for your plot (if plots are enabled)]] }
 
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
@@ -22,15 +21,14 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 	if player and other then
 		if self:UserHasPermissionsForCommand(player) then
 			local target = self:GetPlayer(player, other, true)
-			if other then
-				print(player.Name)
+			if target then
 				if self:IsUserVerified(player, target) or verified then
 					if aliasData == "remove" then
 						data.RemoveWhitelist(player.Name, args[1])
 					else
 						data.AddWhitelist(player.Name, args[1])
 					end
-					return self.Responses.Success, "TODO"
+					return self.Responses.Success, `Successfully {aliasData and "removed" or "added"} permissions to build on your plot for {target}`
 				else
 					return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 				end

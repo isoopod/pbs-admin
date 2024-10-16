@@ -19,7 +19,7 @@ To ban a user, see the ban commands.
 cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
-	local role = args[2]
+	local role = args[2] and args[2]:lower()
 	if role and role == "none" then role = nil end
 	local roleName = if not role then "" else role
 	if player and other and role then
@@ -49,9 +49,10 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 										if leaderstats then leaderstats.Role.Value = role:gsub("^%l", string.upper) end
 									end
 
-									return self.Responses.Success, `{target} now has role {role}`
+									return self.Responses.Success, `{self.FormatUsername(target)} now has role {role}`
 								else
-									return self.Responses.Verify, `Are you sure you want to give user '{target}' the '{if roleName == "" then "none" else roleName}' role? Y/N`
+									return self.Responses.Verify,
+										`Are you sure you want to give user '{self.FormatUsername(target)}' the '{if roleName == "" then "none" else roleName}' role? Y/N`
 								end
 							else
 								return self.Responses.Error, "Can only modify roles to ones lower than yours"
@@ -63,11 +64,11 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 						return self.Responses.Error, "Cannot modify other users permissions as they are higher"
 					end
 				else
-					return self.Responses.Verify, `'{target}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
+					return self.Responses.Verify, `'{self.FormatUsername(target)}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 				end
 			else
 				return self.Responses.Error,
-					`Other player matching '{target}' not found, make sure they aren't the only person with that approximate name, or you put a '#' in front for a UserId`
+					`Other player matching '{other}' not found, make sure they aren't the only person with that approximate name, or you put a '#' in front for a UserId`
 			end
 		else
 			return self.Responses.Error, "You do not have permissions to run this command"
