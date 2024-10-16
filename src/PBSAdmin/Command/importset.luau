@@ -4,7 +4,7 @@ local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 4
 cmd.aliases = {}
-cmd.syntax = { "<number>", { "true", "false" } }
+cmd.syntax = { "<number>", "<boolean>" }
 
 cmd.help = [[Inserts a set from InsertService or Pizzaboxers set archive, first argument is a asset/set id, second if true means it looks for pizza sets]]
 

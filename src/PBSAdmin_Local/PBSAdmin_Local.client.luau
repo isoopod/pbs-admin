@@ -1,6 +1,7 @@
 -- This script is assinged to players with admin permissions to send them messages involving thier commands
 -- Cannot actually do anything
 
+local Players = game:GetService("Players")
 local contextActionService = game:GetService("ContextActionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
@@ -140,6 +141,9 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	local queryLen = #query
 	local targetLen = #target
 
+	if queryLen == 0 then return 1, true end -- wildcard when query is empty
+	if target:sub(1, 1) == "<" then return 0, false end -- remove pseudo-aliases
+
 	-- Early exit if query is longer than target
 	if queryLen > targetLen then return 0, false end
 
@@ -169,7 +173,7 @@ function closestMatch(input: string, targets: { string }): string
 	local filteredTargets = {}
 	for _, target in targets do
 		target = tostring(target)
-		if target:sub(1, #input) == input then table.insert(filteredTargets, target) end
+		if target:sub(1, #input) == input or input == "" then table.insert(filteredTargets, target) end
 	end
 
 	if #filteredTargets == 0 then
@@ -213,24 +217,66 @@ local function checkKeyMatches(text: string): boolean
 	return false
 end
 
+local PALookup = {}
+PALookup = {
+	["<player>"] = function()
+		local a = {}
+		for _, p in Players:GetPlayers() do
+			table.insert(a, p.Name)
+			if not table.find(a, p.DisplayName) then
+				table.insert(a, p.DisplayName) -- display names are not unique, and duplicates arent helpful
+			end
+		end
+		table.insert(a, "me")
+		return a
+	end,
+	["<player(s)>"] = function()
+		local a = PALookup["<player>"]()
+		table.insert(a, "all")
+		table.insert(a, "others")
+		table.insert(a, "team")
+		return a
+	end,
+	["<player / #userid>"] = function()
+		return PALookup["<player>"]()
+	end,
+	["<boolean>"] = function()
+		return { "true", "false" }
+	end,
+}
+
+local function processPsuedoAlias(alias: string | { string }, input: string): string | { string }
+	-- Show a (simplified) version of the psuedo-alias when the player starts typing the next value
+	if typeof(alias) ~= "string" then
+		if input == "" then return tostring(alias[1]) end
+		return alias
+	end
+	if input == "" then return alias:gsub("<player%(s%)>", "<player>") end
+
+	if PALookup[alias] then return PALookup[alias]() end
+
+	return alias
+end
+
 input:GetPropertyChangedSignal("Text"):Connect(function()
 	if checkKeyMatches(input.Text) then
 		input:ReleaseFocus(false)
 		openConsole(nil, Enum.UserInputState.Begin)
 	end
 	local words = string.split(input.Text, " ")
-	local len = table.maxn(words)
+	local len = #words
 
 	-- fill the rest of the command thats already been written
-	local prediciton = table.concat(words, " ", 1, len - 1)
+	local prediciton = `{table.concat(words, " ", 1, len - 1)}{len > 1 and " " or ""}`
 
 	local alias = autofill[words[1]]
 	if alias and len > 1 then
 		-- suggest the argument closest to whatever is currently written
-		local targets = alias[len - 1]
+		local targets = processPsuedoAlias(alias[len - 1], words[len])
+
 		if targets then
 			if typeof(targets) == "string" and targets ~= "any" then
-				prediciton ..= closestMatch(words[len], table.pack(targets))
+				prediciton ..= closestMatch(words[len], { targets })
 			elseif typeof(targets) == "table" then
 				prediciton ..= closestMatch(words[len], targets)
 			end
