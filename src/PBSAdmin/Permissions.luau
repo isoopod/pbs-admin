@@ -6,34 +6,29 @@
 -- set type to string
 -- set value to your role name (e.g member / admin / owner)
 
+-- when using datastores, you can use a datastore editor plugin
+
 local DataStoreService = game:GetService("DataStoreService")
-local httpService = game:GetService("HttpService")
-local _, roverKey = pcall(httpService.GetSecret, httpService, "GET_Trusted")
+local GroupService = game:GetService("GroupService")
 
 local datastore
 if script.Parent:GetAttribute("permsUsesDatastore") then datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS") end
 
+-- Role to give to users with no role set who dont have succient rank in the group
 local untrustedRole = ""
 
-local trustedID = "698282317382418581" -- trusted role in server
+-- Role to hand out to users with no role set if they have sufficient rank in the group
 local trustedDefualtRole = "member"
 
-local url = "https://registry.rover.link/api/guilds/698282035327795260/"
-local rblx_disc_method = "roblox-to-discord/"
-
-local headers = {
-	["Authorization"] = typeof(roverKey) == "Secret" and roverKey:AddPrefix("Bearer "),
-}
-
---[[ IMPORTANT
-AS PER ROVER API AGREEMENT, INFO PULLED FROM THE REQUEST IS NOT TO BE SAVED FOR OVER 30 DAYS. 
-THIS MEANS ANY DATA SHOULD NOT BE AUTOMATICALLY PUT INTO THE PLACESAVE AS THIS CAN BE STORED 
-INDEFINITELY
-]]
+-- The group to check for trusted users
+local Group = 14631975
+local RankForTrusted = 25 -- >= this rank in the group will give trusted
+-- Remember that rank is the numeric value for a role in a group (you can see it in configure group)
 
 local verif = {}
 
 -- You can add your roles here and give them a value then use this to check if a uses is privileged enough to do something
+-- Think of the number as rank in a group and the string name as role in a group
 verif.roleValues = {
 	[""] = 0, -- no role assigned / no permissions
 	["member"] = 1,
@@ -64,28 +59,12 @@ function verif.GetUserPermissions(UserId: number): string
 		if saved then return saved end
 	end
 
-	if typeof(roverKey) == "Secret" then
-		-- Query the RoVer API for our roblox user's connected discord accounts that are in the PBS server
-		local s, userServerData = pcall(httpService.RequestAsync, httpService, {
-			Url = `{url}{rblx_disc_method}{UserId}`,
-			Method = "GET",
-			Headers = headers,
-		})
-
-		if s and userServerData.Success then
-			local data = httpService:JSONDecode(userServerData.Body)
-
-			-- a roblox account can be linked to multiple discord accounts
-			for _, user in data["discordUsers"] do
-				for _, role in user["roles"] do
-					if role == trustedID then
-						verif._CachedPermissions[UserId] = trustedDefualtRole
-						return trustedDefualtRole
-					end
-				end
-			end
-		elseif userServerData and userServerData.StatusMessage ~= "user_not_found" then
-			warn(`GetUserPermissions Request Failed: {userServerData.StatusCode}: {userServerData.StatusMessage}`)
+	-- If no saved entry, check if they have a high enough rank in the group
+	for _, v in GroupService:GetGroupsAsync(UserId) do
+		if v.Id ~= Group then continue end
+		if v.Rank >= RankForTrusted then
+			verif._CachedPermissions[UserId] = trustedDefualtRole
+			return trustedDefualtRole
 		end
 	end
 
