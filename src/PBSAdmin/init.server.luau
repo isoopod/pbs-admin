@@ -7,6 +7,7 @@ See the GitHub (https://github.com/isoopod/pbs-admin) for further instructions a
 local players = game:GetService("Players")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local Command = require(script.Command)
+local Permissions = require(script.Permissions)
 local perms = require(script.Permissions)
 
 local externalLeaderstatsDetected = nil
@@ -89,6 +90,7 @@ GetAutofill.Parent = replicatedStorage
 local cachedCommands = {}
 
 messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
+	local rank = Permissions.roleValues[Permissions.GetUserPermissions(player.UserId)]
 	-- Check if the user is using the -help command
 	local splitCommand = string.split(command, " ")
 	if splitCommand[2] == "-help" then
@@ -110,6 +112,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		-- cached commands will definitely have a valid command
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
+		-- you dont have to worry minRank on cached commands either
 		local aliasData = cmd._behaviour.aliases[content[1]]
 		local response, body = cmd(player, true, aliasData, unpack(content, 2))
 		messagePlayer:FireClient(player, response, body)
@@ -118,6 +121,11 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		cachedCommands[player] = nil
 		local cmd = Command.new(splitCommand[1])
 		if cmd then
+			if cmd._behaviour.minRank > rank then
+				messagePlayer:FireClient(player, 1, "You do not have permissions to execute this command.")
+				return
+			end
+
 			local aliasData = cmd._behaviour.aliases[splitCommand[1]]
 			local response, body = cmd(player, false, aliasData, unpack(splitCommand, 2))
 			messagePlayer:FireClient(player, response, body)
