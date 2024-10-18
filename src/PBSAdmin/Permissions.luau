@@ -77,6 +77,7 @@ function verif.EditPersistentRole(UserId: number, role: string?): ()
 	-- keep in mind this has to be manually removed if the user submits a right to erasure request
 	if datastore then
 		pcall(datastore.SetAsync, datastore, tostring(UserId), role, { UserId })
+		verif._CachedPermissions[UserId] = role
 	else
 		script:SetAttribute(tostring(UserId), role)
 	end
