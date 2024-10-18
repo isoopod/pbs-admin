@@ -2,6 +2,7 @@
 -- Cannot actually do anything
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local contextActionService = game:GetService("ContextActionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
@@ -247,7 +248,8 @@ PALookup = {
 
 local function processPsuedoAlias(alias: string | { string }, input: string): string | { string }
 	-- Show a (simplified) version of the psuedo-alias when the player starts typing the next value
-	if typeof(alias) ~= "string" then
+	if alias == nil then return { "" } end
+	if typeof(alias) == "table" then
 		if input == "" then return tostring(alias[1]) end
 		return alias
 	end
@@ -259,20 +261,27 @@ local function processPsuedoAlias(alias: string | { string }, input: string): st
 end
 
 input:GetPropertyChangedSignal("Text"):Connect(function()
-	if checkKeyMatches(input.Text) then
+	local plainText = input.Text:gsub("<[^>]+>", "") -- clear rich text formatting
+	if checkKeyMatches(plainText) then
 		input:ReleaseFocus(false)
 		openConsole(nil, Enum.UserInputState.Begin)
 	end
-	local words = string.split(input.Text, " ")
+
+	-- Generate autofill
+	local words = string.split(plainText, " ")
 	local len = #words
 
-	-- fill the rest of the command thats already been written
+	-- fill autofill with the rest of the command thats already been written
 	local prediciton = `{table.concat(words, " ", 1, len - 1)}{len > 1 and " " or ""}`
 
 	local alias = autofill[words[1]]
 	if alias and len > 1 then
 		-- suggest the argument closest to whatever is currently written
 		local targets = processPsuedoAlias(alias[len - 1], words[len])
+		if len == 2 then
+			if typeof(targets) == "string" then targets = { targets } end
+			table.insert(targets, "-help")
+		end
 
 		if targets then
 			if typeof(targets) == "string" and targets ~= "any" then
@@ -292,6 +301,8 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	end
 
 	cmd.autofill.Text = prediciton
+
+	--Lint command
 end)
 
 userInputService.InputBegan:Connect(function(_inputObject: InputObject)
@@ -313,8 +324,11 @@ userInputService.InputBegan:Connect(function(_inputObject: InputObject)
 			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
 			input:CaptureFocus()
 		-- Autocomplete
-		elseif _inputObject.KeyCode == Enum.KeyCode.Tab and (input.Text:len() > cmd.autofill.Text:len()) then
-			input.Text = cmd.autofill.Text
+		elseif _inputObject.KeyCode == Enum.KeyCode.Tab and (#input.Text < #cmd.autofill.Text:gsub("<[^>]+>", "")) then
+			local text = cmd.autofill.Text
+			RunService.PreRender:Wait()
+			input.Text = text
+			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
 		end
 	end
 end)

@@ -11,10 +11,11 @@ export type CommandBar = Frame & {
 		Cleanup: ImageButton,
 	},
 	autofill: TextLabel,
+	autofillSel: Frame & {
+		AutofillComponent: TextLabel,
+	},
 }
-function gui.BakeCommandBar(): CommandBar
-	-- Instances:
-
+function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLabel })
 	local cmd = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local input = Instance.new("TextBox")
@@ -27,7 +28,9 @@ function gui.BakeCommandBar(): CommandBar
 	local SizeConstraint = Instance.new("UISizeConstraint")
 	local autofill = Instance.new("TextLabel")
 
-	--Properties:
+	local autofillSel = Instance.new("Frame")
+	local stroke = Instance.new("UIStroke")
+	local autofillComponent = Instance.new("TextLabel")
 
 	cmd.Name = "cmd"
 	cmd.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -50,6 +53,7 @@ function gui.BakeCommandBar(): CommandBar
 	input.ZIndex = 2
 	input.PlaceholderColor3 = Color3.fromRGB(178, 178, 178)
 	input.Text = ""
+	input.RichText = true
 	input.TextColor3 = Color3.new(1, 1, 1)
 	input.TextSize = 14.000
 	input.TextXAlignment = Enum.TextXAlignment.Left
@@ -137,7 +141,24 @@ function gui.BakeCommandBar(): CommandBar
 	autofill.TextXAlignment = Enum.TextXAlignment.Left
 	autofill.Parent = cmd
 
-	return cmd
+	autofillSel.Name = "autofullSel"
+	autofillSel.Visible = false
+	autofillSel.Size = UDim2.fromOffset(100, 20)
+	autofillSel.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+
+	local autofillSizeConst = SizeConstraint:Clone()
+	autofillSizeConst.MaxSize = Vector2.new(math.huge, 100)
+	autofillSizeConst.MinSize = Vector2.new(100, 20)
+	autofillSizeConst.Parent = autofillSel
+
+	UICorner:Clone().Parent = autofillSel
+
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = Color3.fromRGB(12, 12, 12)
+	stroke.Thickness = 2
+	stroke.Parent = autofillSel
+
+	return cmd, autofillSel
 end
 
 local scrollDelta = 20 ^ -1
