@@ -145,6 +145,9 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	autofillSel.Visible = false
 	autofillSel.Size = UDim2.fromOffset(100, 20)
 	autofillSel.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+	autofillSel.ZIndex = 2
+	autofillSel.AnchorPoint = Vector2.new(0, 1)
+	autofillSel.ClipsDescendants = true
 
 	local autofillSizeConst = SizeConstraint:Clone()
 	autofillSizeConst.MaxSize = Vector2.new(math.huge, 100)
@@ -157,6 +160,26 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	stroke.Color = Color3.fromRGB(12, 12, 12)
 	stroke.Thickness = 2
 	stroke.Parent = autofillSel
+
+	local list = Instance.new("UIListLayout")
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.Parent = autofillSel
+
+	autofillComponent.Name = "AutofillComponent"
+	autofillComponent.ZIndex = 3
+	autofillComponent.BackgroundColor3 = Color3.fromRGB(21, 122, 255)
+	autofillComponent.BackgroundTransparency = 1
+	autofillComponent.Size = UDim2.new(1, 0, 0, 20)
+	input.Font = Enum.Font.Code
+	autofillComponent.TextColor3 = Color3.new(1, 1, 1)
+	autofillComponent.TextXAlignment = Enum.TextXAlignment.Left
+	autofillComponent.Parent = autofillSel
+
+	UICorner:Clone().Parent = autofillComponent
+	local compPadding = UIPadding:Clone()
+	compPadding.PaddingLeft = UDim.new(0, 4)
+	compPadding.PaddingRight = compPadding.PaddingLeft
+	compPadding.Parent = autofillComponent
 
 	return cmd, autofillSel
 end

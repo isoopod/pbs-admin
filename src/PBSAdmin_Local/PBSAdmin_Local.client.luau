@@ -3,6 +3,7 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
 local contextActionService = game:GetService("ContextActionService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local userInputService = game:GetService("UserInputService")
@@ -10,9 +11,14 @@ local keys = { Enum.KeyCode.BackSlash }
 
 local AdminGui = require(script.Parent.AdminGui)
 
-local cmd = AdminGui.BakeCommandBar()
+local cmd, suggestions = AdminGui.BakeCommandBar()
 local input = cmd.input
 cmd.Parent = script.Parent
+local suggestionTemplate = suggestions.AutofillComponent
+suggestionTemplate.Parent = nil
+suggestions.Parent = script.Parent
+
+local isMobile: ImageButton?
 
 local remote: RemoteEvent = replicatedStorage:WaitForChild("PBSAdminRemote")
 local get: RemoteFunction = replicatedStorage:WaitForChild("PBSAdminGetAutofill")
@@ -169,7 +175,7 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	return score, matched
 end
 
-function closestMatch(input: string, targets: { string }): string
+function closestMatch(input: string, targets: { string }): { string }
 	-- Only consider targets that start with input
 	local filteredTargets = {}
 	for _, target in targets do
@@ -178,19 +184,14 @@ function closestMatch(input: string, targets: { string }): string
 	end
 
 	if #filteredTargets == 0 then
-		return "" -- No matching targets found
+		return { "" } -- No matching targets found
 	end
 
-	local maxScore = 0
-	local closest = ""
-	for _, target in filteredTargets do
-		local score = fuzzySearch(input, target)
-		if score > maxScore then
-			maxScore = score
-			closest = target
-		end
-	end
-	return closest
+	table.sort(filteredTargets, function(a, b)
+		return fuzzySearch(input, a) > fuzzySearch(input, b)
+	end)
+
+	return filteredTargets
 end
 
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
@@ -198,11 +199,15 @@ local function openConsole(_, inputState: Enum.UserInputState, _inputObject: Inp
 	if inputState == Enum.UserInputState.Begin then
 		input:ReleaseFocus(false)
 		cmd.Visible = not cmd.Visible
+		if not cmd.Visible then suggestions.Visible = false end
 		if cmd.Visible then
 			input.Text = ""
 			cmd.autofill.Text = ""
-			task.wait(0.1)
+			userInputService.InputEnded:Wait()
 			input:CaptureFocus()
+			if isMobile then isMobile.Position = UDim2.fromScale(1, -0.45) end
+		elseif isMobile then
+			isMobile.Position = UDim2.fromScale(1, -0.95)
 		end
 		return Enum.ContextActionResult.Sink
 	end
@@ -260,6 +265,39 @@ local function processPsuedoAlias(alias: string | { string }, input: string): st
 	return alias
 end
 
+local function trimBeforeLastNewline(input)
+	local lastNewlineIndex = input:match(".*()\n")
+	if lastNewlineIndex then
+		return input:sub(lastNewlineIndex + 1)
+	else
+		return input
+	end
+end
+
+local function GetTextCursorAbsolutePosition(textbox: TextBox): Vector2
+	local trimtext = string.sub(textbox.Text, 1, textbox.CursorPosition - 1)
+	local textboundsY = TextService:GetTextSize(trimtext, textbox.TextSize, textbox.Font, textbox.AbsoluteSize)
+	local lastline = trimBeforeLastNewline(trimtext)
+	local textboundsX = TextService:GetTextSize(lastline, textbox.TextSize, textbox.Font, textbox.AbsoluteSize)
+	return textbox.AbsolutePosition + Vector2.new(textboundsX.X, textboundsY.Y)
+end
+
+function getMaxWidth(strings: { string }, textLabel: TextLabel): number
+	local maxWidth = 0
+
+	local params = Instance.new("GetTextBoundsParams")
+	params.Font = textLabel.FontFace
+	params.Size = textLabel.TextSize
+	params.Width = math.huge
+	for _, v in strings do
+		params.Text = v
+		local bounds = TextService:GetTextBoundsAsync(params)
+		if bounds.X > maxWidth then maxWidth = bounds.X end
+	end
+
+	return maxWidth
+end
+
 input:GetPropertyChangedSignal("Text"):Connect(function()
 	local plainText = input.Text:gsub("<[^>]+>", "") -- clear rich text formatting
 	if checkKeyMatches(plainText) then
@@ -273,6 +311,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 
 	-- fill autofill with the rest of the command thats already been written
 	local prediciton = `{table.concat(words, " ", 1, len - 1)}{len > 1 and " " or ""}`
+	local entries = { "" }
 
 	local alias = autofill[words[1]]
 	if alias and len > 1 then
@@ -285,9 +324,9 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 
 		if targets then
 			if typeof(targets) == "string" and targets ~= "any" then
-				prediciton ..= closestMatch(words[len], { targets })
+				entries = closestMatch(words[len], { targets })
 			elseif typeof(targets) == "table" then
-				prediciton ..= closestMatch(words[len], targets)
+				entries = closestMatch(words[len], targets)
 			end
 		end
 	elseif words[1] then
@@ -297,7 +336,30 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 			if (i == "Y" or i == "N") and LastResponseType ~= 3 then continue end
 			table.insert(targets, i)
 		end
-		prediciton ..= closestMatch(words[1], targets)
+		entries = closestMatch(words[1], targets)
+	end
+
+	prediciton ..= entries[1]
+
+	local cursorCorner = GetTextCursorAbsolutePosition(input) + Vector2.new(10, -cmd.AbsoluteSize.Y * 0.75)
+	local width = getMaxWidth(entries, suggestionTemplate)
+	suggestions.Position = UDim2.fromOffset(cursorCorner.X, cursorCorner.Y)
+	suggestions.Size = UDim2.fromOffset(width, #entries * 20)
+	if entries[1] ~= "" and not isMobile then
+		for _, v in suggestions:GetChildren() do
+			if v:IsA("TextLabel") then v:Destroy() end
+		end
+		suggestions.Visible = true
+
+		for i, v in entries do
+			local entry = suggestionTemplate:Clone()
+			if i == 1 then entry.BackgroundTransparency = 0 end
+			entry.Text = v
+			entry.LayoutOrder = i
+			entry.Parent = suggestions
+		end
+	else
+		suggestions.Visible = false
 	end
 
 	cmd.autofill.Text = prediciton
@@ -333,7 +395,23 @@ userInputService.InputBegan:Connect(function(_inputObject: InputObject)
 	end
 end)
 
--- This just sinsk the input
+-- This just sinks the up and down arrows if the command bar is open
 table.insert(keys, Enum.KeyCode.Up)
 table.insert(keys, Enum.KeyCode.Down)
 contextActionService:BindAction("openPBSAdminConsole", openConsole, true, unpack(keys))
+contextActionService:SetPosition("openPBSAdminConsole", UDim2.fromScale(0.7, -0.45))
+contextActionService:SetImage("openPBSAdminConsole", "rbxassetid://98927197503750")
+
+-- If the button is made that means that the user is on mobile.
+-- We should apply some changes so it is easier to use the command bar on mobile
+isMobile = contextActionService:GetButton("openPBSAdminConsole")
+if isMobile then
+	local CAS_CONTAINER = isMobile:FindFirstAncestorWhichIsA("ScreenGui")
+	-- Will probably break some other context button positioning but worth it.
+	-- This is the best way to get context buttons in the topbar
+	if CAS_CONTAINER then CAS_CONTAINER.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets end
+	cmd.Size = UDim2.new(0.75, 0, 0, isMobile.AbsoluteSize.Y)
+	cmd.Position = UDim2.new(0.45, 0, 0, isMobile.AbsolutePosition.Y + isMobile.AbsoluteSize.Y / 2)
+	isMobile.AnchorPoint = Vector2.new(1, 0)
+	isMobile.Position = UDim2.fromScale(1, -0.95)
+end
