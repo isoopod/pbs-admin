@@ -66,7 +66,7 @@ export type Command = {
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
 	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
 	FormatUsername: (player: Player) -> string,
-	UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean,
+	--UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean, DEPRECATED, REMOVING IN FUTURE VERSION
 	CanUserModifyOther: (self: Command, player: Player, other: Player) -> boolean,
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
 	GiveToolsForRole: (self: Command, player: Player, role: string) -> (),
