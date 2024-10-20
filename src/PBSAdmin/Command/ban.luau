@@ -61,7 +61,7 @@ cmd.__call = function(self: command.Command, player: Player, verified: boolean, 
 							Duration = length,
 							DisplayReason = displayReason,
 							PrivateReason = reason,
-							ExcludeAltAccounts = true,
+							ExcludeAltAccounts = false,
 						})
 						if not s then return self.Responses.Error, `BanAsync error: {e}` end
 						permissions.EditPersistentRole(target.UserId)
