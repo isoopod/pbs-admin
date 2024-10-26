@@ -38,6 +38,8 @@ local autofill: { [string]: { string | { string } } }
 local cmdHistory: { string } = {}
 local historyI: number
 
+local currentSuggestion: number?
+
 -- These are commands we can do directly on the client without having to validate on the server
 -- Use for harmless commands like the cmds list
 local clientSideCommands = {
@@ -231,6 +233,7 @@ local function openConsole(_, inputState: Enum.UserInputState, _inputObject: Inp
 		elseif isMobile then
 			isMobile.Position = UDim2.fromScale(1, -0.95)
 		end
+		currentSuggestion = nil
 		return Enum.ContextActionResult.Sink
 	end
 	return Enum.ContextActionResult.Pass
@@ -334,6 +337,16 @@ function getMaxWidth(strings: { string }, textLabel: TextLabel): number
 	return maxWidth
 end
 
+local function filter<T>(t: { T }, comp: (T) -> boolean): { T }
+	local filtered = {}
+	for _, v in t do
+		if comp(v) then
+			table.insert(filtered, v)
+		end
+	end
+	return filtered
+end
+
 input:GetPropertyChangedSignal("Text"):Connect(function()
 	local plainText = input.Text:gsub("<[^>]+>", "") -- clear rich text formatting
 	if checkKeyMatches(plainText) then
@@ -367,7 +380,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 				entries = closestMatch(words[len], targets)
 			end
 		end
-	elseif words[1] then
+	elseif words[1] and words[1] ~= "" then
 		-- suggest the command closest to whatever is currently input
 		local targets = {}
 		for i in autofill do
@@ -381,26 +394,39 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 
 	prediciton ..= entries[1]
 
+	-- Filter out any psuedo-aliases for the suggestions box
+	entries = filter(entries, function(entry: string): boolean
+		return entry:match("^<.+>$") == nil
+	end)
+
 	local cursorCorner = GetTextCursorAbsolutePosition(input) + Vector2.new(10, -cmd.AbsoluteSize.Y * 0.5)
 	local width = getMaxWidth(entries, suggestionTemplate)
 	suggestions.Position = UDim2.fromOffset(cursorCorner.X, cursorCorner.Y)
 	suggestions.Size = UDim2.fromOffset(width, #entries * 20)
-	if entries[1] ~= "" and not isMobile then
-		for _, v in suggestions:GetChildren() do
-			if v:IsA("TextLabel") then
-				v:Destroy()
-			end
-		end
-		suggestions.Visible = true
 
-		for i, v in entries do
-			local entry = suggestionTemplate:Clone()
-			if i == 1 then
-				entry.BackgroundTransparency = 0
+	currentSuggestion = nil
+
+	if words[len] ~= "" and entries[1] ~= "" and not isMobile then
+		if not (#entries == 1 and words[len] == entries[1]) then
+			for _, v in suggestions:GetChildren() do
+				if v:IsA("TextLabel") then
+					v:Destroy()
+				end
 			end
-			entry.Text = v
-			entry.LayoutOrder = i
-			entry.Parent = suggestions
+			suggestions.Visible = true
+
+			for i, v in entries do
+				local entry = suggestionTemplate:Clone()
+				if i == 1 then
+					entry.BackgroundTransparency = 0
+					currentSuggestion = 1
+				end
+				entry.Text = v
+				entry.LayoutOrder = i
+				entry.Parent = suggestions
+			end
+		else
+			suggestions.Visible = false
 		end
 	else
 		suggestions.Visible = false
@@ -411,24 +437,50 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	--Lint command
 end)
 
+local function navigateSuggestions(up: boolean): boolean
+	if currentSuggestion then
+		local newSuggestion = math.clamp(currentSuggestion + (up and -1 or 1), 1, #suggestions:GetChildren() - 4)
+		if newSuggestion ~= currentSuggestion then
+			currentSuggestion = newSuggestion
+			-- Handle highlighting
+			for _, v in suggestions:GetChildren() do
+				if v:IsA("TextLabel") then
+					if v.LayoutOrder == currentSuggestion then
+						cmd.autofill.Text = cmd.autofill.Text:gsub("%S+$", v.Text)
+						v.BackgroundTransparency = 0
+					else
+						v.BackgroundTransparency = 1
+					end
+				end
+			end
+		end
+		return true
+	end
+	return false
+end
+
 userInputService.InputBegan:Connect(function(_inputObject: InputObject)
 	if cmd.Visible then
-		-- Navigate up in command history
-		if _inputObject.KeyCode == Enum.KeyCode.Up and #cmdHistory > 0 then
-			historyI = math.clamp(historyI - 1, 1, #cmdHistory + 1)
-			input.Text = cmdHistory[historyI]
-			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
-			input:CaptureFocus()
-		-- Navigate down in command history
-		elseif _inputObject.KeyCode == Enum.KeyCode.Down and #cmdHistory > 0 then
-			historyI = math.clamp(historyI + 1, 1, #cmdHistory + 1)
-			if historyI > #cmdHistory then
-				input.Text = ""
-			else
+		-- Navigate up in command history or suggestions
+		if _inputObject.KeyCode == Enum.KeyCode.Up then
+			if not navigateSuggestions(true) and #cmdHistory > 0 then
+				historyI = math.clamp(historyI - 1, 1, #cmdHistory + 1)
 				input.Text = cmdHistory[historyI]
+				input.CursorPosition = (utf8.len(input.Text) or 0) + 1
+				input:CaptureFocus()
 			end
-			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
-			input:CaptureFocus()
+		-- Navigate down in command history or suggestions
+		elseif _inputObject.KeyCode == Enum.KeyCode.Down then
+			if not navigateSuggestions(false) and #cmdHistory > 0 then
+				historyI = math.clamp(historyI + 1, 1, #cmdHistory + 1)
+				if historyI > #cmdHistory then
+					input.Text = ""
+				else
+					input.Text = cmdHistory[historyI]
+				end
+				input.CursorPosition = (utf8.len(input.Text) or 0) + 1
+				input:CaptureFocus()
+			end
 		-- Autocomplete
 		elseif _inputObject.KeyCode == Enum.KeyCode.Tab and (#input.Text < #cmd.autofill.Text:gsub("<[^>]+>", "")) then
 			local text = cmd.autofill.Text
