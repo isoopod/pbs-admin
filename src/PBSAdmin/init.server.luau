@@ -121,7 +121,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 		local content = string.split(cachedCommands[player], " ")
 		local cmd = Command.new(content[1])
 		-- you dont have to worry minRank on cached commands either
-		local aliasData = cmd._behaviour.aliases[content[1]]
+		local aliasData = cmd._behaviour.aliases and cmd._behaviour.aliases[content[1]]
 		local response, body = cmd(player, true, aliasData, unpack(content, 2))
 		messagePlayer:FireClient(player, response, body)
 		cachedCommands[player] = nil
@@ -134,7 +134,7 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 				return
 			end
 
-			local aliasData = cmd._behaviour.aliases[splitCommand[1]]
+			local aliasData = cmd._behaviour.aliases and cmd._behaviour.aliases[splitCommand[1]]
 			local response, body = cmd(player, false, aliasData, unpack(splitCommand, 2))
 			messagePlayer:FireClient(player, response, body)
 			if response == 3 then -- cache for verification
