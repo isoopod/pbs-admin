@@ -8,32 +8,28 @@ cmd.syntax = { "<player(s)>", "<player>" }
 
 cmd.help = [[Teleports players to one other player.]]
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local otherA = args[1]
 	local otherB = args[2]
 	if player and otherA and otherB then
-		if self:UserHasPermissionsForCommand(player) then
-			local targetA = self:GetBulkPlayers(player, otherA)
-			local targetB = self:GetPlayer(player, otherB)
+		local targetA = self:GetBulkPlayers(player, otherA)
+		local targetB = self:GetPlayer(player, otherB)
 
-			if not targetB then return self.Responses.Error, "Could not find destination player" end
-			if #targetA == 0 then return self.Responses.Error, "Affected 0 players" end
+		if not targetB then return self.Responses.Error, "Could not find destination player" end
+		if #targetA == 0 then return self.Responses.Error, "Affected 0 players" end
 
-			for _, target in targetA do
-				local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
-				if humanoid and targetB then
-					if target.Character and targetB.Character then
-						humanoid.Sit = false
-						task.wait(0.1)
-						target.Character:PivotTo(targetB.Character:GetPivot())
-					end
+		for _, target in targetA do
+			local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid and targetB then
+				if target.Character and targetB.Character then
+					humanoid.Sit = false
+					task.wait(0.1)
+					target.Character:PivotTo(targetB.Character:GetPivot())
 				end
 			end
-			return self.Responses.Success, `Successfully teleported {if #targetA == 1 then targetA[1] else otherA} to {self.FormatUsername(targetB)}`
-		else
-			return self.Responses.Error, "You do not have permissions to run this command"
 		end
+		return self.Responses.Success, `Successfully teleported {if #targetA == 1 then self.FormatUsername(targetA[1]) else otherA} to {self.FormatUsername(targetB)}`
 	else
 		return self.Responses.Error, "Invalid Parameters"
 	end

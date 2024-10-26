@@ -18,43 +18,39 @@ cmd.aliasHelp = {
 	r6 = [[Refreshes a player and forces their avatar into r6]],
 }
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1] or "me"
 	if player then
-		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player, other)
-			if target then
-				local humanoid = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
-				if humanoid then
-					-- forcing the rigtype is different
-					if aliasData then
-						target:SetAttribute("ForcedRigtype", aliasData.Name)
-						local desc = Players:GetHumanoidDescriptionFromUserId(target.CharacterAppearanceId)
-						local morph = Players:CreateHumanoidModelFromDescription(desc, aliasData :: Enum.HumanoidRigType)
-						morph:PivotTo(target.Character:GetPivot())
-						morph.Name = target.Name
-						local oldChar = target.Character
-						target.Character = morph
-						morph.Parent = workspace
-						oldChar:Destroy()
-					else
-						local cf = target.Character:GetPivot()
-						target:LoadCharacter()
-						repeat
-							task.wait()
-						until target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-						target.Character:PivotTo(cf)
-					end
-
-					return self.Responses.Success, if aliasData then `Set {self.FormatUsername(target)} to {aliasData.Name}` else `Reset {self.FormatUsername(target)}`
+		local target = self:GetPlayer(player, other)
+		if target then
+			local humanoid = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				-- forcing the rigtype is different
+				if aliasData then
+					target:SetAttribute("ForcedRigtype", aliasData.Name)
+					local desc = Players:GetHumanoidDescriptionFromUserId(target.CharacterAppearanceId)
+					local morph = Players:CreateHumanoidModelFromDescription(desc, aliasData :: Enum.HumanoidRigType)
+					morph:PivotTo(target.Character:GetPivot())
+					morph.Name = target.Name
+					local oldChar = target.Character
+					target.Character = morph
+					morph.Parent = workspace
+					oldChar:Destroy()
+				else
+					local cf = target.Character:GetPivot()
+					target:LoadCharacter()
+					repeat
+						task.wait()
+					until target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+					target.Character:PivotTo(cf)
 				end
-				return self.Responses.Error, `'{target}' currently does not have a character, try again later.`
-			else
-				return self.Responses.Error, "Could not find both players"
+
+				return self.Responses.Success, if aliasData then `Set {self.FormatUsername(target)} to {aliasData.Name}` else `Reset {self.FormatUsername(target)}`
 			end
+			return self.Responses.Error, `'{self.FormatUsername(target)}' currently does not have a character, try again later.`
 		else
-			return self.Responses.Error, "You do not have permissions to run this command"
+			return self.Responses.Error, "Could not find both players"
 		end
 	else
 		return self.Responses.Error, "Invalid Parameters"

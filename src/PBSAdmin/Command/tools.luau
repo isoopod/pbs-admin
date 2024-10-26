@@ -10,35 +10,31 @@ cmd.syntax = { "<player>" }
 cmd.help = [[Gives a player tools until they leave.]]
 cmd.aliasHelp = { untools = "Removes a player's tools" }
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1] or "me"
 	if player then
-		if self:UserHasPermissionsForCommand(player) then
-			local target = self:GetPlayer(player, other)
-			if target then
-				if self:IsUserVerified(player, target) or verified then
-					if verified then
-						if aliasData == nil then
-							self:GiveToolsForRole(target, "member")
-							permissions._CachedPermissions[other] = true
-						else
-							self:GiveToolsForRole(target, "none")
-							permissions._CachedPermissions[other] = nil
-						end
-						return self.Responses.Success, `tools {if aliasData == nil then "given to" else "removed from"} {self.FormatUsername(target)}`
+		local target = self:GetPlayer(player, other)
+		if target then
+			if self:IsUserVerified(player, target) or verified then
+				if verified then
+					if aliasData == nil then
+						self:GiveToolsForRole(target, "member")
+						permissions._CachedPermissions[other] = true
 					else
-						return self.Responses.Verify,
-							`Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{self.FormatUsername(target)}'? Y/N`
+						self:GiveToolsForRole(target, "none")
+						permissions._CachedPermissions[other] = nil
 					end
+					return self.Responses.Success, `tools {if aliasData == nil then "given to" else "removed from"} {self.FormatUsername(target)}`
 				else
-					return self.Responses.Verify, `'{self.FormatUsername(target)}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
+					return self.Responses.Verify,
+						`Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{self.FormatUsername(target)}'? Y/N`
 				end
 			else
-				return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"
+				return self.Responses.Verify, `'{self.FormatUsername(target)}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
 			end
 		else
-			return self.Responses.Error, "You do not have permissions to run this command"
+			return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"
 		end
 	else
 		return self.Responses.Error, "Invalid Parameters"

@@ -6,7 +6,6 @@ local cmd: command.cmd = {} :: command.cmd
 local permissions = require(script.Parent.Parent.Permissions)
 
 cmd.minRank = 3
-cmd.aliases = {}
 cmd.syntax = {
 	"<player / #userid>",
 	"<number>",
@@ -36,7 +35,7 @@ local function convertUnit(number: number, unit: string): number
 	return math.clamp(converted, -1, math.huge)
 end
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local duration = tonumber(args[2])

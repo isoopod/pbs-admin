@@ -341,7 +341,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 
 	prediciton ..= entries[1]
 
-	local cursorCorner = GetTextCursorAbsolutePosition(input) + Vector2.new(10, -cmd.AbsoluteSize.Y * 0.75)
+	local cursorCorner = GetTextCursorAbsolutePosition(input) + Vector2.new(10, -cmd.AbsoluteSize.Y * 0.5)
 	local width = getMaxWidth(entries, suggestionTemplate)
 	suggestions.Position = UDim2.fromOffset(cursorCorner.X, cursorCorner.Y)
 	suggestions.Size = UDim2.fromOffset(width, #entries * 20)

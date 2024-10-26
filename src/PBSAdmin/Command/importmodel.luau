@@ -3,7 +3,6 @@ local command = require(script.Parent)
 local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 4
-cmd.aliases = {}
 cmd.syntax = { "<number>", "<string>" }
 
 cmd.help = [[imports a model to a set, first argument is assetid, second is the set name it should be added to]]
@@ -31,20 +30,16 @@ function insert(assetId, name, ModelParent): Model?
 	return nil
 end
 
-cmd.__call = function(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local asset = args[1]
 	local set = args[2]
 	if player and asset and set and game:GetService("ReplicatedStorage").PBSTools.Sets:FindFirstChild(set) then
-		if self:UserHasPermissionsForCommand(player) then
-			local Model = insert(set, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets:FindFirstChild(set))
+		local Model = insert(set, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets:FindFirstChild(set))
 
-			if Model then Model:Destroy() end
+		if Model then Model:Destroy() end
 
-			return self.Responses.Success, "Set Imported"
-		else
-			return self.Responses.Error, "You do not have permissions to run this command"
-		end
+		return self.Responses.Success, "Set Imported"
 	else
 		return self.Responses.Error, "Invalid Parameters"
 	end

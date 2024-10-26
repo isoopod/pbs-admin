@@ -14,9 +14,110 @@ local permissions = require(script.Parent.Permissions)
 
 --local messagePlayer = replicatedStorage:WaitForChild("PBSAdminRemote")
 
+--[=[
+	@prop minRank number
+	@within Handler
+	Minimum rank needed to call the command.   
+	The default commands all have minRank set to 3 or 4 by default, and it is up to you to change these how you want.   
+	Rank maps to role so that:
+	- 0 = no role
+	- 1 = member
+	- 2 = trusted
+	- 3 = admin
+	- 4 = owner  
+]=]
+
+--- @prop aliases {[string]: any}?
+--- @within Handler
+--- @tag Optional
+--- Aliases are extra names aside from the module name that can be used to execute the command.
+--- Aliases may have additional alias data to distinguish what alias called the command (see __call aliasData argument)
+--- The main command has nil for aliasData, and it is up to you how to organize the alias data for your command (hence the any type)
+
+--[=[
+	@prop syntax {string | {string}}
+	@within Handler
+	This is used for the autocomplete, and should be an array of strings / arrays of strings.
+	When an array of strings is used, each item from that will be used for that auto complete entry.   
+	Single strings surrounded by angled brackets will show up in the command bar as a hint but do not autofill with tab.   
+	Additionally, there are some special psuedo-alias syntax members that can be used:
+	- `<player>` turns into the name and display names of each player, plus 'me'
+	- `<player(s)>` shows as <player> and adds 'all' 'others' and 'team' for bulk operations
+	- `<player / #userid>` identical to <player> but indicates to the user they can use userids for this argument
+	- `<boolean>` turns into 'true' and 'false'
+	- `<number>` will show an error if the argument does not turn into a number
+]=]
+
+--- @prop help string
+--- @within Handler
+--- String that will be returned when the command is fired with the first argument as --help
+
+--- @prop aliasHelp {[string]: string}?
+--- @within Handler
+--- @tag Optional
+--- Overwrites the help string for aliases, for when functionality may change
+
+--[=[
+	@function __call
+	@within Handler
+	
+	@param self Command
+	@param player Player -- The player who called the command
+	@param verified boolean -- If the command has been verified for commands that use the verify response type
+	@param aliasData any? -- Data assigned to the alias that was called. Main command will always be nil
+	@param ... ...string? -- Variadic containing the arguments passed to the command.
+
+	@return number -- This should be a value from Command.Responses
+	@return string -- Message to be displayed in the console
+
+	This is the function that will be called when the command is executed. 
+	Although this is called Handler(), it is really the __call metamethod. 
+	It should be declared as:
+	```lua
+	function cmd.__call(self, player, verified, aliasData, ...): (number, string)
+	-- OR with explicit types
+	function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+	```
+	
+	:::danger
+	The function MUST return a Response number and output text no matter what. Yeilding for extended periods of time is not recommended, unless in a seperate thread
+	that does not slow down return value.
+	:::
+
+	Since the command arguments are passed in as a variadic, you can get them as a table
+	```lua
+		local args = {...}
+		local arg1 = args[1]
+		local arg2 = args[2]
+	```
+	:::note
+	You need to make sure that each argument is not nil, as the command may be executed without all arguments.
+	The arguments passed in the variadic will all be strings, even when using psuedo-alias syntax such as `<number` or `<boolean>`. 
+	You will have to convert them to the respective values yourself
+	:::
+
+	You will want to use the utilities provided from self (see Command)
+]=]
+
+--[=[
+	Handles the data and execution of a command. Should be placed under the Command module in the PBSAdmin script.  
+	The name of the module will be the main name for your command, in other words what you type in to execute it.
+	Because of this, you should make sure you dont have any commands with the same names/aliases
+
+	When writing handlers, the standard name for the return table is cmd. This is not neccessary but the docs assume this name is used.
+	Handlers are declared as:
+	```lua
+	local command = require(script.Parent)
+
+	local cmd: command.cmd = {} :: command.cmd
+	```
+
+	@class Handler
+]=]
+
 export type cmd = {
 	minRank: number, -- the min rank (see permissions module) to call the command
-	aliases: { [string]: any },
+	aliases: { [string]: any }?,
 	syntax: { string | { string } },
 	help: string,
 	aliasHelp: { [string]: string }?, -- Replaces the help info for specific aliases of the command
@@ -49,7 +150,7 @@ export type cmd = {
 --- @prop _Behavior unknown
 --- @within Command
 --- @private
---- Points to the Command Data
+--- Points to the Command Handler
 
 --[=[
 	Standard library for commands.
@@ -313,10 +414,14 @@ function CommandClass.new(commandName: string): Command?
 
 	self._behaviour = behaviour
 
+	if CommandClass.Commands[commandName] then warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()}`) end
 	CommandClass.Commands[commandName] = self
 	-- generate aliases with reference to the main object
-	for i, v in self._behaviour.aliases do
-		CommandClass.Commands[i] = CommandClass.Commands[commandName]
+	if self._behaviour.aliases then
+		for i, v in self._behaviour.aliases do
+			if CommandClass.Commands[i] then warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()} alias: {i}`) end
+			CommandClass.Commands[i] = CommandClass.Commands[commandName]
+		end
 	end
 
 	return self
