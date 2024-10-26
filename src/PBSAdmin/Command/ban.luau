@@ -31,11 +31,13 @@ local function convertUnit(number: number, unit: string): number
 	}
 
 	local converted = number * unitsInSeconds[unit]
-	if converted == 0 then converted = 1 end
+	if converted == 0 then
+		converted = 1
+	end
 	return math.clamp(converted, -1, math.huge)
 end
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, _, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local duration = tonumber(args[2])
@@ -61,11 +63,13 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 						PrivateReason = reason,
 						ExcludeAltAccounts = false,
 					})
-					if not s then return self.Responses.Error, `BanAsync error: {e}` end
+					if not s then
+						return self.Responses.Error, `BanAsync error: {e}`
+					end
 					permissions.EditPersistentRole(target.UserId)
-					return self.Responses.Success, `{self.FormatUsername(target)} has been banned for {duration} {units}`
+					return self.Responses.Success, `{self:FormatUsername(target)} has been banned for {duration} {units}`
 				else
-					return self.Responses.Verify, `Are you sure you want to ban {self.FormatUsername(target)}?`
+					return self.Responses.Verify, `Are you sure you want to ban {self:FormatUsername(target)}?`
 				end
 			else
 				return self.Responses.Error, `{units} is not a valid unit.`

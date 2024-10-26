@@ -166,7 +166,7 @@ export type Command = {
 
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
 	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
-	FormatUsername: (player: Player) -> string,
+	FormatUsername: (self: Command, player: Player) -> string,
 	--UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean, DEPRECATED, REMOVING IN FUTURE VERSION
 	CanUserModifyOther: (self: Command, player: Player, other: Player) -> boolean,
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
@@ -195,7 +195,9 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	local targetLen = #target
 
 	-- Early exit if query is longer than target
-	if queryLen > targetLen then return 0, false end
+	if queryLen > targetLen then
+		return 0, false
+	end
 
 	local queryIndex = 1
 	local matchCount = 0
@@ -239,15 +241,21 @@ end
 	@param canUseUserId boolean? -- if we should be able to search for players by username by placing a # in front of the query
 	@return Player -- May be `OfflinePlayer` if canUseUserId is true
 ]=]
-function Command.GetPlayer(self: _Command, player: Player, other: string, canUseUserId: boolean?): (Player | offlinePlayer.OfflinePlayer)?
-	if not other then return nil end
+function Command.GetPlayer(_self: _Command, player: Player, other: string, canUseUserId: boolean?): (Player | offlinePlayer.OfflinePlayer)?
+	if not other then
+		return nil
+	end
 	local useUserid = other:sub(1, 1) == "#"
-	if not canUseUserId then useUserid = false end
+	if not canUseUserId then
+		useUserid = false
+	end
 
 	if useUserid == false then
 		-- just match a player in the server
 		-- OR if the other is 'me' then return the player
-		if other == "me" then return player end
+		if other == "me" then
+			return player
+		end
 
 		local nameMap = {}
 		for _, p in players:GetPlayers() do
@@ -270,7 +278,9 @@ function Command.GetPlayer(self: _Command, player: Player, other: string, canUse
 	else
 		-- match a user by their exact userid and return an offlineplayer to stand in
 		local userId = tonumber(other:sub(2))
-		if typeof(userId) ~= "number" then return nil end
+		if typeof(userId) ~= "number" then
+			return nil
+		end
 		local s, user: string = pcall(players.GetNameFromUserIdAsync, players, userId)
 		if s then
 			local offlineUser = offlinePlayer.new(user, userId)
@@ -292,18 +302,24 @@ end
 	@return {Player}
 ]=]
 function Command.GetBulkPlayers(self: _Command, player: Player, other: string): { Player }
-	if other == "all" then return players:GetPlayers() end
+	if other == "all" then
+		return players:GetPlayers()
+	end
 	if other == "others" then
 		local plrs = {}
 		for _, v in players:GetPlayers() do
-			if v ~= player then table.insert(plrs, v) end
+			if v ~= player then
+				table.insert(plrs, v)
+			end
 		end
 		return plrs
 	end
 	if other == "team" then
 		local plrs = {}
 		for _, v in players:GetPlayers() do
-			if v.Team == player.Team then table.insert(plrs, v) end
+			if v.Team == player.Team then
+				table.insert(plrs, v)
+			end
 		end
 		return plrs
 	end
@@ -319,11 +335,13 @@ end
 	Does not support OfflinePlayers
 	:::
 
+	@methid FormatUsername
+	@within Command
 	@tag Command Handler
 	@param player Player
 	@return string
 ]=]
-function Command.FormatUsername(player: Player): string
+function Command.FormatUsername(_self: _Command, player: Player): string
 	return player.DisplayName == player.Name and player.Name or `{player.DisplayName} ({player.Name})`
 end
 
@@ -337,7 +355,7 @@ end
 	@param player Player
 	@return boolean 
 ]=]
-function Command.UserHasPermissionsForCommand(self: _Command, player: Player): boolean
+function Command.UserHasPermissionsForCommand(_self: _Command, _player: Player): boolean
 	warn(debug.traceback("UserHasPermissionsForCommand is deprecated and will be removed in a future release."))
 	return true
 end
@@ -352,7 +370,7 @@ end
 	@param other Player -- Player we are checking if we can modify
 	@return boolean
 ]=]
-function Command.CanUserModifyOther(self: _Command, player: Player, other: Player): boolean
+function Command.CanUserModifyOther(_self: _Command, player: Player, other: Player): boolean
 	if
 		permissions.roleValues[permissions.GetUserPermissions(player.UserId)] < permissions.roleValues[permissions.GetUserPermissions(other.UserId)]
 		and permissions.GetUserPermissions(player.UserId) ~= "owner"
@@ -377,15 +395,17 @@ end
 	@param player Player -- The player we are checking if has phone/id verification
 	@return boolean
 ]=]
-function Command.IsUserVerified(self: _Command, player: Player, other: Player): boolean
-	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then return false end
+function Command.IsUserVerified(_self: _Command, player: Player, other: Player): boolean
+	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then
+		return false
+	end
 	return true
 end
 
 --[=[
 
 ]=]
-function Command.GiveToolsForRole(self: _Command, player: Player & { Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui }, role: string): ()
+function Command.GiveToolsForRole(_self: _Command, player: Player & { Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui }, role: string): ()
 	CommandClass.PublicUtils.GiveToolsForRole(player, role)
 end
 
@@ -400,12 +420,16 @@ CommandClass.Commands = {}
 -- Generate a new command object from the selected behaviour module
 function CommandClass.new(commandName: string): Command?
 	-- dont create a new command if one already exists, instead return the one thats already been created
-	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
+	if CommandClass.Commands[commandName] then
+		return CommandClass.Commands[commandName]
+	end
 
 	local component: ModuleScript = script:WaitForChild(commandName, 1)
 	local success, behaviour: cmd = pcall(require, component)
 
-	if not success then return end
+	if not success then
+		return
+	end
 
 	local metatable = table.clone(CommandClass.metatable)
 	metatable.__call = behaviour.__call
@@ -414,12 +438,16 @@ function CommandClass.new(commandName: string): Command?
 
 	self._behaviour = behaviour
 
-	if CommandClass.Commands[commandName] then warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()}`) end
+	if CommandClass.Commands[commandName] then
+		warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()}`)
+	end
 	CommandClass.Commands[commandName] = self
 	-- generate aliases with reference to the main object
 	if self._behaviour.aliases then
-		for i, v in self._behaviour.aliases do
-			if CommandClass.Commands[i] then warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()} alias: {i}`) end
+		for i in self._behaviour.aliases do
+			if CommandClass.Commands[i] then
+				warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()} alias: {i}`)
+			end
 			CommandClass.Commands[i] = CommandClass.Commands[commandName]
 		end
 	end
@@ -441,7 +469,9 @@ function CommandClass.getAutofillForRank(rank: string)
 	local rankValue = permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.minRank then autofill[name] = v._behaviour.syntax end
+		if rankValue >= v._behaviour.minRank then
+			autofill[name] = v._behaviour.syntax
+		end
 	end
 
 	return autofill
@@ -481,7 +511,9 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	},
 	role: string
 ): ()
-	if role == "" then role = "none" end
+	if role == "" then
+		role = "none"
+	end
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 
 	-- Build a list of assets to give to the player
@@ -489,25 +521,39 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	local toClone = {}
 	for _, v in assets do
 		local rank = v.Parent.Name
-		if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
-		if permissions.roleValues[if role == "none" then "" else role] >= permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
+		if rank ~= role and v:HasTag("DontShareWithHigherRank") then
+			continue
+		end
+		if permissions.roleValues[if role == "none" then "" else role] >= permissions.roleValues[if rank == "none" then "" else rank] then
+			table.insert(toClone, v)
+		end
 	end
 
 	-- Cleanup existing assets
-	if humanoid then humanoid:UnequipTools() end
+	if humanoid then
+		humanoid:UnequipTools()
+	end
 	for _, v in assets do
 		local item = player.Backpack:FindFirstChild(v.Name)
 		local item2 = player.StarterGear:FindFirstChild(v.Name)
-		if item then item:Destroy() end
-		if item2 then item2:Destroy() end
+		if item then
+			item:Destroy()
+		end
+		if item2 then
+			item2:Destroy()
+		end
 
 		local guiItem = player.PlayerGui:FindFirstChild(v.Name)
-		if guiItem then guiItem:Destroy() end
+		if guiItem then
+			guiItem:Destroy()
+		end
 	end
 
 	-- Apply assets for the player
 	for _, v in toClone do
-		if v:IsA("ObjectValue") then v = v.Value end
+		if v:IsA("ObjectValue") then
+			v = v.Value
+		end
 
 		if v:IsA("Tool") then
 			v:Clone().Parent = player.StarterGear

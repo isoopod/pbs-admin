@@ -27,9 +27,9 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 				else
 					data.AddWhitelist(player.Name, args[1])
 				end
-				return self.Responses.Success, `Successfully {aliasData and "removed" or "added"} permissions to build on your plot for {self.FormatUsername(target)}`
+				return self.Responses.Success, `Successfully {aliasData and "removed" or "added"} permissions to build on your plot for {self:FormatUsername(target)}`
 			else
-				return self.Responses.Verify, `'{self.FormatUsername(target)}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
+				return self.Responses.Verify, `'{self:FormatUsername(target)}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 			end
 		else
 			return self.Responses.Error,

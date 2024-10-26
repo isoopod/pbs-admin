@@ -197,16 +197,17 @@ function gui.ScrollGui()
 	drag.AutoButtonColor = false
 	drag.Text = ""
 	drag.Parent = scr
-	Instance.new("UIDragDetector", drag)
+	Instance.new("UIDragDetector").Parent = drag
 
-	local main = Instance.new("Frame", drag)
+	local main = Instance.new("Frame")
 	main.BackgroundColor3 = Color3.new(0, 0, 0)
 	main.BackgroundTransparency = 0.3
 	main.Size = UDim2.new(0, 0, 0, 400)
 	main.AutomaticSize = Enum.AutomaticSize.X
 	main.ZIndex = 7
 	main.ClipsDescendants = true
-	Instance.new("UICorner", main)
+	main.Parent = drag
+	Instance.new("UICorner").Parent = main
 
 	local uiPadding = Instance.new("UIPadding")
 	uiPadding.PaddingBottom = UDim.new(0, 8)
@@ -259,7 +260,7 @@ function gui.ScrollGui()
 	ent.TextXAlignment = "Left"
 	ent.TextYAlignment = "Top"
 
-	cls.Activated:Connect(function(inputObject: InputObject, clickCount: number): ()
+	cls.Activated:Connect(function(): ()
 		scr:Destroy()
 		ent:Destroy()
 	end)

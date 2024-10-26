@@ -7,7 +7,7 @@ cmd.syntax = {}
 
 cmd.help = [[Counts all the BaseParts and Stamper Parts in workspace]]
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player): (number, string)
 	if player then
 		local c = 0
 		local s = 0

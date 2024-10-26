@@ -25,13 +25,13 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 						self:GiveToolsForRole(target, "none")
 						permissions._CachedPermissions[other] = nil
 					end
-					return self.Responses.Success, `tools {if aliasData == nil then "given to" else "removed from"} {self.FormatUsername(target)}`
+					return self.Responses.Success, `tools {if aliasData == nil then "given to" else "removed from"} {self:FormatUsername(target)}`
 				else
 					return self.Responses.Verify,
-						`Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{self.FormatUsername(target)}'? Y/N`
+						`Are you sure you want to {if aliasData == nil then "give tools to" else "remove tools from"} user '{self:FormatUsername(target)}'? Y/N`
 				end
 			else
-				return self.Responses.Verify, `'{self.FormatUsername(target)}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
+				return self.Responses.Verify, `'{self:FormatUsername(target)}' is not phone or government id verified, are you sure you want to give them tools? Y/N`
 			end
 		else
 			return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"

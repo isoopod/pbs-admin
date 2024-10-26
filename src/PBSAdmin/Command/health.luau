@@ -7,14 +7,16 @@ cmd.syntax = { "<player(s)>", "<number>" }
 
 cmd.help = [[Sets a player's Health and MaxHealth. Default Health is 100.]]
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local health = tonumber(args[2])
 	if player and other and health then
 		local targets = self:GetBulkPlayers(player, other)
 
-		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
+		if #targets == 0 then
+			return self.Responses.Error, "Affected 0 players"
+		end
 
 		for _, target in targets do
 			if target.Character and target.Character:FindFirstChild("Humanoid") then
@@ -23,7 +25,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 			end
 		end
 
-		return self.Responses.Success, `Successfully set health of {if #targets == 1 then self.FormatUsername(targets[1]) else other} to {health}`
+		return self.Responses.Success, `Successfully set health of {if #targets == 1 then self:FormatUsername(targets[1]) else other} to {health}`
 	else
 		return self.Responses.Error, "Invalid Parameters"
 	end

@@ -19,7 +19,9 @@ local function PlayerAdded(player: Player)
 	-- Timeout thread if player quits before character loads
 	local thread
 	task.delay(60, function()
-		if thread and ({ running = true, suspended = true })[coroutine.status(thread)] then task.cancel(thread) end
+		if thread and ({ running = true, suspended = true })[coroutine.status(thread)] then
+			task.cancel(thread)
+		end
 	end)
 
 	local rank = perms.GetUserPermissions(player.UserId)
@@ -41,7 +43,9 @@ local function PlayerAdded(player: Player)
 	end
 
 	thread = task.spawn(function()
-		if not player.Character then player.CharacterAdded:Wait() end
+		if not player.Character then
+			player.CharacterAdded:Wait()
+		end
 		Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 	end)
 
@@ -63,7 +67,9 @@ local function PlayerAdded(player: Player)
 			end
 		end
 
-		if script:GetAttribute("resetAssetsOnDeath") then Command.PublicUtils.GiveToolsForRole(player :: any, rank) end
+		if script:GetAttribute("resetAssetsOnDeath") then
+			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
+		end
 	end)
 end
 
@@ -74,7 +80,9 @@ end
 
 if not script:GetAttribute("resetAssetsOnDeath") then
 	local gui: ScreenGui? = script.RoleAssets:FindFirstChild("PBSAdmin_Local", true) :: any
-	if gui then gui.ResetOnSpawn = false end
+	if gui then
+		gui.ResetOnSpawn = false
+	end
 end
 
 local messagePlayer = Instance.new("RemoteEvent")
@@ -140,7 +148,9 @@ end)
 
 GetAutofill.OnServerInvoke = function(player, fullInfo: boolean?)
 	local rank = perms.GetUserPermissions(player.UserId)
-	if fullInfo then return Command.getCmdInformationForRank(rank) end
+	if fullInfo then
+		return Command.getCmdInformationForRank(rank)
+	end
 	return Command.getAutofillForRank(rank)
 end
 

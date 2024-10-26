@@ -1,12 +1,16 @@
 local PhysicsService = game:GetService("PhysicsService")
 
 -- If the noclip collision group is not created yet, then create it
-if not PhysicsService:IsCollisionGroupRegistered("PlayerNoclip") then PhysicsService:RegisterCollisionGroup("PlayerNoclip") end
+if not PhysicsService:IsCollisionGroupRegistered("PlayerNoclip") then
+	PhysicsService:RegisterCollisionGroup("PlayerNoclip")
+end
 
 -- Each runtime make noclip not collide with any other collision groups
 -- This is needed incase another script generates a collision group at any point
 for _, v in PhysicsService:GetRegisteredCollisionGroups() do
-	if v.name ~= "PlayerNoclip" then PhysicsService:CollisionGroupSetCollidable("PlayerNoclip", v.name, false) end
+	if v.name ~= "PlayerNoclip" then
+		PhysicsService:CollisionGroupSetCollidable("PlayerNoclip", v.name, false)
+	end
 end
 
 local command = require(script.Parent)
@@ -20,7 +24,7 @@ cmd.syntax = { "<player>" }
 cmd.help = [[Toggles noclip for a player.]]
 cmd.aliasHelp = { unnoclip = [[Removes flight for a player.]] }
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1] or "me"
 	if player and other then
@@ -32,13 +36,13 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 			local noclip = target.Character and target.Character:FindFirstChild("PBSADMIN_NoClip")
 			if noclip then
 				noclip:Destroy()
-				return self.Responses.Success, `Noclip removed for '{self.FormatUsername(target)}'`
+				return self.Responses.Success, `Noclip removed for '{self:FormatUsername(target)}'`
 			elseif target.Character and aliasData ~= false then
 				script.PBSADMIN_NoClip:Clone().Parent = target.Character
-				return self.Responses.Success, `Noclip activated for '{self.FormatUsername(target)}'`
+				return self.Responses.Success, `Noclip activated for '{self:FormatUsername(target)}'`
 			end
 
-			return self.Responses.Error, `'{self.FormatUsername(target)}' currently does not have a character, try again later.`
+			return self.Responses.Error, `'{self:FormatUsername(target)}' currently does not have a character, try again later.`
 		else
 			return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"
 		end

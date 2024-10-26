@@ -18,7 +18,7 @@ cmd.aliasHelp = {
 	r6 = [[Refreshes a player and forces their avatar into r6]],
 }
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1] or "me"
 	if player then
@@ -46,9 +46,9 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 					target.Character:PivotTo(cf)
 				end
 
-				return self.Responses.Success, if aliasData then `Set {self.FormatUsername(target)} to {aliasData.Name}` else `Reset {self.FormatUsername(target)}`
+				return self.Responses.Success, if aliasData then `Set {self:FormatUsername(target)} to {aliasData.Name}` else `Reset {self:FormatUsername(target)}`
 			end
-			return self.Responses.Error, `'{self.FormatUsername(target)}' currently does not have a character, try again later.`
+			return self.Responses.Error, `'{self:FormatUsername(target)}' currently does not have a character, try again later.`
 		else
 			return self.Responses.Error, "Could not find both players"
 		end

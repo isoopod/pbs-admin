@@ -8,7 +8,7 @@ cmd.syntax = { "<player(s)>", "<player>" }
 
 cmd.help = [[Teleports players to one other player.]]
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): (number, string)
 	local args = { ... }
 	local otherA = args[1]
 	local otherB = args[2]
@@ -16,8 +16,12 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 		local targetA = self:GetBulkPlayers(player, otherA)
 		local targetB = self:GetPlayer(player, otherB)
 
-		if not targetB then return self.Responses.Error, "Could not find destination player" end
-		if #targetA == 0 then return self.Responses.Error, "Affected 0 players" end
+		if not targetB then
+			return self.Responses.Error, "Could not find destination player"
+		end
+		if #targetA == 0 then
+			return self.Responses.Error, "Affected 0 players"
+		end
 
 		for _, target in targetA do
 			local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
@@ -29,7 +33,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 				end
 			end
 		end
-		return self.Responses.Success, `Successfully teleported {if #targetA == 1 then self.FormatUsername(targetA[1]) else otherA} to {self.FormatUsername(targetB)}`
+		return self.Responses.Success, `Successfully teleported {if #targetA == 1 then self:FormatUsername(targetA[1]) else otherA} to {self:FormatUsername(targetB)}`
 	else
 		return self.Responses.Error, "Invalid Parameters"
 	end

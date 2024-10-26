@@ -48,7 +48,9 @@ local clientSideCommands = {
 
 			local cmds = {}
 			for i in autofill do
-				if i ~= "Y" and i ~= "N" then table.insert(cmds, i) end
+				if i ~= "Y" and i ~= "N" then
+					table.insert(cmds, i)
+				end
 			end
 			table.sort(cmds)
 
@@ -60,8 +62,8 @@ local clientSideCommands = {
 				local syntax = table.concat(
 					(function()
 						local formatted = {}
-						for _, v in autofill[v] do
-							table.insert(formatted, typeof(v) == "table" and `\{{table.concat(v, ", ")}\}` or `\{{v}\}`)
+						for _, s in autofill[v] do
+							table.insert(formatted, typeof(s) == "table" and `\{{table.concat(s, ", ")}\}` or `\{{s}\}`)
 						end
 						return formatted
 					end)(),
@@ -106,7 +108,9 @@ cmd.OutputFrame.Cleanup.Activated:Connect(function()
 end)
 
 input.FocusLost:Connect(function(enterPressed: boolean)
-	if not enterPressed then return end
+	if not enterPressed then
+		return
+	end
 
 	local commandData = string.split(input.Text, " ")
 	local command = commandData[1]
@@ -122,7 +126,9 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	historyI = #cmdHistory + 1
 	input.Text = ""
 	task.wait(0.1)
-	if cmd.Visible then input:CaptureFocus() end
+	if cmd.Visible then
+		input:CaptureFocus()
+	end
 end)
 
 local function timeNow(): string
@@ -135,7 +141,9 @@ remote.OnClientEvent:Connect(function(response: number | string, body: string)
 		buildAutofill()
 	else
 		cmd.OutputFrame.Output.Text = `{responseTags[4]}[{timeNow()}]:</font> {responseTags[response]}{body}</font>\n\n{cmd.OutputFrame.Output.Text}`
-		if cmd.OutputFrame.Output.Text ~= "" then cmd.OutputFrame.Visible = true end
+		if cmd.OutputFrame.Output.Text ~= "" then
+			cmd.OutputFrame.Visible = true
+		end
 		LastResponseType = response
 	end
 end)
@@ -148,11 +156,17 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	local queryLen = #query
 	local targetLen = #target
 
-	if queryLen == 0 then return 1, true end -- wildcard when query is empty
-	if target:sub(1, 1) == "<" then return 0, false end -- remove pseudo-aliases
+	if queryLen == 0 then
+		return 1, true
+	end -- wildcard when query is empty
+	if target:sub(1, 1) == "<" then
+		return 0, false
+	end -- remove pseudo-aliases
 
 	-- Early exit if query is longer than target
-	if queryLen > targetLen then return 0, false end
+	if queryLen > targetLen then
+		return 0, false
+	end
 
 	local queryIndex = 1
 	local matchCount = 0
@@ -175,12 +189,14 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	return score, matched
 end
 
-function closestMatch(input: string, targets: { string }): { string }
-	-- Only consider targets that start with input
+function closestMatch(inp: string, targets: { string }): { string }
+	-- Only consider targets that start with inp
 	local filteredTargets = {}
 	for _, target in targets do
 		target = tostring(target)
-		if target:sub(1, #input) == input or input == "" then table.insert(filteredTargets, target) end
+		if target:sub(1, #inp) == inp or inp == "" then
+			table.insert(filteredTargets, target)
+		end
 	end
 
 	if #filteredTargets == 0 then
@@ -188,24 +204,30 @@ function closestMatch(input: string, targets: { string }): { string }
 	end
 
 	table.sort(filteredTargets, function(a, b)
-		return fuzzySearch(input, a) > fuzzySearch(input, b)
+		return fuzzySearch(inp, a) > fuzzySearch(inp, b)
 	end)
 
 	return filteredTargets
 end
 
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
-	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then return Enum.ContextActionResult.Sink end
+	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then
+		return Enum.ContextActionResult.Sink
+	end
 	if inputState == Enum.UserInputState.Begin then
 		input:ReleaseFocus(false)
 		cmd.Visible = not cmd.Visible
-		if not cmd.Visible then suggestions.Visible = false end
+		if not cmd.Visible then
+			suggestions.Visible = false
+		end
 		if cmd.Visible then
 			input.Text = ""
 			cmd.autofill.Text = ""
 			userInputService.InputEnded:Wait()
 			input:CaptureFocus()
-			if isMobile then isMobile.Position = UDim2.fromScale(1, -0.45) end
+			if isMobile then
+				isMobile.Position = UDim2.fromScale(1, -0.45)
+			end
 		elseif isMobile then
 			isMobile.Position = UDim2.fromScale(1, -0.95)
 		end
@@ -216,9 +238,13 @@ end
 
 local function checkKeyMatches(text: string): boolean
 	for _, v in keys do
-		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then continue end
+		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then
+			continue
+		end
 		local key = string.char(v.Value)
-		if text:match(key) then return true end
+		if text:match(key) then
+			return true
+		end
 	end
 	return false
 end
@@ -251,26 +277,34 @@ PALookup = {
 	end,
 }
 
-local function processPsuedoAlias(alias: string | { string }, input: string): string | { string }
+local function processPsuedoAlias(alias: string | { string }, inp: string): string | { string }
 	-- Show a (simplified) version of the psuedo-alias when the player starts typing the next value
-	if alias == nil then return { "" } end
+	if alias == nil then
+		return { "" }
+	end
 	if typeof(alias) == "table" then
-		if input == "" then return tostring(alias[1]) end
+		if inp == "" then
+			return tostring(alias[1])
+		end
 		return alias
 	end
-	if input == "" then return alias:gsub("<player%(s%)>", "<player>") end
+	if inp == "" then
+		return alias:gsub("<player%(s%)>", "<player>")
+	end
 
-	if PALookup[alias] then return PALookup[alias]() end
+	if PALookup[alias] then
+		return PALookup[alias]()
+	end
 
 	return alias
 end
 
-local function trimBeforeLastNewline(input)
-	local lastNewlineIndex = input:match(".*()\n")
+local function trimBeforeLastNewline(inp: string): string
+	local lastNewlineIndex = inp:match(".*()\n")
 	if lastNewlineIndex then
-		return input:sub(lastNewlineIndex + 1)
+		return inp:sub(lastNewlineIndex + 1)
 	else
-		return input
+		return inp
 	end
 end
 
@@ -292,7 +326,9 @@ function getMaxWidth(strings: { string }, textLabel: TextLabel): number
 	for _, v in strings do
 		params.Text = v
 		local bounds = TextService:GetTextBoundsAsync(params)
-		if bounds.X > maxWidth then maxWidth = bounds.X end
+		if bounds.X > maxWidth then
+			maxWidth = bounds.X
+		end
 	end
 
 	return maxWidth
@@ -318,7 +354,9 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the argument closest to whatever is currently written
 		local targets = processPsuedoAlias(alias[len - 1], words[len])
 		if len == 2 then
-			if typeof(targets) == "string" then targets = { targets } end
+			if typeof(targets) == "string" then
+				targets = { targets }
+			end
 			table.insert(targets, "-help")
 		end
 
@@ -333,7 +371,9 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the command closest to whatever is currently input
 		local targets = {}
 		for i in autofill do
-			if (i == "Y" or i == "N") and LastResponseType ~= 3 then continue end
+			if (i == "Y" or i == "N") and LastResponseType ~= 3 then
+				continue
+			end
 			table.insert(targets, i)
 		end
 		entries = closestMatch(words[1], targets)
@@ -347,13 +387,17 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	suggestions.Size = UDim2.fromOffset(width, #entries * 20)
 	if entries[1] ~= "" and not isMobile then
 		for _, v in suggestions:GetChildren() do
-			if v:IsA("TextLabel") then v:Destroy() end
+			if v:IsA("TextLabel") then
+				v:Destroy()
+			end
 		end
 		suggestions.Visible = true
 
 		for i, v in entries do
 			local entry = suggestionTemplate:Clone()
-			if i == 1 then entry.BackgroundTransparency = 0 end
+			if i == 1 then
+				entry.BackgroundTransparency = 0
+			end
 			entry.Text = v
 			entry.LayoutOrder = i
 			entry.Parent = suggestions
@@ -409,7 +453,9 @@ if isMobile then
 	local CAS_CONTAINER = isMobile:FindFirstAncestorWhichIsA("ScreenGui")
 	-- Will probably break some other context button positioning but worth it.
 	-- This is the best way to get context buttons in the topbar
-	if CAS_CONTAINER then CAS_CONTAINER.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets end
+	if CAS_CONTAINER then
+		CAS_CONTAINER.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+	end
 	cmd.Size = UDim2.new(0.75, 0, 0, isMobile.AbsoluteSize.Y)
 	cmd.Position = UDim2.new(0.45, 0, 0, isMobile.AbsolutePosition.Y + isMobile.AbsoluteSize.Y / 2)
 	isMobile.AnchorPoint = Vector2.new(1, 0)

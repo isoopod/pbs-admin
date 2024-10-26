@@ -12,7 +12,7 @@ cmd.help = [[Permanently bans a player for a specified amount of time. Will also
 	The ban will last until removed through the unban command
 ]]
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, verified: boolean, _, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local reason = args[2]
@@ -29,11 +29,13 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 					PrivateReason = reason,
 					ExcludeAltAccounts = false,
 				})
-				if not s then return self.Responses.Error, `BanAsync error: {e}` end
+				if not s then
+					return self.Responses.Error, `BanAsync error: {e}`
+				end
 				permissions.EditPersistentRole(target.UserId)
-				return self.Responses.Success, `{self.FormatUsername(target)} has been permanently banned`
+				return self.Responses.Success, `{self:FormatUsername(target)} has been permanently banned`
 			else
-				return self.Responses.Verify, `Are you sure you want to permanently ban {self.FormatUsername(target)}?`
+				return self.Responses.Verify, `Are you sure you want to permanently ban {self:FormatUsername(target)}?`
 			end
 		else
 			return self.Responses.Error, "Player could not be found"
