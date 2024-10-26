@@ -335,7 +335,7 @@ end
 	Does not support OfflinePlayers
 	:::
 
-	@methid FormatUsername
+	@method FormatUsername
 	@within Command
 	@tag Command Handler
 	@param player Player
