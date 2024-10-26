@@ -424,10 +424,14 @@ function CommandClass.new(commandName: string): Command?
 		return CommandClass.Commands[commandName]
 	end
 
-	local component: ModuleScript = script:WaitForChild(commandName, 1)
+	local component: ModuleScript? = script:FindFirstChild(commandName)
+	if not component then
+		return
+	end
 	local success, behaviour: cmd = pcall(require, component)
 
 	if not success then
+		warn(behaviour)
 		return
 	end
 
