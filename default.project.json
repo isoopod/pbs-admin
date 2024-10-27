@@ -3,6 +3,18 @@
   "tree": {
     "$className": "DataModel",
 
+    "ReplicatedStorage": {
+      "Utils": {
+        "$className": "Folder",
+        "ByteNet": {
+          "$path": "Packages/_Index/ffrostflame_bytenet@0.4.6/bytenet/default.project.json"
+        },
+        "ByteNetPackets": {
+          "$path": "src/ByteNetPackets"
+        }
+      }
+    },
+
     "ServerScriptService": {
       "PBSServer": {
         "PBSAdmin": {
