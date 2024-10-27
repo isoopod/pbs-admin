@@ -216,7 +216,6 @@ if Bytenet then
 			end
 		end
 
-		print(sendable)
 		Bytenet.AutofillReturn.sendTo(sendable, player)
 	end)
 elseif GetAutofill then
