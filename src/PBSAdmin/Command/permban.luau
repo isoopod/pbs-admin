@@ -15,7 +15,7 @@ cmd.help = [[Permanently bans a player for a specified amount of time. Will also
 function cmd.__call(self: command.Command, player: Player, verified: boolean, _, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
-	local reason = args[2]
+	local reason = args[2] or ""
 	if player and other then
 		local target = self:GetPlayer(player, other, true)
 		if target then

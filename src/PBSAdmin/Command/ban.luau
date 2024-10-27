@@ -42,7 +42,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 	local other = args[1]
 	local duration = tonumber(args[2])
 	local units = args[3]
-	local reason = args[4]
+	local reason = args[4] or ""
 	if player and other and duration and units then
 		units = units:lower()
 		local target = self:GetPlayer(player, other, true)
