@@ -6,6 +6,7 @@ local gui = {}
 
 export type CommandBar = Frame & {
 	input: TextBox,
+	inputDisplay: TextLabel,
 	OutputFrame: ScrollingFrame & {
 		Output: TextLabel,
 		Cleanup: ImageButton,
@@ -43,6 +44,7 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	UICorner.CornerRadius = UDim.new(0, 4)
 	UICorner.Parent = cmd
 
+	-- This is where you enter text
 	input.Name = "input"
 	input.AnchorPoint = Vector2.new(0.5, 0)
 	input.BackgroundTransparency = 1
@@ -51,13 +53,28 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	input.ClearTextOnFocus = false
 	input.Font = Enum.Font.Code
 	input.ZIndex = 2
-	input.PlaceholderColor3 = Color3.fromRGB(178, 178, 178)
 	input.Text = ""
-	input.RichText = true
 	input.TextColor3 = Color3.new(1, 1, 1)
-	input.TextSize = 14.000
+	input.TextSize = 14
 	input.TextXAlignment = Enum.TextXAlignment.Left
 	input.Parent = cmd
+
+	-- This is the text you see
+	local inputDisplay = Instance.new("TextLabel")
+	inputDisplay.Name = "inputDisplay"
+	inputDisplay.Interactable = false
+	inputDisplay.AnchorPoint = Vector2.new(0.5, 0)
+	inputDisplay.BackgroundTransparency = 1
+	inputDisplay.Position = UDim2.new(0.5, 0, 0, 0)
+	inputDisplay.Size = UDim2.new(1, -20, 1, 0)
+	inputDisplay.Font = Enum.Font.Code
+	inputDisplay.ZIndex = 3
+	inputDisplay.Text = ""
+	inputDisplay.RichText = true
+	inputDisplay.TextColor3 = Color3.new(1, 1, 1)
+	inputDisplay.TextSize = 14
+	inputDisplay.TextXAlignment = Enum.TextXAlignment.Left
+	inputDisplay.Parent = cmd
 
 	local function updOutSize()
 		OutputFrame.CanvasSize = UDim2.fromOffset(0, math.max(Output.TextBounds.Y + 10, 24))

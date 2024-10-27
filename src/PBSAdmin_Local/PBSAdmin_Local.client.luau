@@ -134,14 +134,12 @@ local function checkKeyMatches(text: string): boolean
 end
 
 input:GetPropertyChangedSignal("Text"):Connect(function()
-	local plainText = input.Text:gsub("<[^>]+>", "") -- clear rich text formatting
-	if checkKeyMatches(plainText) then
+	if checkKeyMatches(input.Text) then
 		input:ReleaseFocus(false)
 		openConsole(nil, Enum.UserInputState.Begin)
 	end
-
 	-- Generate autofill
-	local words = string.split(plainText, " ")
+	local words = string.split(input.Text, " ")
 	local len = #words
 
 	-- fill autofill with the rest of the command thats already been written
@@ -153,16 +151,17 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the argument closest to whatever is currently written
 		local targets = PsuedoAlias.processPsuedoAlias(alias[len - 1], words[len])
 		if len == 2 then
-			if typeof(targets) == "string" then
+			if type(targets) == "string" then
 				targets = { targets }
 			end
+			-- add -help to the first parameter
 			table.insert(targets, "-help")
 		end
 
 		if targets then
-			if typeof(targets) == "string" and targets ~= "any" then
+			if type(targets) == "string" and targets ~= "any" then
 				entries = Utils.closestMatch(words[len], { targets })
-			elseif typeof(targets) == "table" then
+			elseif type(targets) == "table" then
 				entries = Utils.closestMatch(words[len], targets)
 			end
 		end
@@ -221,6 +220,23 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	cmd.autofill.Text = prediciton
 
 	--Lint command
+	local reconstructedInput = {}
+
+	for i, v in words do
+		-- Disregard the last word if the user is not done writing it
+		if words[len] == v and not (words[len] == entries[1]) and entries[1] ~= "" then
+			table.insert(reconstructedInput, v)
+		else
+			local syntax = i == 1 and Autofill.autofill or alias[i - 1]
+			if PsuedoAlias.lintParamerter(syntax, v) then
+				table.insert(reconstructedInput, v)
+			else
+				table.insert(reconstructedInput, `{responseTags[1]}<u>{v}</u></font>`)
+			end
+		end
+	end
+
+	cmd.inputDisplay.Text = table.concat(reconstructedInput, " ")
 end)
 
 local function navigateSuggestions(up: boolean): boolean
