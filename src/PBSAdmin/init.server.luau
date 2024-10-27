@@ -10,6 +10,17 @@ local Command = require(script.Command)
 local Permissions = require(script.Permissions)
 local perms = require(script.Permissions)
 
+-- Bytenet integration
+local Bytenet
+-- If you are using PBS Admin with ByteNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
+if replicatedStorage:FindFirstChild("Utils") then
+	if replicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
+		if replicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
+			Bytenet = require(replicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
+		end
+	end
+end
+
 local externalLeaderstatsDetected = nil
 
 -- Initialize the commands
@@ -52,7 +63,8 @@ local function PlayerAdded(player: Player)
 	player.CharacterAdded:Connect(function(character: any)
 		-- If the player has a forced rig type apply it each time they respawn
 		if player:GetAttribute("ForcedRigtype") then
-			local rigtype = Enum.HumanoidRigType[player:GetAttribute("ForcedRigtype")]
+			local rt: "R15" | "R6" = player:GetAttribute("ForcedRigtype") :: any
+			local rigtype = Enum.HumanoidRigType[rt] :: Enum.HumanoidRigType
 			local humanoid: Humanoid? = character:WaitForChild("Humanoid", 3)
 			local current = humanoid and humanoid.RigType
 			if rigtype and rigtype ~= current then
@@ -85,19 +97,22 @@ if not script:GetAttribute("resetAssetsOnDeath") then
 	end
 end
 
-local messagePlayer = Instance.new("RemoteEvent")
-messagePlayer.Name = "PBSAdminRemote"
-messagePlayer.Archivable = false
-messagePlayer.Parent = replicatedStorage
+local messagePlayer, GetAutofill
+if not Bytenet then
+	messagePlayer = Instance.new("RemoteEvent")
+	messagePlayer.Name = "PBSAdminRemote"
+	messagePlayer.Archivable = false
+	messagePlayer.Parent = replicatedStorage
 
-local GetAutofill = Instance.new("RemoteFunction")
-GetAutofill.Name = "PBSAdminGetAutofill"
-GetAutofill.Archivable = false
-GetAutofill.Parent = replicatedStorage
+	GetAutofill = Instance.new("RemoteFunction")
+	GetAutofill.Name = "PBSAdminGetAutofill"
+	GetAutofill.Archivable = false
+	GetAutofill.Parent = replicatedStorage
+end
 
 local cachedCommands = {}
 
-messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
+local function handleCommand(player: Player, command: string)
 	local rank = Permissions.roleValues[Permissions.GetUserPermissions(player.UserId)]
 	-- Check if the user is using the -help command
 	local splitCommand = string.split(command, " ")
@@ -144,14 +159,46 @@ messagePlayer.OnServerEvent:Connect(function(player: Player, command: string)
 			messagePlayer:FireClient(player, 1, "Invalid command")
 		end
 	end
-end)
+end
 
-GetAutofill.OnServerInvoke = function(player, fullInfo: boolean?)
+if Bytenet then
+	Bytenet.ExecuteCommand.listen(function(data, player)
+		if not player then
+			return
+		end
+		handleCommand(player, data)
+	end)
+elseif messagePlayer then
+	messagePlayer.OnServerEvent:Connect(handleCommand)
+end
+
+local function handleAutofill(player: Player, fullInfo: boolean?): { [string]: { string | { string } } }
 	local rank = perms.GetUserPermissions(player.UserId)
 	if fullInfo then
 		return Command.getCmdInformationForRank(rank)
 	end
 	return Command.getAutofillForRank(rank)
+end
+
+if Bytenet then
+	Bytenet.GetAutofill.listen(function(data, player)
+		if not player then
+			return
+		end
+		local autofill = handleAutofill(player, data)
+		-- split autofill into sets and singletons
+		local sets, singletons = {}, {}
+		for k, v in autofill do
+			if type(v) == "string" then
+				singletons[k] = v
+			else
+				sets[k] = v
+			end
+		end
+		Bytenet.AutofillReturn.sendTo({ sets = sets, singletons = singletons }, player)
+	end)
+elseif GetAutofill then
+	GetAutofill.OnServerInvoke = handleAutofill
 end
 
 players.PlayerRemoving:Connect(function(player: Player)
