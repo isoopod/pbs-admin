@@ -1,8 +1,9 @@
-local ContextActionService = game:GetService("ContextActionService")
-local PlayerGui = game:GetService("Players").LocalPlayer.PlayerGui
-local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local gui = {}
+
+local Arimo = Font.new("rbxasset://fonts/families/Arimo.json")
+local ArimoBold = Font.new("rbxasset://fonts/families/Arimo.json", Enum.FontWeight.Bold)
 
 export type CommandBar = Frame & {
 	input: TextBox,
@@ -201,18 +202,24 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	return cmd, autofillSel
 end
 
-local scrollDelta = 20 ^ -1
-function gui.ScrollGui()
-	local scr = Instance.new("ScreenGui")
-	scr.Name = "PBSAdmin_LIST"
+export type row = Frame & {
+	Content: Frame & {
+		Entry: TextLabel,
+	},
+	Index: TextLabel,
+}
 
-	local drag = Instance.new("TextButton")
+local scrollDelta = 0.05
+function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
+	local scr = Instance.new("ScreenGui")
+	scr.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	scr.Name = `PBSAdmin_LIST_{name}`
+
+	local drag = Instance.new("Frame")
 	drag.BackgroundTransparency = 1
 	drag.Size = UDim2.new(0, 385, 0, 20)
 	drag.AutomaticSize = Enum.AutomaticSize.X
 	drag.Position = UDim2.new(0.5, -200, 0.5, -200)
-	drag.AutoButtonColor = false
-	drag.Text = ""
 	drag.Parent = scr
 	Instance.new("UIDragDetector").Parent = drag
 
@@ -221,10 +228,60 @@ function gui.ScrollGui()
 	main.BackgroundTransparency = 0.3
 	main.Size = UDim2.new(0, 0, 0, 400)
 	main.AutomaticSize = Enum.AutomaticSize.X
-	main.ZIndex = 7
 	main.ClipsDescendants = true
 	main.Parent = drag
 	Instance.new("UICorner").Parent = main
+
+	local topbar = Instance.new("Frame")
+	topbar.AutomaticSize = Enum.AutomaticSize.X
+	topbar.BackgroundTransparency = 1
+	topbar.Size = UDim2.fromOffset(0, 20)
+	topbar.Parent = main
+
+	local topbarList = Instance.new("UIListLayout")
+	topbarList.Padding = UDim.new(0, 8)
+	topbarList.FillDirection = Enum.FillDirection.Horizontal
+	topbarList.VerticalAlignment = Enum.VerticalAlignment.Center
+	topbarList.SortOrder = Enum.SortOrder.LayoutOrder
+	topbarList.Parent = topbar
+
+	local title = Instance.new("TextLabel")
+	title.Text = name
+	title.FontFace = ArimoBold
+	title.BackgroundTransparency = 1
+	title.AutomaticSize = Enum.AutomaticSize.X
+	title.Size = UDim2.fromScale(0, 20)
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextSize = 20
+	title.Parent = topbar
+
+	local search = Instance.new("TextBox")
+	search.BackgroundColor3 = Color3.new()
+	search.Size = UDim2.fromOffset(200, 18)
+	search.TextColor3 = Color3.new(1, 1, 1)
+	search.FontFace = Arimo
+	search.TextSize = 14
+	search.PlaceholderText = "Type here to search..."
+	search.TextXAlignment = Enum.TextXAlignment.Left
+	search.LayoutOrder = 1
+	search.Text = ""
+	search.ClearTextOnFocus = true
+	search.Parent = topbar
+
+	local scorner = Instance.new("UICorner")
+	scorner.CornerRadius = UDim.new(0, 4)
+	scorner.Parent = search
+
+	local spadding = Instance.new("UIPadding")
+	spadding.PaddingLeft = UDim.new(0, 2)
+	spadding.PaddingRight = spadding.PaddingLeft
+	spadding.Parent = search
+
+	local ssttroke = Instance.new("UIStroke")
+	ssttroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ssttroke.Color = Color3.fromRGB(80, 80, 80)
+	ssttroke.Thickness = 2
+	ssttroke.Parent = search
 
 	local uiPadding = Instance.new("UIPadding")
 	uiPadding.PaddingBottom = UDim.new(0, 8)
@@ -233,19 +290,32 @@ function gui.ScrollGui()
 	uiPadding.PaddingTop = uiPadding.PaddingBottom
 	uiPadding.Parent = main
 
-	local cmf = Instance.new("Frame")
+	local cmf = Instance.new("ScrollingFrame")
 	cmf.AutomaticSize = Enum.AutomaticSize.X
+	cmf.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	cmf.AnchorPoint = Vector2.yAxis
+	cmf.CanvasSize = UDim2.fromScale(0, 0)
+	cmf.ScrollBarThickness = 0
 	cmf.BackgroundTransparency = 1
-	cmf.Position = UDim2.new(0, 0, 0, -9)
-	cmf.ZIndex = 8
+	cmf.Size = UDim2.new(0, 0, 1, -24)
+	cmf.Position = UDim2.fromScale(0, 1)
+
 	cmf.Parent = main
+
+	local list = Instance.new("UIListLayout")
+	list.Padding = UDim.new(0, 4)
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Parent = cmf
+
+	local cmpadding = Instance.new("UIPadding")
+	cmpadding.PaddingRight = UDim.new(0, 48)
+	cmpadding.Parent = cmf
 
 	local down = Instance.new("ImageButton")
 	down.Image = "http://www.roblox.com/asset/?id=108326725"
 	down.BackgroundTransparency = 1
 	down.Size = UDim2.new(0, 25, 0, 25)
 	down.Position = UDim2.new(1, -20, 1, -20)
-	down.ZIndex = 9
 	down.Parent = main
 
 	local up = down:Clone()
@@ -258,24 +328,60 @@ function gui.ScrollGui()
 	cls.Size = UDim2.new(0, 20, 0, 20)
 	cls.Position = UDim2.new(1, -15, 0, -5)
 	cls.ZIndex = 10
-	cls.FontFace = Font.new("rbxasset://fonts/families/Arimo.json", Enum.FontWeight.Bold)
+	cls.FontFace = ArimoBold
 	cls.TextSize = 18
 	cls.Text = "X"
 	cls.TextColor3 = Color3.new(1, 1, 1)
 	cls.Parent = main
 
+	local row = Instance.new("Frame")
+	row.AutomaticSize = Enum.AutomaticSize.XY
+	row.BackgroundTransparency = 1
+	row.Size = UDim2.fromScale(0, 0)
+	row.ClipsDescendants = true -- for the stroke on the index
+
+	local index = Instance.new("TextLabel")
+	index.Name = "Index"
+	index.BackgroundTransparency = 1
+	index.Size = UDim2.new(0, 24, 1, 0)
+	index.FontFace = ArimoBold
+	index.TextSize = 14
+	index.TextColor3 = Color3.new(1, 1, 1)
+	index.TextXAlignment = Enum.TextXAlignment.Left
+	index.TextYAlignment = Enum.TextYAlignment.Top
+	index.Parent = row
+
+	local ipadding = Instance.new("UIPadding")
+	ipadding.PaddingLeft = UDim.new(0, 2)
+	ipadding.PaddingTop = ipadding.PaddingLeft
+	ipadding.Parent = index
+
+	local istroke = Instance.new("UIStroke")
+	istroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	istroke.Color = Color3.fromRGB(128, 128, 128)
+	istroke.Parent = index
+
+	local content = Instance.new("Frame")
+	content.AutomaticSize = Enum.AutomaticSize.X
+	content.BackgroundTransparency = 1
+	content.Name = "Content"
+	content.Position = UDim2.fromOffset(32, 0)
+	content.Size = UDim2.fromOffset(0, 20)
+	content.ClipsDescendants = true
+	content.Parent = row
+
 	local ent = Instance.new("TextLabel")
+	ent.Name = "Entry"
 	ent.BackgroundTransparency = 1
-	ent.FontFace = Font.new("rbxasset://fonts/families/Arimo.json")
+	ent.AutomaticSize = Enum.AutomaticSize.XY
+	ent.FontFace = Arimo
 	ent.TextSize = 18
-	ent.ZIndex = 8
-	ent.Text = ""
 	ent.TextColor3 = Color3.new(1, 1, 1)
 	ent.TextStrokeColor3 = Color3.new(0, 0, 0)
-	ent.Size = UDim2.new(1, 0, 0, 18)
+	ent.Size = UDim2.fromScale(0, 0)
 	ent.TextStrokeTransparency = 0.8
-	ent.TextXAlignment = "Left"
-	ent.TextYAlignment = "Top"
+	ent.TextXAlignment = Enum.TextXAlignment.Left
+	ent.Parent = content
 
 	cls.Activated:Connect(function(): ()
 		scr:Destroy()
@@ -285,41 +391,33 @@ function gui.ScrollGui()
 	local downv = false
 	local upv = false
 
+	local targetPosition = cmf.CanvasPosition
+	cmf.InputChanged:Connect(function(inp)
+		if inp.UserInputType == Enum.UserInputType.MouseMovement then
+			targetPosition = cmf.CanvasPosition
+			task.wait(0.25)
+			targetPosition = cmf.CanvasPosition
+		end
+	end)
+
+	local scrollSpeed = 9
 	local function frameDown()
 		downv = true
-		upv = false
-		local pos = cmf.Position
-		if pos.Y.Offset <= 371 - ((#cmf:GetChildren() - 1) * 20) then
-			downv = false
-			return
-		end
-		repeat
-			pos += UDim2.new(0, 0, 0, -12)
-			if pos.Y.Offset <= 371 - ((#cmf:GetChildren() - 1) * 20) then
-				pos = UDim2.new(0, 0, 0, 371 - ((#cmf:GetChildren() - 1) * 20))
-				downv = false
-			end
-			cmf:TweenPosition(pos, Enum.EasingDirection.Out, Enum.EasingStyle.Linear, scrollDelta, true)
+		while downv do
+			TweenService:Create(cmf, TweenInfo.new(0.25), { CanvasPosition = targetPosition + Vector2.new(0, scrollSpeed) }):Play()
+			targetPosition += Vector2.new(0, scrollSpeed)
+			targetPosition = targetPosition:Max(Vector2.zero):Min(list.AbsoluteContentSize - Vector2.new(0, cmf.AbsoluteSize.Y))
 			task.wait(scrollDelta)
-		until downv == false
+		end
 	end
 	local function frameUp()
 		upv = true
-		downv = false
-		local pos = cmf.Position
-		if pos.Y.Offset >= -9 then
-			upv = false
-			return
-		end
-		repeat
-			pos += UDim2.new(0, 0, 0, 12)
-			if pos.Y.Offset >= -9 then
-				pos = UDim2.new(0, 0, 0, -9)
-				upv = false
-			end
-			cmf:TweenPosition(pos, Enum.EasingDirection.Out, Enum.EasingStyle.Linear, scrollDelta, true)
+		while upv do
+			TweenService:Create(cmf, TweenInfo.new(0.25), { CanvasPosition = targetPosition - Vector2.new(0, scrollSpeed) }):Play()
+			targetPosition -= Vector2.new(0, scrollSpeed)
+			targetPosition = targetPosition:Max(Vector2.zero):Min(list.AbsoluteContentSize - Vector2.new(0, cmf.AbsoluteSize.Y))
 			task.wait(scrollDelta)
-		until upv == false
+		end
 	end
 
 	down.MouseButton1Down:Connect(frameDown)
@@ -332,32 +430,17 @@ function gui.ScrollGui()
 		upv = false
 	end)
 
-	local function handleInput(_, _, inputObject: InputObject): Enum.ContextActionResult?
-		local pos = UserInputService:GetMouseLocation()
-		if table.find(PlayerGui:GetGuiObjectsAtPosition(pos.X, pos.Y), main) then
-			if not (upv or downv) then
-				if inputObject.Position.Z > 0 then
-					frameUp()
-				else
-					frameDown()
+	search.FocusLost:Connect(function(enter: boolean)
+		if enter then
+			for _, v in cmf:GetChildren() do
+				if v:IsA("Frame") then
+					v.Visible = string.match(v.Name, `^{search.Text}`)
 				end
-				task.delay(0.5, function()
-					upv = false
-					downv = false
-				end)
 			end
-			return Enum.ContextActionResult.Sink
 		end
-
-		return Enum.ContextActionResult.Pass
-	end
-	ContextActionService:BindAction("SrollGui", handleInput, false, Enum.UserInputType.MouseWheel)
-
-	main.Destroying:Connect(function()
-		ContextActionService:UnbindAction("ScrollGui")
 	end)
 
-	return scr, cmf, ent, 0
+	return scr, cmf, row
 end
 
 return gui

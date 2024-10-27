@@ -482,16 +482,25 @@ function CommandClass.getAutofillForRank(rank: string)
 	return autofill
 end
 
+local rankToRole = {
+	[-1] = "Banned",
+	[0] = "No role",
+	[1] = "Member",
+	[2] = "Trusted",
+	[3] = "Admin",
+	[4] = "Owner",
+}
 -- Same as autofill but returns as an array where key 1 is the syntax and key 2 is the help string
 function CommandClass.getCmdInformationForRank(rank: string)
 	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
-	local autofill = {} :: { syntax: { [string]: { string | { string } } }, help: { [string]: string } }
+	local autofill = { syntax = {}, help = {} } :: { syntax: { [string]: { string | { string } } }, help: { [string]: string } }
 	local rankValue = Permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
-			local help = v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help
-			autofill[name] = { syntax = v._behaviour.syntax, help = help }
+			local help = `[{rankToRole[v._behaviour.minRank]}+] {v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help}`
+			autofill.syntax[name] = v._behaviour.syntax
+			autofill.help[name] = help
 		end
 	end
 

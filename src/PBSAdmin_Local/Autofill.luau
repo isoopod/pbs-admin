@@ -58,8 +58,39 @@ function api.buildAutofill()
 	end
 end
 
+-- For cmds list
+function api.getVerboseAutofill()
+	-- Get autofill
+	local autofillTable = {}
+	if Bytenet then
+		task.defer(function()
+			Bytenet.GetAutofill.send(true)
+		end)
+		local result = Bytenet.AutofillReturn.wait()
+		-- reconstruct table
+		for k, v in result.syntax do
+			local newEntry = {}
+			for _, source in v do
+				for i: number, syntax: string | { string } in source do
+					newEntry[i] = syntax
+				end
+			end
+			autofillTable[k] = {}
+			autofillTable[k].syntax = newEntry
+		end
+		for k, v in result.help do
+			autofillTable[k].help = v
+		end
+	elseif get then
+		autofillTable = get:InvokeServer(true)
+	end
+
+	return autofillTable
+end
+
 return api :: {
 	autofill: { [string]: { string | { string } } },
 
 	buildAutofill: () -> (),
+	getVerboseAutofill: () -> { [string]: { syntax: { string | { string } }, help: string } },
 }
