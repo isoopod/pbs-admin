@@ -9,3 +9,6 @@
 
 sourcemap.json
 .vscode
+
+# Packages (run wally install if editting repo)
+Packages
