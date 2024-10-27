@@ -201,7 +201,7 @@ if Bytenet then
 		if data then
 			sendable.help = {}
 		end
-		for k, v in autofill do
+		for k, v in autofill.syntax do
 			local sets, singletons = {}, {}
 			for i, syntax in v do
 				if type(syntax) == "table" then
@@ -216,6 +216,7 @@ if Bytenet then
 			end
 		end
 
+		print(sendable)
 		Bytenet.AutofillReturn.sendTo(sendable, player)
 	end)
 elseif GetAutofill then
