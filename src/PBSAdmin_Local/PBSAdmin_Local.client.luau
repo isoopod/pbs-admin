@@ -13,6 +13,13 @@ local ClientCommands = require(script.Parent.ClientCommands)
 local PsuedoAlias = require(script.Parent.PsuedoAlias)
 local Utils = require(script.Parent.Utils)
 
+-- Initialize the client commands
+for _, v in script.Parent.ClientCommands:GetChildren() do
+	if v:IsA("ModuleScript") then
+		pcall(require, v)
+	end
+end
+
 local cmd, suggestions = AdminGui.BakeCommandBar()
 local input = cmd.input
 cmd.Parent = script.Parent
@@ -33,15 +40,12 @@ local responseTags = {
 }
 local LastResponseType = 1
 
--- reference the autocomplete table
-local autofill = Autofill.autofill
-
 local cmdHistory: { string } = {}
 local historyI: number
 
 local currentSuggestion: number?
 
-autofill.buildAutofill()
+Autofill.buildAutofill()
 
 cmd.OutputFrame.Cleanup.Activated:Connect(function()
 	cmd.OutputFrame.Output.Text = ""
@@ -144,7 +148,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	local prediciton = `{table.concat(words, " ", 1, len - 1)}{len > 1 and " " or ""}`
 	local entries = { "" }
 
-	local alias = autofill[words[1]]
+	local alias = Autofill.autofill[words[1]]
 	if alias and len > 1 then
 		-- suggest the argument closest to whatever is currently written
 		local targets = PsuedoAlias.processPsuedoAlias(alias[len - 1], words[len])
@@ -165,7 +169,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	elseif words[1] and words[1] ~= "" then
 		-- suggest the command closest to whatever is currently input
 		local targets = {}
-		for i in autofill do
+		for i in Autofill.autofill do
 			if (i == "Y" or i == "N") and LastResponseType ~= 3 then
 				continue
 			end

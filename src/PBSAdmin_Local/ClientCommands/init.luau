@@ -40,12 +40,6 @@ function api.register(names: { string }, syntax: { string | { string } }, __call
 	end
 end
 
-for _, v in script:GetChildren() do
-	if v:IsA("ModuleScript") then
-		pcall(require, v)
-	end
-end
-
 return api :: {
 	Responses: { Error: number, Success: number, Verify: number, Minimize: number, Warning: number },
 	cmdData: { [string]: { syntax: { string | { string } } } & (...string) -> (number, string) },
