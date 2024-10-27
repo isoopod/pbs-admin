@@ -162,7 +162,7 @@ local Command = {}
 local CommandClass = { metatable = { __index = Command } }
 export type Command = {
 	ClassName: "Command",
-	Responses: { Error: number, Success: number, Verify: number },
+	Responses: { Error: number, Success: number, Verify: number, Minimize: number, Warning: number },
 
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
 	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
@@ -172,7 +172,8 @@ export type Command = {
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
 	GiveToolsForRole: (self: Command, player: Player, role: string) -> (),
 	Destroy: (self: Command) -> (),
-}
+} & (player: Player, verified: boolean, aliasData: any?, ...string) -> (number, string) -- __call interface
+
 type _Command = Command & {
 	_behaviour: cmd,
 }
