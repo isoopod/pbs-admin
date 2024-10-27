@@ -180,12 +180,12 @@ elseif messagePlayer then
 	messagePlayer.OnServerEvent:Connect(handleCommand)
 end
 
-local function handleAutofill(player: Player, fullInfo: boolean?): { [string]: { string | { string } } }
+local function handleAutofill(player: Player, fullInfo: boolean?): { syntax: { [string]: { string | { string } } }, help: { [string]: string }? }
 	local rank = Permissions.GetUserPermissions(player.UserId)
 	if fullInfo then
 		return Command.getCmdInformationForRank(rank)
 	end
-	return Command.getAutofillForRank(rank)
+	return { syntax = Command.getAutofillForRank(rank) }
 end
 
 if Bytenet then
@@ -197,7 +197,10 @@ if Bytenet then
 
 		-- process the packet
 		-- bytenet cant deal with string | {stirng} so we have to send string and {string} as seperate maps per command to retain order
-		local sendable = {}
+		local sendable = { syntax = {} }
+		if data then
+			sendable.help = {}
+		end
 		for k, v in autofill do
 			local sets, singletons = {}, {}
 			for i, syntax in v do
@@ -207,7 +210,10 @@ if Bytenet then
 					singletons[i] = syntax
 				end
 			end
-			sendable[k] = { sets = sets, singletons = singletons }
+			sendable.syntax[k] = { sets = sets, singletons = singletons }
+			if data then
+				sendable.help[k] = v.help
+			end
 		end
 
 		Bytenet.AutofillReturn.sendTo(sendable, player)

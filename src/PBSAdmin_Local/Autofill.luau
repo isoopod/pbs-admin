@@ -36,7 +36,7 @@ function api.buildAutofill()
 		end)
 		local result = Bytenet.AutofillReturn.wait()
 		-- reconstruct table
-		for k, v in result do
+		for k, v in result.syntax do
 			local newEntry = {}
 			for _, source in v do
 				for i: number, syntax: string | { string } in source do

@@ -485,13 +485,13 @@ end
 -- Same as autofill but returns as an array where key 1 is the syntax and key 2 is the help string
 function CommandClass.getCmdInformationForRank(rank: string)
 	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
-	local autofill: { [string]: { any } } = {}
+	local autofill = {} :: { syntax: { [string]: { string | { string } } }, help: { [string]: string } }
 	local rankValue = Permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
 			local help = v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help
-			autofill[name] = { v._behaviour.syntax, help }
+			autofill[name] = { syntax = v._behaviour.syntax, help = help }
 		end
 	end
 

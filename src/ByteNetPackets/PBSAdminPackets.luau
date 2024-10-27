@@ -26,13 +26,16 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 		-- Recieve autofill information --
 		-- The full table will have to be assembled by merging sets and singletons
 		AutofillReturn = ByteNet.definePacket({
-			value = ByteNet.map(
-				ByteNet.string,
-				ByteNet.struct({
-					sets = ByteNet.map(ByteNet.uint8, ByteNet.array(ByteNet.string)),
-					singletons = ByteNet.map(ByteNet.uint8, ByteNet.string),
-				})
-			),
+			value = ByteNet.struct({
+				syntax = ByteNet.map(
+					ByteNet.string,
+					ByteNet.struct({
+						sets = ByteNet.map(ByteNet.uint8, ByteNet.array(ByteNet.string)),
+						singletons = ByteNet.map(ByteNet.uint8, ByteNet.string),
+					})
+				),
+				help = ByteNet.optional(ByteNet.map(ByteNet.string, ByteNet.string)),
+			}),
 			reliabilityType = "reliable",
 		}),
 	}

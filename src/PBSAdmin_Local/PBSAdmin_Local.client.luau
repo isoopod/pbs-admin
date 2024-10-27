@@ -23,6 +23,7 @@ end
 local cmd, suggestions = AdminGui.BakeCommandBar()
 local input = cmd.input
 cmd.Parent = script.Parent
+
 local suggestionTemplate = suggestions.AutofillComponent
 suggestionTemplate.Parent = nil
 suggestions.Parent = script.Parent
