@@ -8,9 +8,9 @@
 --]]
 
 --local replicatedStorage = game:GetService("ReplicatedStorage")
-local players = game:GetService("Players")
-local offlinePlayer = require(script.Parent.offlinePlayer)
-local permissions = require(script.Parent.Permissions)
+local Players = game:GetService("Players")
+local OfflinePlayer = require(script.Parent.offlinePlayer)
+local Permissions = require(script.Parent.Permissions)
 
 --local messagePlayer = replicatedStorage:WaitForChild("PBSAdminRemote")
 
@@ -242,7 +242,7 @@ end
 	@param canUseUserId boolean? -- if we should be able to search for players by username by placing a # in front of the query
 	@return Player -- May be `OfflinePlayer` if canUseUserId is true
 ]=]
-function Command.GetPlayer(_self: _Command, player: Player, other: string, canUseUserId: boolean?): (Player | offlinePlayer.OfflinePlayer)?
+function Command.GetPlayer(_self: _Command, player: Player, other: string, canUseUserId: boolean?): (Player | OfflinePlayer.OfflinePlayer)?
 	if not other then
 		return nil
 	end
@@ -259,7 +259,7 @@ function Command.GetPlayer(_self: _Command, player: Player, other: string, canUs
 		end
 
 		local nameMap = {}
-		for _, p in players:GetPlayers() do
+		for _, p in Players:GetPlayers() do
 			nameMap[p.Name] = p
 			nameMap[p.DisplayName] = p
 		end
@@ -282,9 +282,9 @@ function Command.GetPlayer(_self: _Command, player: Player, other: string, canUs
 		if typeof(userId) ~= "number" then
 			return nil
 		end
-		local s, user: string = pcall(players.GetNameFromUserIdAsync, players, userId)
+		local s, user: string = pcall(Players.GetNameFromUserIdAsync, Players, userId)
 		if s then
-			local offlineUser = offlinePlayer.new(user, userId)
+			local offlineUser = OfflinePlayer.new(user, userId)
 			return offlineUser
 		end
 	end
@@ -304,11 +304,11 @@ end
 ]=]
 function Command.GetBulkPlayers(self: _Command, player: Player, other: string): { Player }
 	if other == "all" then
-		return players:GetPlayers()
+		return Players:GetPlayers()
 	end
 	if other == "others" then
 		local plrs = {}
-		for _, v in players:GetPlayers() do
+		for _, v in Players:GetPlayers() do
 			if v ~= player then
 				table.insert(plrs, v)
 			end
@@ -317,7 +317,7 @@ function Command.GetBulkPlayers(self: _Command, player: Player, other: string): 
 	end
 	if other == "team" then
 		local plrs = {}
-		for _, v in players:GetPlayers() do
+		for _, v in Players:GetPlayers() do
 			if v.Team == player.Team then
 				table.insert(plrs, v)
 			end
@@ -373,8 +373,8 @@ end
 ]=]
 function Command.CanUserModifyOther(_self: _Command, player: Player, other: Player): boolean
 	if
-		permissions.roleValues[permissions.GetUserPermissions(player.UserId)] < permissions.roleValues[permissions.GetUserPermissions(other.UserId)]
-		and permissions.GetUserPermissions(player.UserId) ~= "owner"
+		Permissions.roleValues[Permissions.GetUserPermissions(player.UserId)] < Permissions.roleValues[Permissions.GetUserPermissions(other.UserId)]
+		and Permissions.GetUserPermissions(player.UserId) ~= "owner"
 	then
 		return false
 	end
@@ -397,7 +397,7 @@ end
 	@return boolean
 ]=]
 function Command.IsUserVerified(_self: _Command, player: Player, other: Player): boolean
-	if script.Parent:GetAttribute("isVerified_Only") and permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then
+	if script.Parent:GetAttribute("isVerified_Only") and Permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then
 		return false
 	end
 	return true
@@ -471,7 +471,7 @@ end
 function CommandClass.getAutofillForRank(rank: string)
 	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
 	local autofill = {}
-	local rankValue = permissions.roleValues[rank]
+	local rankValue = Permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
@@ -486,7 +486,7 @@ end
 function CommandClass.getCmdInformationForRank(rank: string)
 	-- Iterate over all commands and if they are usable by rank then add their syntax for all their aliases
 	local autofill: { [string]: { any } } = {}
-	local rankValue = permissions.roleValues[rank]
+	local rankValue = Permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
@@ -529,7 +529,7 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 		if rank ~= role and v:HasTag("DontShareWithHigherRank") then
 			continue
 		end
-		if permissions.roleValues[if role == "none" then "" else role] >= permissions.roleValues[if rank == "none" then "" else rank] then
+		if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then
 			table.insert(toClone, v)
 		end
 	end

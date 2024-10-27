@@ -1,5 +1,3 @@
-local replicatedStorage = game:GetService("ReplicatedStorage")
-
 local command = require(script.Parent)
 local permissions = require(script.Parent.Parent.Permissions)
 
@@ -41,10 +39,6 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 										target:Kick("You have been banned")
 									else
 										self:GiveToolsForRole(target, if roleName == "" then "none" else roleName)
-										local remote: RemoteEvent? = replicatedStorage:FindFirstChild("PBSAdminRemote")
-										if remote then
-											remote:FireClient(target, "UpdatedPermissions")
-										end
 									end
 
 									local leaderstats = script.Parent.Parent:GetAttribute("leaderstats") and target:FindFirstChild("leaderstats")

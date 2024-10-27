@@ -1,10 +1,10 @@
 -- This script is assinged to players with admin permissions to send them messages involving thier commands
 -- Cannot actually do anything
 
+local ContextActionService = game:GetService("ContextActionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local contextActionService = game:GetService("ContextActionService")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local userInputService = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 local keys = { Enum.KeyCode.BackSlash }
 
 local AdminGui = require(script.Parent.AdminGui)
@@ -29,7 +29,20 @@ suggestions.Parent = script.Parent
 
 local isMobile: ImageButton?
 
-local remote: RemoteEvent = replicatedStorage:WaitForChild("PBSAdminRemote")
+-- bytenet integration
+local Bytenet
+if ReplicatedStorage:FindFirstChild("Utils") then
+	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
+			Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
+		end
+	end
+end
+
+local remote: RemoteEvent?
+if not Bytenet then
+	remote = ReplicatedStorage:WaitForChild("PBSAdminRemote")
+end
 
 local responseTags = {
 	'<font color="#ff3d3d">', -- error
@@ -70,7 +83,11 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	local command = commandData[1]
 	table.remove(commandData, 1)
 	if not ClientCommands.cmdData[command] then
-		remote:FireServer(input.Text)
+		if Bytenet then
+			Bytenet.ExecuteCommand.send(input.Text)
+		elseif remote then
+			remote:FireServer(input.Text)
+		end
 	else
 		local clientCmd = ClientCommands.cmdData[command]
 		commandResponse(clientCmd(unpack(commandData)))
@@ -85,13 +102,15 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	end
 end)
 
-remote.OnClientEvent:Connect(function(response: number | string, body: string)
-	if typeof(response) == "string" then
-		Autofill.buildAutofill()
-	else
+if Bytenet then
+	Bytenet.CommandReturn.listen(function(data)
+		commandResponse(data.response, data.body)
+	end)
+elseif remote then
+	remote.OnClientEvent:Connect(function(response: number, body: string)
 		commandResponse(response, body)
-	end
-end)
+	end)
+end
 
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
 	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then
@@ -106,7 +125,7 @@ local function openConsole(_, inputState: Enum.UserInputState, _inputObject: Inp
 		if cmd.Visible then
 			input.Text = ""
 			cmd.autofill.Text = ""
-			userInputService.InputEnded:Wait()
+			UserInputService.InputEnded:Wait()
 			input:CaptureFocus()
 			if isMobile then
 				isMobile.Position = UDim2.fromScale(1, -0.45)
@@ -261,7 +280,7 @@ local function navigateSuggestions(up: boolean): boolean
 	return false
 end
 
-userInputService.InputBegan:Connect(function(_inputObject: InputObject)
+UserInputService.InputBegan:Connect(function(_inputObject: InputObject)
 	if cmd.Visible then
 		-- Navigate up in command history or suggestions
 		if _inputObject.KeyCode == Enum.KeyCode.Up then
@@ -296,13 +315,13 @@ end)
 -- This just sinks the up and down arrows if the command bar is open
 table.insert(keys, Enum.KeyCode.Up)
 table.insert(keys, Enum.KeyCode.Down)
-contextActionService:BindAction("openPBSAdminConsole", openConsole, true, unpack(keys))
-contextActionService:SetPosition("openPBSAdminConsole", UDim2.fromScale(0.7, -0.45))
-contextActionService:SetImage("openPBSAdminConsole", "rbxassetid://98927197503750")
+ContextActionService:BindAction("openPBSAdminConsole", openConsole, true, unpack(keys))
+ContextActionService:SetPosition("openPBSAdminConsole", UDim2.fromScale(0.7, -0.45))
+ContextActionService:SetImage("openPBSAdminConsole", "rbxassetid://98927197503750")
 
 -- If the button is made that means that the user is on mobile.
 -- We should apply some changes so it is easier to use the command bar on mobile
-isMobile = contextActionService:GetButton("openPBSAdminConsole")
+isMobile = ContextActionService:GetButton("openPBSAdminConsole")
 if isMobile then
 	local CAS_CONTAINER = isMobile:FindFirstAncestorWhichIsA("ScreenGui")
 	-- Will probably break some other context button positioning but worth it.

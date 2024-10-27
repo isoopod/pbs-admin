@@ -2,7 +2,20 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ClientCommands = require(script.Parent.ClientCommands)
 
-local get: RemoteFunction = ReplicatedStorage:WaitForChild("PBSAdminGetAutofill")
+-- bytenet integration
+local Bytenet
+if ReplicatedStorage:FindFirstChild("Utils") then
+	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
+			Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
+		end
+	end
+end
+
+local get: RemoteFunction?
+if not Bytenet then
+	get = ReplicatedStorage:WaitForChild("PBSAdminGetAutofill")
+end
 
 local api = {}
 
@@ -15,7 +28,28 @@ function api.buildAutofill()
 		["N"] = {},
 	}
 
-	for name, syntax in get:InvokeServer() do
+	-- Get autofill
+	local autofillTable = {}
+	if Bytenet then
+		task.defer(function()
+			Bytenet.GetAutofill.send(false)
+		end)
+		local result = Bytenet.AutofillReturn.wait()
+		-- reconstruct table
+		for k, v in result do
+			local newEntry = {}
+			for _, source in v do
+				for i: number, syntax: string | { string } in source do
+					newEntry[i] = syntax
+				end
+			end
+			autofillTable[k] = newEntry
+		end
+	elseif get then
+		autofillTable = get:InvokeServer()
+	end
+
+	for name, syntax in autofillTable do
 		api.autofill[name] = syntax
 	end
 
