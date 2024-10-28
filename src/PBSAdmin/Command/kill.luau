@@ -12,7 +12,11 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 	local args = { ... }
 	local other = args[1]
 	if player and other then
-		return health.__call(self, player, verified, aliasData, other, "0")
+		local exec = command.new("health")
+		if exec then
+			return exec(player, verified, aliasData, other, "0")
+		end
+		return self.Responses.Error, "Missing health command"
 	else
 		return self.Responses.Error, "Invalid Parameters"
 	end

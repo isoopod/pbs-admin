@@ -32,7 +32,7 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 		if target then
 			-- Toggle the flight script for this palyer
 			-- If they already have flight, disable it
-			-- Alternatively, if the command was unNoclip, then dont give noclip
+			-- Alternatively, if the command was unnoclip, then dont give noclip
 			local noclip = target.Character and target.Character:FindFirstChild("PBSADMIN_NoClip")
 			if noclip then
 				noclip:Destroy()
@@ -42,6 +42,9 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 				return self.Responses.Success, `Noclip activated for '{self:FormatUsername(target)}'`
 			end
 
+			if aliasData == false then
+				return self.Responses.Error, `'{self:FormatUsername(target)}' does not have noclip enabled`
+			end
 			return self.Responses.Error, `'{self:FormatUsername(target)}' currently does not have a character, try again later.`
 		else
 			return self.Responses.Error, "Other player not found, make sure they aren't the only person with that approximate name"

@@ -38,5 +38,19 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 			}),
 			reliabilityType = "reliable",
 		}),
+
+		-- Integration for default commands --
+		-- Note: custom commands wanting to integrate with Bytenet will need their own packets module
+
+		-- Message command --
+		MSG = ByteNet.definePacket({
+			value = ByteNet.struct({
+				title = ByteNet.string,
+				message = ByteNet.string,
+				typewrite = ByteNet.bool,
+				duration = ByteNet.optional(ByteNet.float64),
+			}),
+			reliabilityType = "reliable", -- unreliable remotes cannot send very much data
+		}),
 	}
 end)

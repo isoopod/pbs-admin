@@ -9,6 +9,9 @@
 
 --local replicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
+
 local OfflinePlayer = require(script.Parent.offlinePlayer)
 local Permissions = require(script.Parent.Permissions)
 
@@ -167,11 +170,11 @@ export type Command = {
 	GetPlayer: (self: Command, player: Player, name: string, canUseUserId: boolean?) -> Player?,
 	GetBulkPlayers: (self: Command, player: Player, name: string) -> { Player },
 	FormatUsername: (self: Command, player: Player) -> string,
-	--UserHasPermissionsForCommand: (self: Command, player: Player) -> boolean, DEPRECATED, REMOVING IN FUTURE VERSION
 	CanUserModifyOther: (self: Command, player: Player, other: Player) -> boolean,
 	IsUserVerified: (self: Command, player: Player, other: Player) -> boolean,
 	GiveToolsForRole: (self: Command, player: Player, role: string) -> (),
-	Destroy: (self: Command) -> (),
+	ColorTextForRank: (self: Command, text: string, rank: number) -> string,
+	FilterText: (self: Command, player: Player, text: string) -> string,
 } & (player: Player, verified: boolean, aliasData: any?, ...string) -> (number, string) -- __call interface
 
 type _Command = Command & {
@@ -403,16 +406,41 @@ function Command.IsUserVerified(_self: _Command, player: Player, other: Player):
 	return true
 end
 
---[=[
-
-]=]
+--- Used for role and tools command. Should not be used for custom commands.
+--- @method GiveToolsForRole
+--- @within Command
+--- @tag Command Handler
+--- @private
 function Command.GiveToolsForRole(_self: _Command, player: Player & { Backpack: Backpack, StarterGear: StarterGear, PlayerGui: PlayerGui }, role: string): ()
 	CommandClass.PublicUtils.GiveToolsForRole(player, role)
 end
 
-function Command:Destroy(): ()
-	self = self :: _Command
-	--TODO: Implement me
+--[=[
+	Rich text formats text to the role color for the rank value.
+
+	@method ColorTextForRank
+	@within Command
+	@tag Command Handler
+	@param text string
+	@param rank number
+	@return string
+]=]
+function Command.ColorTextForRank(_self: _Command, text: string, rank: number): string
+	return CommandClass.PublicUtils.ColorTextForRank(text, rank)
+end
+
+--[=[
+	Filters text for broadcast. Player must be provided. If this is not possible use the PublicUtils.FilterText method instead.
+
+	@method FilterText
+	@within Command
+	@tag Command Handler
+	@param player Player
+	@param text string
+	@return string
+]=]
+function Command.FilterText(_self: _Command, player: Player, text: string): string
+	return CommandClass.PublicUtils.FilterText(text, player.UserId)
 end
 
 -- stores all commands in a dictionary
@@ -443,9 +471,6 @@ function CommandClass.new(commandName: string): Command?
 
 	self._behaviour = behaviour
 
-	if CommandClass.Commands[commandName] then
-		warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()}`)
-	end
 	CommandClass.Commands[commandName] = self
 	-- generate aliases with reference to the main object
 	if self._behaviour.aliases then
@@ -498,7 +523,8 @@ function CommandClass.getCmdInformationForRank(rank: string)
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
 		if rankValue >= v._behaviour.minRank then
-			local help = `[{rankToRole[v._behaviour.minRank]}+] {v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help}`
+			local help =
+				`{CommandClass.PublicUtils.ColorTextForRank(`[{rankToRole[v._behaviour.minRank]}+]`, v._behaviour.minRank)} {v._behaviour.aliasHelp and v._behaviour.aliasHelp[name] or v._behaviour.help}`
 			autofill.syntax[name] = v._behaviour.syntax
 			autofill.help[name] = help
 		end
@@ -574,6 +600,42 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 			v:Clone().Parent = player.Backpack
 		else
 			v:Clone().Parent = player.PlayerGui
+		end
+	end
+end
+
+local rankColors = {
+	[-1] = "'#b8b8b8'",
+	[0] = "'#ffffff'",
+	[1] = "'#efb838'",
+	[2] = "'#04afec'",
+	[3] = "'#aa00aa'",
+	[4] = "'#ff0000'",
+}
+function CommandClass.PublicUtils.ColorTextForRank(text: string, rank: number): string
+	return `<font color={rankColors[rank]}>{text}</font>`
+end
+
+function CommandClass.PublicUtils.FilterText(text: string, userid: number?): string
+	if not userid then
+		userid = Players:GetPlayers()[1].UserId
+	end
+	local s, filterResult = pcall(TextService.FilterStringAsync, TextService, text, userid)
+
+	if not s then
+		warn(filterResult)
+		return ""
+	end
+
+	local s2, filteredText = pcall(filterResult.GetNonChatStringForBroadcastAsync, filterResult)
+	return if s2 then filteredText else ""
+end
+
+-- If you are using PBS Admin with ByteNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
+if ReplicatedStorage:FindFirstChild("Utils") then
+	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
+			CommandClass.PublicUtils.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
 		end
 	end
 end

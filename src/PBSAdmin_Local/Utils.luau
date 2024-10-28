@@ -1,3 +1,4 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 
 local api = {}
@@ -112,6 +113,49 @@ function api.getMaxWidth(strings: { string }, textLabel: TextLabel): number
 	end
 
 	return maxWidth
+end
+
+-- For handling a or an in a string
+function api.vowelPrefix(word: string): string
+	local vowels = { "a", "e", "i", "o", "u" }
+	local firstChar = word:sub(1, 1):lower()
+
+	for _, vowel in vowels do
+		if firstChar == vowel then
+			return "n"
+		end
+	end
+	return ""
+end
+
+local roleColors = {
+	Banned = "'#b8b8b8'",
+	[""] = "'#ffffff'",
+	Member = "'#efb838'",
+	Trusted = "'#04afec'",
+	Admin = "'#aa00aa'",
+	Owner = "'#ff0000'",
+}
+function api.ColorTextForRole(text: string, role: string): string
+	return `<font color={roleColors[role]}>{text}</font>`
+end
+
+function api.stringEscapeRichText(s: string): string
+	s = string.gsub(s, "&", "&amp;") -- (must do & first)
+	s = string.gsub(s, "<", "&lt;")
+	s = string.gsub(s, ">", "&gt;")
+	s = string.gsub(s, '"', "&quot;")
+	s = string.gsub(s, "'", "&apos;")
+	return s
+end
+
+-- bytenet integration
+if ReplicatedStorage:FindFirstChild("Utils") then
+	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
+			api.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
+		end
+	end
 end
 
 return api

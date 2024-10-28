@@ -1,3 +1,4 @@
+local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 
 local gui = {}
@@ -36,7 +37,7 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 
 	cmd.Name = "cmd"
 	cmd.AnchorPoint = Vector2.new(0.5, 0.5)
-	cmd.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
+	cmd.BackgroundColor3 = Color3.new(0, 0, 0)
 	cmd.BackgroundTransparency = 0.3
 	cmd.Position = UDim2.new(0.5, 0, 0.5, 0)
 	cmd.Size = UDim2.new(0.75, 0, 0.05, 0)
@@ -103,11 +104,17 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	CleanUp.AnchorPoint = Vector2.new(1, 0)
 	CleanUp.Position = UDim2.new(1, -4, 0, 4)
 	CleanUp.Size = UDim2.fromOffset(24, 24)
-	CleanUp.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
+	CleanUp.BackgroundColor3 = Color3.new()
 	CleanUp.BackgroundTransparency = 0.3
 	CleanUp.Image = "rbxasset://textures/RoduxDevtools/ClearList.png"
 	UICorner:Clone().Parent = CleanUp
 	CleanUp.Parent = OutputFrame
+
+	local redBorder = Instance.new("UIStroke")
+	redBorder.Color = Color3.new(1)
+	redBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	redBorder.Thickness = 1.5
+	redBorder.Parent = CleanUp
 
 	BG.Name = "BG"
 	BG.ZIndex = 0
@@ -116,7 +123,7 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	UICorner:Clone().Parent = BG
 	BG.Parent = cmd
 
-	UIGradient.Color = ColorSequence.new(Color3.fromRGB(65, 65, 65))
+	UIGradient.Color = ColorSequence.new(Color3.new())
 	UIGradient.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0.49375),
 		NumberSequenceKeypoint.new(0.440873, 0.625),
@@ -215,6 +222,9 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	scr.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	scr.Name = `PBSAdmin_LIST_{name}`
 
+	local windowScale = Instance.new("UIScale")
+	windowScale.Parent = scr
+
 	local drag = Instance.new("Frame")
 	drag.BackgroundTransparency = 1
 	drag.Size = UDim2.new(0, 385, 0, 20)
@@ -310,6 +320,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	local cmpadding = Instance.new("UIPadding")
 	cmpadding.PaddingRight = UDim.new(0, 48)
 	cmpadding.Parent = cmf
+	cmpadding:Clone().Parent = topbar
 
 	local down = Instance.new("ImageButton")
 	down.Image = "http://www.roblox.com/asset/?id=108326725"
@@ -346,6 +357,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	index.Size = UDim2.new(0, 24, 1, 0)
 	index.FontFace = ArimoBold
 	index.TextSize = 14
+	index.AutoLocalize = false
 	index.TextColor3 = Color3.new(1, 1, 1)
 	index.TextXAlignment = Enum.TextXAlignment.Left
 	index.TextYAlignment = Enum.TextYAlignment.Top
@@ -367,7 +379,6 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	content.Name = "Content"
 	content.Position = UDim2.fromOffset(32, 0)
 	content.Size = UDim2.fromOffset(0, 20)
-	content.ClipsDescendants = true
 	content.Parent = row
 
 	local ent = Instance.new("TextLabel")
@@ -375,6 +386,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	ent.BackgroundTransparency = 1
 	ent.AutomaticSize = Enum.AutomaticSize.XY
 	ent.FontFace = Arimo
+	ent.AutoLocalize = false
 	ent.TextSize = 18
 	ent.TextColor3 = Color3.new(1, 1, 1)
 	ent.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -392,10 +404,8 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	local upv = false
 
 	local targetPosition = cmf.CanvasPosition
-	cmf.InputChanged:Connect(function(inp)
-		if inp.UserInputType == Enum.UserInputType.MouseMovement then
-			targetPosition = cmf.CanvasPosition
-			task.wait(0.25)
+	cmf:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+		if not downv and not upv then
 			targetPosition = cmf.CanvasPosition
 		end
 	end)
@@ -440,7 +450,86 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 		end
 	end)
 
+	scr:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		windowScale.Scale = math.clamp(scr.AbsoluteSize.Y / 800, 0.5, 1.5)
+	end)
+	windowScale.Scale = math.clamp(scr.AbsoluteSize.Y / 800, 0.5, 1.5)
+
 	return scr, cmf, row
+end
+
+function gui.message(ttl: string, str: string, typewriter: boolean?, duration: number?): ()
+	local scr = Instance.new("ScreenGui")
+	scr.Name = "MessageGUI"
+
+	local bg = Instance.new("Frame")
+	bg.Name = "bg"
+	bg.BackgroundColor3 = Color3.new(0, 0, 0)
+	bg.BorderSizePixel = 0
+	bg.BackgroundTransparency = 1
+	bg.Size = UDim2.new(10, 0, 10, 0)
+	bg.Position = UDim2.new(-5, 0, -5, 0)
+	bg.ZIndex = 8
+	bg.Parent = scr
+
+	local title = Instance.new("TextLabel")
+	title.Name = "title"
+	title.BackgroundTransparency = 1
+	title.BorderSizePixel = 0
+	title.Size = UDim2.new(1, 0, 0, 50)
+	title.ZIndex = 9
+	title.FontFace = ArimoBold
+	title.TextSize = 36
+	title.Text = ttl
+	title.TextYAlignment = Enum.TextYAlignment.Top
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextStrokeColor3 = Color3.new(1, 1, 1)
+	title.TextStrokeTransparency = 0.8
+	title.RichText = true
+	title.Parent = scr
+
+	local msg = title:Clone()
+	msg.Name = "msg"
+	msg.Position = UDim2.new(0.0625, 0, 0, 0)
+	msg.Size = UDim2.new(0.875, 0, 1, 0)
+	msg.FontFace = Arimo
+	msg.Text = str
+	msg.TextSize = 24
+	msg.TextYAlignment = Enum.TextYAlignment.Center
+	msg.TextWrapped = true
+	msg.MaxVisibleGraphemes = 0
+	msg.RichText = true
+	msg.Parent = scr
+
+	scr.Parent = script.Parent
+
+	-- Fade-in Tween
+	local fadeInTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(bg, fadeInTweenInfo, { BackgroundTransparency = 0.3 }):Play()
+	TweenService:Create(title, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.8 }):Play()
+	TweenService:Create(msg, fadeInTweenInfo, { TextTransparency = 0, TextStrokeTransparency = 0.8 }):Play()
+
+	-- Text Scrolling Effect
+	if typewriter then
+		local charInterval = duration and duration / #str or 1 / 19
+
+		for i = 1, #str do
+			msg.MaxVisibleGraphemes = i
+			task.wait(charInterval)
+		end
+		task.wait(2.5)
+	else
+		-- Display full text immediately if scroll is false
+		msg.MaxVisibleGraphemes = -1
+		task.wait(duration or #str / 50 + 2.5)
+	end
+
+	-- Fade-out Tween and Cleanup
+	local fadeOutTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	TweenService:Create(bg, fadeOutTweenInfo, { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(title, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	TweenService:Create(msg, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	Debris:AddItem(scr, 0.5)
 end
 
 return gui

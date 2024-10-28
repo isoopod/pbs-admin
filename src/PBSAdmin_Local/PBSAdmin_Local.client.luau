@@ -5,7 +5,8 @@ local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local keys = { Enum.KeyCode.BackSlash }
+local Player = game:GetService("Players").LocalPlayer
+local keys = { Enum.KeyCode.BackSlash } -- The first key in this array is the one the user will be told to press to open the console
 
 local AdminGui = require(script.Parent.AdminGui)
 local Autofill = require(script.Parent.Autofill)
@@ -20,6 +21,21 @@ for _, v in script.Parent.ClientCommands:GetChildren() do
 	end
 end
 
+-- Tell the player their rank
+-- NOTE: This relies on the 'leaderstats' attribute being enabled
+task.spawn(function()
+	local leaderstats = Player:WaitForChild("leaderstats", 1)
+	if leaderstats then
+		local role: StringValue? = leaderstats:WaitForChild("Role", 1)
+		if role then
+			local message = if role.Value == ""
+				then `This place uses PBS Admin. Press {keys[1].Name} to open the console.`
+				else `You're a{Utils.vowelPrefix(role.Value)} {Utils.ColorTextForRole(role.Value .. "!", role.Value)}\n\nPress <font color='#ffcc55'>{keys[1].Name}</font> to open the console.`
+			AdminGui.message("<font color='#ff0000'>[SYSTEM]</font>", message)
+		end
+	end
+end)
+
 local cmd, suggestions = AdminGui.BakeCommandBar()
 local input = cmd.input
 cmd.Parent = script.Parent
@@ -31,14 +47,7 @@ suggestions.Parent = script.Parent
 local isMobile: ImageButton?
 
 -- bytenet integration
-local Bytenet
-if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
-			Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
-		end
-	end
-end
+local Bytenet = Utils.Bytenet
 
 local remote: RemoteEvent?
 if not Bytenet then
@@ -166,7 +175,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	local prediciton = `{table.concat(words, " ", 1, len - 1)}{len > 1 and " " or ""}`
 	local entries = { "" }
 
-	local alias = Autofill.autofill[words[1]]
+	local alias = Autofill.autofill[words[1]] or {}
 	if alias and len > 1 then
 		-- suggest the argument closest to whatever is currently written
 		local targets = PsuedoAlias.processPsuedoAlias(alias[len - 1], words[len])
@@ -245,13 +254,26 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	for i, v in words do
 		-- Disregard the last word if the user is not done writing it
 		if words[len] == v and not (words[len] == entries[1]) and entries[1] ~= "" then
-			table.insert(reconstructedInput, v)
+			table.insert(reconstructedInput, Utils.stringEscapeRichText(v))
 		else
 			local syntax = i == 1 and Autofill.autofill or alias[i - 1]
+
+			-- Some commands allow for variadics at the end of the command.
+			-- Find the highest syntax that isn't nil
+			while syntax == nil and i > 1 do
+				i -= 1
+				syntax = alias[i - 1] -- Move up the alias list until a valid syntax is found
+			end
+
+			-- Check if the syntax is a string and begins with "<"
+			if type(syntax) == "string" and syntax:sub(1, 4) == "<..." then
+				-- Remove the "..." from the syntax to get the current syntax
+				syntax = syntax:gsub("%.+", "")
+			end
 			if PsuedoAlias.lintParamerter(syntax, v) then
-				table.insert(reconstructedInput, v)
+				table.insert(reconstructedInput, Utils.stringEscapeRichText(v))
 			else
-				table.insert(reconstructedInput, `{responseTags[1]}<u>{v}</u></font>`)
+				table.insert(reconstructedInput, `{responseTags[1]}<u>{Utils.stringEscapeRichText(v)}</u></font>`)
 			end
 		end
 	end
@@ -265,13 +287,43 @@ local function navigateSuggestions(up: boolean): boolean
 		if newSuggestion ~= currentSuggestion then
 			currentSuggestion = newSuggestion
 			-- Handle highlighting
+			local totalSuggestions = #suggestions:GetChildren() - 4
+			local displayRange = 5 -- Number of suggestions to display at once
+			local halfRange = displayRange // 2
+
 			for _, v in suggestions:GetChildren() do
 				if v:IsA("TextLabel") then
-					if v.LayoutOrder == currentSuggestion then
-						cmd.autofill.Text = cmd.autofill.Text:gsub("%S+$", v.Text)
-						v.BackgroundTransparency = 0
+					-- Determine the visibility range based on the current suggestion's position
+					local lowerBound, upperBound
+
+					if currentSuggestion <= halfRange + 1 then
+						-- Near the start: show the first `displayRange` suggestions
+						lowerBound = 1
+						upperBound = displayRange
+					elseif currentSuggestion >= totalSuggestions - halfRange then
+						-- Near the end: show the last `displayRange` suggestions
+						lowerBound = totalSuggestions - displayRange + 1
+						upperBound = totalSuggestions
 					else
-						v.BackgroundTransparency = 1
+						-- Middle: centre `currentSuggestion` with `displayRange` around it
+						lowerBound = currentSuggestion - halfRange
+						upperBound = currentSuggestion + halfRange
+					end
+
+					-- Toggle visibility and highlight current suggestion
+					if v.LayoutOrder >= lowerBound and v.LayoutOrder <= upperBound then
+						v.Visible = true
+						if v.LayoutOrder == currentSuggestion then
+							-- Set this suggestion as highlighted
+							cmd.autofill.Text = cmd.autofill.Text:gsub("%S+$", v.Text)
+							v.BackgroundTransparency = 0
+						else
+							-- Set this suggestion as not highlighted
+							v.BackgroundTransparency = 1
+						end
+					else
+						-- Hide suggestions outside the visible range
+						v.Visible = false
 					end
 				end
 			end

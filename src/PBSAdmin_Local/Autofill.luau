@@ -59,7 +59,11 @@ function api.buildAutofill()
 end
 
 -- For cmds list
+local cache
 function api.getVerboseAutofill()
+	if cache then
+		return cache
+	end
 	-- Get autofill
 	local autofillTable = {}
 	if Bytenet then
@@ -85,6 +89,12 @@ function api.getVerboseAutofill()
 		autofillTable = get:InvokeServer(true)
 	end
 
+	for k, v in ClientCommands.cmdData do
+		local help = `[No role+] {v.help}`
+		autofillTable[k] = { syntax = v.syntax, help = help }
+	end
+
+	cache = autofillTable
 	return autofillTable
 end
 

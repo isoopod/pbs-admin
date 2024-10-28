@@ -8,10 +8,7 @@ cmd.minRank = 3
 cmd.aliases = { r15 = Enum.HumanoidRigType.R15, r6 = Enum.HumanoidRigType.R6 }
 cmd.syntax = { "<player>" }
 
-cmd.help = [[Refreshes a player, instantly resetting them in place.
-	
-both players should match the name of a player in the server
-	using 'me' as the player name will use yourself]]
+cmd.help = [[Refreshes a player, instantly resetting them in place.]]
 
 cmd.aliasHelp = {
 	r15 = [[Refreshes a player and forces their avatar into r15]],

@@ -10,15 +10,10 @@ local Command = require(script.Command)
 local Permissions = require(script.Permissions)
 
 -- Bytenet integration
-local Bytenet
--- If you are using PBS Admin with ByteNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
-if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
-			Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
-		end
-	end
-end
+-- If you are not using PBS Admin with rewrite, you may have to change the path the ByteNet in the Command module,
+-- as well as in the client Utils module. (should be at the bottom of both modules)
+-- If bytenet is not detected, will fallback to remotes.
+local Bytenet = Command.PublicUtils.Bytenet
 
 local externalLeaderstatsDetected = nil
 
@@ -211,8 +206,10 @@ if Bytenet then
 				end
 			end
 			sendable.syntax[k] = { sets = sets, singletons = singletons }
-			if data then
-				sendable.help[k] = v.help
+		end
+		if data then
+			for k, v in autofill.help do
+				sendable.help[k] = v
 			end
 		end
 
