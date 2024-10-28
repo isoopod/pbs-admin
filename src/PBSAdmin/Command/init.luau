@@ -540,6 +540,21 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 		if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
 	end
 
+	table.sort(toClone, function(a, b)
+		local aOrder = a:GetAttribute("Order")
+		local bOrder = b:GetAttribute("Order")
+
+		if aOrder and bOrder then
+			return aOrder < bOrder -- Sort by Order if both have it
+		elseif aOrder then
+			return true -- a has Order, b does not, so a goes first
+		elseif bOrder then
+			return false -- b has Order, a does not, so b goes first
+		else
+			return false -- neither have Order, maintain their relative order
+		end
+	end)
+
 	-- Cleanup existing assets
 	if humanoid then humanoid:UnequipTools() end
 	for _, v in assets do
