@@ -10,7 +10,7 @@ cmd.syntax = {
 	"<player / #userid>",
 	"<number>",
 	{ "seconds", "minutes", "hours", "days", "weeks", "months", "years", "eons" },
-	"<reason?>",
+	"<...reason?>",
 }
 
 cmd.help = [[Bans a player for a specified amount of time. Will also remove any permission the user may have had. Alt detection is enabled.
@@ -40,7 +40,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 	local other = args[1]
 	local duration = tonumber(args[2])
 	local units = args[3]
-	local reason = args[4] or ""
+	local reason = table.concat(args, " ", 4)
 	if player and other and duration and units then
 		units = units:lower()
 		local target = self:GetPlayer(player, other, true)

@@ -1,6 +1,8 @@
 local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 
+local Utils = require(script.Parent.Utils)
+
 local gui = {}
 
 local Arimo = Font.new("rbxasset://fonts/families/Arimo.json")
@@ -147,11 +149,40 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	Output.TextXAlignment = Enum.TextXAlignment.Left
 	Output.TextYAlignment = Enum.TextYAlignment.Top
 	Output.RichText = true
+	-- Output.PlaceholderText = ""
+	-- Output.ClearTextOnFocus = false
+	-- Output.TextEditable = false
 	Output.Parent = OutputFrame
+
+	-- For copy and paste
+	-- Needs an invisible textbox in front since richtext shows as xml when selecting, therefore must be displayed in the textlabel underneath.
+	local outputSel = Instance.new("TextBox")
+	outputSel.ZIndex = 2
+	outputSel.BackgroundTransparency = 1
+	outputSel.AutomaticSize = Enum.AutomaticSize.Y
+	outputSel.Size = UDim2.fromScale(1, 0)
+	outputSel.Position = UDim2.fromOffset(0, 4)
+	outputSel.FontFace = Font.new("rbxasset://fonts/families/Inconsolata.json", Enum.FontWeight.Bold)
+	outputSel.Text = ""
+	outputSel.TextColor3 = Color3.new(1, 1, 1)
+	outputSel.TextSize = 14
+	outputSel.TextTransparency = 0.75
+	outputSel.TextWrapped = true
+	outputSel.TextXAlignment = Enum.TextXAlignment.Left
+	outputSel.TextYAlignment = Enum.TextYAlignment.Top
+	outputSel.PlaceholderText = ""
+	outputSel.ClearTextOnFocus = false
+	outputSel.TextEditable = false
+	outputSel.Parent = OutputFrame
+
+	Output:GetPropertyChangedSignal("Text"):Connect(function()
+		outputSel.Text = Utils.removeRichTextTags(Output.Text)
+	end)
 
 	UIPadding.PaddingLeft = UDim.new(0, 12)
 	UIPadding.PaddingRight = UDim.new(0, 24)
 	UIPadding.Parent = Output
+	UIPadding:Clone().Parent = outputSel
 
 	autofill.Name = "autofill"
 	autofill.BackgroundTransparency = 1
@@ -458,6 +489,8 @@ function gui.message(ttl: string, str: string, typewriter: boolean?, duration: n
 	local scr = Instance.new("ScreenGui")
 	scr.Name = "MessageGUI"
 
+	local visibleText = Utils.removeRichTextTags(str)
+
 	local bg = Instance.new("Frame")
 	bg.Name = "bg"
 	bg.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -507,9 +540,9 @@ function gui.message(ttl: string, str: string, typewriter: boolean?, duration: n
 
 	-- Text Scrolling Effect
 	if typewriter then
-		local charInterval = duration and duration / #str or 1 / 19
+		local charInterval = duration and duration / #visibleText or 1 / 19
 
-		for i = 1, #str do
+		for i = 1, #visibleText do
 			msg.MaxVisibleGraphemes = i
 			task.wait(charInterval)
 		end
@@ -517,7 +550,7 @@ function gui.message(ttl: string, str: string, typewriter: boolean?, duration: n
 	else
 		-- Display full text immediately if scroll is false
 		msg.MaxVisibleGraphemes = -1
-		task.wait(duration or #str / 50 + 2.5)
+		task.wait(duration or #visibleText / 19 + 2.5)
 	end
 
 	-- Fade-out Tween and Cleanup
@@ -526,6 +559,54 @@ function gui.message(ttl: string, str: string, typewriter: boolean?, duration: n
 	TweenService:Create(title, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
 	TweenService:Create(msg, fadeOutTweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
 	Debris:AddItem(scr, 0.5)
+end
+
+function gui.hint(str: string, time: number?)
+	local scr = Instance.new("ScreenGui")
+	scr.Name = "HintGUI"
+
+	local visibleText = Utils.removeRichTextTags(str)
+
+	local bg = Instance.new("Frame")
+	bg.Name = "bg"
+	bg.BackgroundColor3 = Color3.new(0, 0, 0)
+	bg.BorderSizePixel = 0
+	bg.BackgroundTransparency = 1
+	bg.Size = UDim2.new(1, 0, 0, 22)
+	bg.Position = UDim2.new(0, 0, 0, -2)
+	bg.ZIndex = 8
+	bg.Parent = scr
+
+	local msg = Instance.new("TextLabel")
+	msg.Name = "msg"
+	msg.BackgroundTransparency = 1
+	msg.ZIndex = 9
+	msg.Position = UDim2.new(0, 0, 0, 0)
+	msg.Size = UDim2.new(1, 0, 1, 0)
+	msg.FontFace = Arimo
+	msg.Text = str
+	msg.TextSize = 18
+	msg.TextColor3 = Color3.new(1, 1, 1)
+	msg.TextStrokeColor3 = Color3.new(1, 1, 1)
+	msg.TextStrokeTransparency = 0.8
+	msg.TextTransparency = 1
+	msg.Parent = bg
+
+	scr.Parent = script.Parent
+
+	-- Play fade-in tweens
+	TweenService:Create(bg, TweenInfo.new(0.45), { BackgroundTransparency = 0.3 }):Play()
+	TweenService:Create(msg, TweenInfo.new(0.45), { TextTransparency = 0, TextStrokeTransparency = 0.8 }):Play()
+
+	-- Wait for the display duration
+	local displayTime = time or #visibleText / 19 + 2.5
+	task.wait(displayTime)
+
+	-- Play fade-out tweens and remove the GUI after completion
+	TweenService:Create(bg, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(msg, TweenInfo.new(0.45), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+
+	Debris:AddItem(scr, 0.45)
 end
 
 return gui

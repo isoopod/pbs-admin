@@ -10,15 +10,15 @@ local Utils = require(script.Parent.Parent.Utils)
 local Bytenet = Utils.Bytenet
 
 local remote: RemoteEvent
-if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSADMIN_MSG") end
+if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSADMIN_HINT") end
 
 if Bytenet then
-	Bytenet.MSG.listen(function(data)
+	Bytenet.HINT.listen(function(data)
 		-- This data comes from the server and should already be filtered
-		AdminGui.message(data.title, data.message, data.typewrite, data.duration)
+		AdminGui.hint(data.message, data.duration)
 	end)
 else
 	remote.OnClientEvent:Connect(function(...)
-		AdminGui.message(...)
+		AdminGui.hint(...)
 	end)
 end

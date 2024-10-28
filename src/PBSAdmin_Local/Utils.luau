@@ -135,6 +135,10 @@ function api.stringEscapeRichText(s: string): string
 	return s
 end
 
+function api.removeRichTextTags(input: string): string
+	return input:gsub("<[^>]+>", "")
+end
+
 -- bytenet integration
 if ReplicatedStorage:FindFirstChild("Utils") then
 	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then

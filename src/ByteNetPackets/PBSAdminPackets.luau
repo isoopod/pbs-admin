@@ -58,5 +58,14 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 			value = ByteNet.array(ByteNet.string),
 			reliabilityType = "reliable",
 		}),
+
+		-- Hint command --
+		HINT = ByteNet.definePacket({
+			value = ByteNet.struct({
+				message = ByteNet.string,
+				duration = ByteNet.optional(ByteNet.float64),
+			}),
+			reliabilityType = "reliable",
+		}),
 	}
 end)
