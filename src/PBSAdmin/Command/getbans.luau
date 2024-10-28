@@ -48,7 +48,7 @@ end
 -- Function to get time difference from now to future unix timestamp in descending units
 local function timeUntil(futureTime: number): string
 	-- Calculate the time difference in seconds
-	local diff = math.max(futureTime - tick(), 0) -- Avoid negative diffs
+	local diff = math.max(futureTime - DateTime.now().UnixTimestamp, 0) -- Avoid negative diffs
 
 	-- Define time units in seconds
 	local units = {
@@ -104,7 +104,8 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 				if item.Duration == -1 then
 					table.insert(ban, "<font color='#b369bd'>Permanent</font>")
 				else
-					local unbanDate = DateTime.fromIsoDate(item.StartTime).UnixTimestamp + item.Duration
+					local formattedDate: DateTime = DateTime.fromIsoDate(item.StartTime) :: any
+					local unbanDate = formattedDate.UnixTimestamp + item.Duration
 					local date = timeUntil(unbanDate)
 					if date == "" then
 						table.insert(ban, "<font color='#00ff00'>Expired</font>")
