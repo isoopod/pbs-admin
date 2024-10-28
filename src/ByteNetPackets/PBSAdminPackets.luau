@@ -52,5 +52,11 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 			}),
 			reliabilityType = "reliable", -- unreliable remotes cannot send very much data
 		}),
+
+		-- Logs command --
+		LOGS = ByteNet.definePacket({
+			value = ByteNet.array(ByteNet.string),
+			reliabilityType = "reliable",
+		}),
 	}
 end)

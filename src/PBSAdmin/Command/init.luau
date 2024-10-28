@@ -507,6 +507,9 @@ function CommandClass.getCmdInformationForRank(rank: string)
 	return autofill
 end
 
+-- Store logs. Do not use outside of the logs command.
+CommandClass.logs = {}
+
 CommandClass.PublicUtils = {}
 
 local assets = {}

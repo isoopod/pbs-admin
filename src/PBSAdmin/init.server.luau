@@ -106,6 +106,9 @@ local function handleCommand(player: Player, command: string)
 		elseif messagePlayer then
 			messagePlayer:FireClient(player, response, body)
 		end
+
+		-- Log commands
+		if body ~= "Invalid command" and body ~= "You do not have permissions to execute this command." then table.insert(Command.logs, 1, `[{player}]: {command}`) end
 	end
 
 	local rank = Permissions.roleValues[Permissions.GetUserPermissions(player.UserId)]
