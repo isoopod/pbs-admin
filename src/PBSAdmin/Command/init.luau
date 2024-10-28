@@ -199,9 +199,7 @@ local function fuzzySearch(query: string, target: string): (number, boolean)
 	local targetLen = #target
 
 	-- Early exit if query is longer than target
-	if queryLen > targetLen then
-		return 0, false
-	end
+	if queryLen > targetLen then return 0, false end
 
 	local queryIndex = 1
 	local matchCount = 0
@@ -246,20 +244,14 @@ end
 	@return Player -- May be `OfflinePlayer` if canUseUserId is true
 ]=]
 function Command.GetPlayer(_self: _Command, player: Player, other: string, canUseUserId: boolean?): (Player | OfflinePlayer.OfflinePlayer)?
-	if not other then
-		return nil
-	end
+	if not other then return nil end
 	local useUserid = other:sub(1, 1) == "#"
-	if not canUseUserId then
-		useUserid = false
-	end
+	if not canUseUserId then useUserid = false end
 
 	if useUserid == false then
 		-- just match a player in the server
 		-- OR if the other is 'me' then return the player
-		if other == "me" then
-			return player
-		end
+		if other == "me" then return player end
 
 		local nameMap = {}
 		for _, p in Players:GetPlayers() do
@@ -282,9 +274,7 @@ function Command.GetPlayer(_self: _Command, player: Player, other: string, canUs
 	else
 		-- match a user by their exact userid and return an offlineplayer to stand in
 		local userId = tonumber(other:sub(2))
-		if typeof(userId) ~= "number" then
-			return nil
-		end
+		if typeof(userId) ~= "number" then return nil end
 		local s, user: string = pcall(Players.GetNameFromUserIdAsync, Players, userId)
 		if s then
 			local offlineUser = OfflinePlayer.new(user, userId)
@@ -306,24 +296,18 @@ end
 	@return {Player}
 ]=]
 function Command.GetBulkPlayers(self: _Command, player: Player, other: string): { Player }
-	if other == "all" then
-		return Players:GetPlayers()
-	end
+	if other == "all" then return Players:GetPlayers() end
 	if other == "others" then
 		local plrs = {}
 		for _, v in Players:GetPlayers() do
-			if v ~= player then
-				table.insert(plrs, v)
-			end
+			if v ~= player then table.insert(plrs, v) end
 		end
 		return plrs
 	end
 	if other == "team" then
 		local plrs = {}
 		for _, v in Players:GetPlayers() do
-			if v.Team == player.Team then
-				table.insert(plrs, v)
-			end
+			if v.Team == player.Team then table.insert(plrs, v) end
 		end
 		return plrs
 	end
@@ -400,9 +384,7 @@ end
 	@return boolean
 ]=]
 function Command.IsUserVerified(_self: _Command, player: Player, other: Player): boolean
-	if script.Parent:GetAttribute("isVerified_Only") and Permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then
-		return false
-	end
+	if script.Parent:GetAttribute("isVerified_Only") and Permissions.GetUserPermissions(player.UserId) ~= "owner" and not other:IsVerified() then return false end
 	return true
 end
 
@@ -449,14 +431,10 @@ CommandClass.Commands = {}
 -- Generate a new command object from the selected behaviour module
 function CommandClass.new(commandName: string): Command?
 	-- dont create a new command if one already exists, instead return the one thats already been created
-	if CommandClass.Commands[commandName] then
-		return CommandClass.Commands[commandName]
-	end
+	if CommandClass.Commands[commandName] then return CommandClass.Commands[commandName] end
 
 	local component: ModuleScript? = script:FindFirstChild(commandName)
-	if not component then
-		return
-	end
+	if not component then return end
 	local success, behaviour: cmd = pcall(require, component)
 
 	if not success then
@@ -475,9 +453,7 @@ function CommandClass.new(commandName: string): Command?
 	-- generate aliases with reference to the main object
 	if self._behaviour.aliases then
 		for i in self._behaviour.aliases do
-			if CommandClass.Commands[i] then
-				warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()} alias: {i}`)
-			end
+			if CommandClass.Commands[i] then warn(`Multiple command handlers with the name or alias {commandName} detected! module: {component:GetFullName()} alias: {i}`) end
 			CommandClass.Commands[i] = CommandClass.Commands[commandName]
 		end
 	end
@@ -499,9 +475,7 @@ function CommandClass.getAutofillForRank(rank: string)
 	local rankValue = Permissions.roleValues[rank]
 	-- aliases are already generated in the commands table
 	for name, v: _Command in CommandClass.Commands do
-		if rankValue >= v._behaviour.minRank then
-			autofill[name] = v._behaviour.syntax
-		end
+		if rankValue >= v._behaviour.minRank then autofill[name] = v._behaviour.syntax end
 	end
 
 	return autofill
@@ -551,9 +525,7 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	},
 	role: string
 ): ()
-	if role == "" then
-		role = "none"
-	end
+	if role == "" then role = "none" end
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 
 	-- Build a list of assets to give to the player
@@ -561,39 +533,25 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	local toClone = {}
 	for _, v in assets do
 		local rank = v.Parent.Name
-		if rank ~= role and v:HasTag("DontShareWithHigherRank") then
-			continue
-		end
-		if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then
-			table.insert(toClone, v)
-		end
+		if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
+		if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
 	end
 
 	-- Cleanup existing assets
-	if humanoid then
-		humanoid:UnequipTools()
-	end
+	if humanoid then humanoid:UnequipTools() end
 	for _, v in assets do
 		local item = player.Backpack:FindFirstChild(v.Name)
 		local item2 = player.StarterGear:FindFirstChild(v.Name)
-		if item then
-			item:Destroy()
-		end
-		if item2 then
-			item2:Destroy()
-		end
+		if item then item:Destroy() end
+		if item2 then item2:Destroy() end
 
 		local guiItem = player.PlayerGui:FindFirstChild(v.Name)
-		if guiItem then
-			guiItem:Destroy()
-		end
+		if guiItem then guiItem:Destroy() end
 	end
 
 	-- Apply assets for the player
 	for _, v in toClone do
-		if v:IsA("ObjectValue") then
-			v = v.Value
-		end
+		if v:IsA("ObjectValue") then v = v.Value end
 
 		if v:IsA("Tool") then
 			v:Clone().Parent = player.StarterGear
@@ -617,9 +575,7 @@ function CommandClass.PublicUtils.ColorTextForRank(text: string, rank: number): 
 end
 
 function CommandClass.PublicUtils.FilterText(text: string, userid: number?): string
-	if not userid then
-		userid = Players:GetPlayers()[1].UserId
-	end
+	if not userid then userid = Players:GetPlayers()[1].UserId end
 	local s, filterResult = pcall(TextService.FilterStringAsync, TextService, text, userid)
 
 	if not s then

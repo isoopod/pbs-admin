@@ -14,18 +14,14 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 	local other = args[1] or "me"
 	if player and other then
 		-- Try to disable noclip
-		pcall(function()
+		if aliasData ~= false then pcall(function()
 			local noclip = command.new("noclip")
-			if noclip then
-				noclip(player, nil, false, other)
-			end
-		end)
+			if noclip then noclip(player, nil, false, other) end
+		end) end
 
 		local targets = self:GetBulkPlayers(player, other)
 
-		if #targets == 0 then
-			return self.Responses.Error, "Affected 0 players"
-		end
+		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		local logs = {}
 

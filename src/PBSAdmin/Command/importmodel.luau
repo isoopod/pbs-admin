@@ -37,9 +37,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 	if player and asset and set and game:GetService("ReplicatedStorage").PBSTools.Sets:FindFirstChild(set) then
 		local Model = insert(set, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets:FindFirstChild(set))
 
-		if Model then
-			Model:Destroy()
-		end
+		if Model then Model:Destroy() end
 
 		return self.Responses.Success, "Set Imported"
 	else

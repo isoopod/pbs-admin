@@ -20,7 +20,7 @@ function insert(assetId, name, ModelParent)
 	return nil
 end
 
-function cmd.__call(self: command.Command, player: Player, verified: boolean, aliasData: any?, ...: string?): (number, string)
+function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): (number, string)
 	local args = { ... }
 	local other = args[1]
 	local boolean1 = args[2] and args[2]:lower() or ""

@@ -24,9 +24,7 @@ local function PlayerAdded(player: Player)
 	-- Timeout thread if player quits before character loads
 	local thread
 	task.delay(60, function()
-		if thread and ({ running = true, suspended = true })[coroutine.status(thread)] then
-			task.cancel(thread)
-		end
+		if thread and ({ running = true, suspended = true })[coroutine.status(thread)] then task.cancel(thread) end
 	end)
 
 	local rank = Permissions.GetUserPermissions(player.UserId)
@@ -48,9 +46,7 @@ local function PlayerAdded(player: Player)
 	end
 
 	thread = task.spawn(function()
-		if not player.Character then
-			player.CharacterAdded:Wait()
-		end
+		if not player.Character then player.CharacterAdded:Wait() end
 		Command.PublicUtils.GiveToolsForRole(player :: any, rank)
 	end)
 
@@ -73,9 +69,7 @@ local function PlayerAdded(player: Player)
 			end
 		end
 
-		if script:GetAttribute("resetAssetsOnDeath") then
-			Command.PublicUtils.GiveToolsForRole(player :: any, rank)
-		end
+		if script:GetAttribute("resetAssetsOnDeath") then Command.PublicUtils.GiveToolsForRole(player :: any, rank) end
 	end)
 end
 
@@ -86,9 +80,7 @@ end
 
 if not script:GetAttribute("resetAssetsOnDeath") then
 	local gui: ScreenGui? = script.RoleAssets:FindFirstChild("PBSAdmin_Local", true) :: any
-	if gui then
-		gui.ResetOnSpawn = false
-	end
+	if gui then gui.ResetOnSpawn = false end
 end
 
 -- Default to normal events
@@ -166,9 +158,7 @@ end
 
 if Bytenet then
 	Bytenet.ExecuteCommand.listen(function(data, player)
-		if not player then
-			return
-		end
+		if not player then return end
 		handleCommand(player, data)
 	end)
 elseif messagePlayer then
@@ -177,25 +167,19 @@ end
 
 local function handleAutofill(player: Player, fullInfo: boolean?): { syntax: { [string]: { string | { string } } }, help: { [string]: string }? }
 	local rank = Permissions.GetUserPermissions(player.UserId)
-	if fullInfo then
-		return Command.getCmdInformationForRank(rank)
-	end
+	if fullInfo then return Command.getCmdInformationForRank(rank) end
 	return { syntax = Command.getAutofillForRank(rank) }
 end
 
 if Bytenet then
 	Bytenet.GetAutofill.listen(function(data, player)
-		if not player then
-			return
-		end
+		if not player then return end
 		local autofill = handleAutofill(player, data)
 
 		-- process the packet
 		-- bytenet cant deal with string | {stirng} so we have to send string and {string} as seperate maps per command to retain order
 		local sendable = { syntax = {} }
-		if data then
-			sendable.help = {}
-		end
+		if data then sendable.help = {} end
 		for k, v in autofill.syntax do
 			local sets, singletons = {}, {}
 			for i, syntax in v do

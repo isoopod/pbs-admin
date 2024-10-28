@@ -21,9 +21,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 					UserIds = { target.UserId },
 					ApplyToUniverse = true,
 				})
-				if not s then
-					return self.Responses.Error, `UnbanAsync error: {e}`
-				end
+				if not s then return self.Responses.Error, `UnbanAsync error: {e}` end
 				return self.Responses.Success, `{self:FormatUsername(target)} has been unbanned`
 			else
 				return self.Responses.Verify, `Are you sure you want to unban {self:FormatUsername(target)}`

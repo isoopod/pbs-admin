@@ -10,9 +10,7 @@ local Utils = require(script.Parent.Parent.Utils)
 local Bytenet = Utils.Bytenet
 
 local remote: RemoteEvent
-if not Bytenet then
-	remote = ReplicatedStorage:WaitForChild("PBSADMIN_MSG")
-end
+if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSADMIN_MSG") end
 
 if Bytenet then
 	Bytenet.MSG.listen(function(data)

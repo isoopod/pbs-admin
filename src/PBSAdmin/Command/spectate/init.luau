@@ -15,9 +15,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 		local target = self:GetPlayer(player, other)
 		if target then
 			local gui = player.Character and player.Character:FindFirstChild("PBSADMIN_Spectate")
-			if gui then
-				gui:Destroy()
-			end
+			if gui then gui:Destroy() end
 			if target.Character and player.Character then
 				local spectate = script.PBSADMIN_Spectate:Clone()
 				spectate:SetAttribute("Target", target.Name)

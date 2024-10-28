@@ -12,9 +12,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local GroupService = game:GetService("GroupService")
 
 local datastore
-if script.Parent:GetAttribute("permsUsesDatastore") then
-	datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS")
-end
+if script.Parent:GetAttribute("permsUsesDatastore") then datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS") end
 
 -- Role to give to users with no role set who dont have succient rank in the group
 local untrustedRole = ""
@@ -43,18 +41,12 @@ verif._CachedPermissions = {}
 
 function verif.GetUserPermissions(UserId: number): string
 	-- For testing, local tests set the UserId to -1 so this poses no risk in-game
-	if UserId == -1 then
-		return "owner"
-	end
+	if UserId == -1 then return "owner" end
 	-- Private server owner gets owner permissions, for the rewrite public beta (may be undesirable for other use cases)
-	if UserId == game.PrivateServerOwnerId then
-		return "Owner"
-	end
+	if UserId == game.PrivateServerOwnerId then return "Owner" end
 
 	-- if user permissions are already stored use those
-	if verif._CachedPermissions[UserId] then
-		return verif._CachedPermissions[UserId]
-	end
+	if verif._CachedPermissions[UserId] then return verif._CachedPermissions[UserId] end
 
 	if datastore then
 		local s, saved = pcall(datastore.GetAsync, datastore, tostring(UserId))
@@ -64,16 +56,12 @@ function verif.GetUserPermissions(UserId: number): string
 		end
 	else
 		local saved = script:GetAttribute(tostring(UserId))
-		if saved then
-			return saved
-		end
+		if saved then return saved end
 	end
 
 	-- If no saved entry, check if they have a high enough rank in the group
 	for _, v in GroupService:GetGroupsAsync(UserId) do
-		if v.Id ~= Group then
-			continue
-		end
+		if v.Id ~= Group then continue end
 		if v.Rank >= RankForTrusted then
 			verif._CachedPermissions[UserId] = trustedDefualtRole
 			return trustedDefualtRole

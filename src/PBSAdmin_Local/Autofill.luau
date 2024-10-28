@@ -6,16 +6,12 @@ local ClientCommands = require(script.Parent.ClientCommands)
 local Bytenet
 if ReplicatedStorage:FindFirstChild("Utils") then
 	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
-			Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
-		end
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets) end
 	end
 end
 
 local get: RemoteFunction?
-if not Bytenet then
-	get = ReplicatedStorage:WaitForChild("PBSAdminGetAutofill")
-end
+if not Bytenet then get = ReplicatedStorage:WaitForChild("PBSAdminGetAutofill") end
 
 local api = {}
 
@@ -61,9 +57,7 @@ end
 -- For cmds list
 local cache
 function api.getVerboseAutofill()
-	if cache then
-		return cache
-	end
+	if cache then return cache end
 	-- Get autofill
 	local autofillTable = {}
 	if Bytenet then

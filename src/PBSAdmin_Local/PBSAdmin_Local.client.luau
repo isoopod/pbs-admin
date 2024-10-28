@@ -16,9 +16,7 @@ local Utils = require(script.Parent.Utils)
 
 -- Initialize the client commands
 for _, v in script.Parent.ClientCommands:GetChildren() do
-	if v:IsA("ModuleScript") then
-		pcall(require, v)
-	end
+	if v:IsA("ModuleScript") then pcall(require, v) end
 end
 
 -- Tell the player their rank
@@ -50,9 +48,7 @@ local isMobile: ImageButton?
 local Bytenet = Utils.Bytenet
 
 local remote: RemoteEvent?
-if not Bytenet then
-	remote = ReplicatedStorage:WaitForChild("PBSAdminRemote")
-end
+if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSAdminRemote") end
 
 local responseTags = {
 	'<font color="#ff3d3d">', -- error
@@ -78,16 +74,12 @@ end)
 
 function commandResponse(response: number, body: string): ()
 	cmd.OutputFrame.Output.Text = `{responseTags[4]}[{Utils.timeNow()}]:</font> {responseTags[response]}{body}</font>\n\n{cmd.OutputFrame.Output.Text}`
-	if cmd.OutputFrame.Output.Text ~= "" then
-		cmd.OutputFrame.Visible = true
-	end
+	if cmd.OutputFrame.Output.Text ~= "" then cmd.OutputFrame.Visible = true end
 	LastResponseType = response
 end
 
 input.FocusLost:Connect(function(enterPressed: boolean)
-	if not enterPressed then
-		return
-	end
+	if not enterPressed then return end
 
 	local commandData = string.split(input.Text, " ")
 	local command = commandData[1]
@@ -107,9 +99,7 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	historyI = #cmdHistory + 1
 	input.Text = ""
 	task.wait(0.1)
-	if cmd.Visible then
-		input:CaptureFocus()
-	end
+	if cmd.Visible then input:CaptureFocus() end
 end)
 
 if Bytenet then
@@ -123,23 +113,17 @@ elseif remote then
 end
 
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
-	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then
-		return Enum.ContextActionResult.Sink
-	end
+	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then return Enum.ContextActionResult.Sink end
 	if inputState == Enum.UserInputState.Begin then
 		input:ReleaseFocus(false)
 		cmd.Visible = not cmd.Visible
-		if not cmd.Visible then
-			suggestions.Visible = false
-		end
+		if not cmd.Visible then suggestions.Visible = false end
 		if cmd.Visible then
 			input.Text = ""
 			cmd.autofill.Text = ""
 			UserInputService.InputEnded:Wait()
 			input:CaptureFocus()
-			if isMobile then
-				isMobile.Position = UDim2.fromScale(1, -0.45)
-			end
+			if isMobile then isMobile.Position = UDim2.fromScale(1, -0.45) end
 		elseif isMobile then
 			isMobile.Position = UDim2.fromScale(1, -0.95)
 		end
@@ -151,13 +135,9 @@ end
 
 local function checkKeyMatches(text: string): boolean
 	for _, v in keys do
-		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then
-			continue
-		end
+		if v == Enum.KeyCode.Up or v == Enum.KeyCode.Down then continue end
 		local key = string.char(v.Value)
-		if text:match(key) then
-			return true
-		end
+		if text:match(key) then return true end
 	end
 	return false
 end
@@ -180,9 +160,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the argument closest to whatever is currently written
 		local targets = PsuedoAlias.processPsuedoAlias(alias[len - 1], words[len])
 		if len == 2 then
-			if type(targets) == "string" then
-				targets = { targets }
-			end
+			if type(targets) == "string" then targets = { targets } end
 			-- add -help to the first parameter
 			table.insert(targets, "-help")
 		end
@@ -198,9 +176,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 		-- suggest the command closest to whatever is currently input
 		local targets = {}
 		for i in Autofill.autofill do
-			if (i == "Y" or i == "N") and LastResponseType ~= 3 then
-				continue
-			end
+			if (i == "Y" or i == "N") and LastResponseType ~= 3 then continue end
 			table.insert(targets, i)
 		end
 		entries = Utils.closestMatch(words[1], targets)
@@ -223,9 +199,7 @@ input:GetPropertyChangedSignal("Text"):Connect(function()
 	if words[len] ~= "" and entries[1] ~= "" and not isMobile then
 		if not (#entries == 1 and words[len] == entries[1]) then
 			for _, v in suggestions:GetChildren() do
-				if v:IsA("TextLabel") then
-					v:Destroy()
-				end
+				if v:IsA("TextLabel") then v:Destroy() end
 			end
 			suggestions.Visible = true
 
@@ -379,9 +353,7 @@ if isMobile then
 	local CAS_CONTAINER = isMobile:FindFirstAncestorWhichIsA("ScreenGui")
 	-- Will probably break some other context button positioning but worth it.
 	-- This is the best way to get context buttons in the topbar
-	if CAS_CONTAINER then
-		CAS_CONTAINER.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
-	end
+	if CAS_CONTAINER then CAS_CONTAINER.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets end
 	cmd.Size = UDim2.new(0.75, 0, 0, isMobile.AbsoluteSize.Y)
 	cmd.Position = UDim2.new(0.45, 0, 0, isMobile.AbsolutePosition.Y + isMobile.AbsoluteSize.Y / 2)
 	isMobile.AnchorPoint = Vector2.new(1, 0)

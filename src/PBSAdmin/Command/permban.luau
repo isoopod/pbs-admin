@@ -29,9 +29,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 					PrivateReason = reason,
 					ExcludeAltAccounts = false,
 				})
-				if not s then
-					return self.Responses.Error, `BanAsync error: {e}`
-				end
+				if not s then return self.Responses.Error, `BanAsync error: {e}` end
 				permissions.EditPersistentRole(target.UserId)
 				return self.Responses.Success, `{self:FormatUsername(target)} has been permanently banned`
 			else

@@ -15,9 +15,7 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData, ...: st
 	if player then
 		local targets = self:GetBulkPlayers(player, other)
 
-		if #targets == 0 then
-			return self.Responses.Error, "Affected 0 players"
-		end
+		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		for _, target in targets do
 			for _, v in target.Character:GetDescendants() do

@@ -28,9 +28,7 @@ local function convertUnit(number: number, unit: string): number
 	}
 
 	local converted = number * unitsInSeconds[unit]
-	if converted == 0 then
-		converted = 1
-	end
+	if converted == 0 then converted = 1 end
 	return math.clamp(converted, 0, tick())
 end
 
@@ -71,9 +69,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 					if container then
 						search(container:GetChildren())
 						-- Clean the container if it becomes orphaned
-						if #container:GetChildren() == 0 then
-							container:Destroy()
-						end
+						if #container:GetChildren() == 0 then container:Destroy() end
 					else
 						-- The feature to group stamps by player may be disabled
 						search(workspace:GetDescendants())

@@ -405,9 +405,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 
 	local targetPosition = cmf.CanvasPosition
 	cmf:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-		if not downv and not upv then
-			targetPosition = cmf.CanvasPosition
-		end
+		if not downv and not upv then targetPosition = cmf.CanvasPosition end
 	end)
 
 	local scrollSpeed = 9
@@ -443,9 +441,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	search.FocusLost:Connect(function(enter: boolean)
 		if enter then
 			for _, v in cmf:GetChildren() do
-				if v:IsA("Frame") then
-					v.Visible = string.match(v.Name, `^{search.Text}`)
-				end
+				if v:IsA("Frame") then v.Visible = string.match(v.Name, `^{search.Text}`) end
 			end
 		end
 	end)

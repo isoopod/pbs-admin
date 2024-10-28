@@ -17,9 +17,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 	local args = { ... }
 	local other = args[1]
 	local role = args[2] and args[2]:lower() or ""
-	if role == "none" then
-		role = ""
-	end
+	if role == "none" then role = "" end
 	if player and other then
 		local target = self:GetPlayer(player, other, true)
 		if target then
@@ -41,9 +39,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 									end
 
 									local leaderstats = script.Parent.Parent:GetAttribute("leaderstats") and target:FindFirstChild("leaderstats")
-									if leaderstats then
-										leaderstats.Role.Value = role:gsub("^%l", string.upper)
-									end
+									if leaderstats then leaderstats.Role.Value = role:gsub("^%l", string.upper) end
 								end
 
 								return self.Responses.Success, `{self:FormatUsername(target)} now has role {role}`

@@ -52,9 +52,7 @@ local function toggleMute(player: Player, muted: boolean): ()
 		table.insert(mutedUserIds, player.UserId)
 	elseif not muted then
 		local index = table.find(mutedUserIds, player.UserId)
-		if index then
-			table.remove(mutedUserIds, index)
-		end
+		if index then table.remove(mutedUserIds, index) end
 	end
 end
 

@@ -16,9 +16,7 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 	if player and other and health then
 		local targets = self:GetBulkPlayers(player, other)
 
-		if #targets == 0 then
-			return self.Responses.Error, "Affected 0 players"
-		end
+		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		for _, target in targets do
 			if target.Character and target.Character:FindFirstChild("Humanoid") then

@@ -31,9 +31,7 @@ local function convertUnit(number: number, unit: string): number
 	}
 
 	local converted = number * unitsInSeconds[unit]
-	if converted == 0 then
-		converted = 1
-	end
+	if converted == 0 then converted = 1 end
 	return math.clamp(converted, -1, math.huge)
 end
 
@@ -63,9 +61,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 						PrivateReason = reason,
 						ExcludeAltAccounts = false,
 					})
-					if not s then
-						return self.Responses.Error, `BanAsync error: {e}`
-					end
+					if not s then return self.Responses.Error, `BanAsync error: {e}` end
 					permissions.EditPersistentRole(target.UserId)
 					return self.Responses.Success, `{self:FormatUsername(target)} has been banned for {duration} {units}`
 				else

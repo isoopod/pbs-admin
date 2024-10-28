@@ -27,9 +27,7 @@ function cmd.__call(self: command.Command, player: Player, verified, _, ...: str
 	if player and other and text ~= "" then
 		local targets = self:GetBulkPlayers(player, other)
 
-		if #targets == 0 then
-			return self.Responses.Error, "Affected 0 players"
-		end
+		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		local filteredText = self:FilterText(player, text)
 		if not verified and filteredText ~= text then

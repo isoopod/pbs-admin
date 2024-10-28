@@ -15,9 +15,7 @@ end
 function api.filter<T>(t: { T }, comp: (T) -> boolean): { T }
 	local filtered = {}
 	for _, v in t do
-		if comp(v) then
-			table.insert(filtered, v)
-		end
+		if comp(v) then table.insert(filtered, v) end
 	end
 	return filtered
 end
@@ -35,17 +33,11 @@ function api.fuzzySearch(query: string, target: string): (number, boolean)
 	local queryLen = #query
 	local targetLen = #target
 
-	if queryLen == 0 then
-		return 1, true
-	end -- wildcard when query is empty
-	if target:sub(1, 1) == "<" then
-		return 0, false
-	end -- remove pseudo-aliases
+	if queryLen == 0 then return 1, true end -- wildcard when query is empty
+	if target:sub(1, 1) == "<" then return 0, false end -- remove pseudo-aliases
 
 	-- Early exit if query is longer than target
-	if queryLen > targetLen then
-		return 0, false
-	end
+	if queryLen > targetLen then return 0, false end
 
 	local queryIndex = 1
 	local matchCount = 0
@@ -73,9 +65,7 @@ function api.closestMatch(inp: string, targets: { string }): { string }
 	local filteredTargets = {}
 	for _, target in targets do
 		target = tostring(target)
-		if target:sub(1, #inp) == inp or inp == "" then
-			table.insert(filteredTargets, target)
-		end
+		if target:sub(1, #inp) == inp or inp == "" then table.insert(filteredTargets, target) end
 	end
 
 	if #filteredTargets == 0 then
@@ -107,9 +97,7 @@ function api.getMaxWidth(strings: { string }, textLabel: TextLabel): number
 	for _, v in strings do
 		params.Text = v
 		local bounds = TextService:GetTextBoundsAsync(params)
-		if bounds.X > maxWidth then
-			maxWidth = bounds.X
-		end
+		if bounds.X > maxWidth then maxWidth = bounds.X end
 	end
 
 	return maxWidth
@@ -121,9 +109,7 @@ function api.vowelPrefix(word: string): string
 	local firstChar = word:sub(1, 1):lower()
 
 	for _, vowel in vowels do
-		if firstChar == vowel then
-			return "n"
-		end
+		if firstChar == vowel then return "n" end
 	end
 	return ""
 end
@@ -152,9 +138,7 @@ end
 -- bytenet integration
 if ReplicatedStorage:FindFirstChild("Utils") then
 	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
-			api.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
-		end
+		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then api.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets) end
 	end
 end
 
