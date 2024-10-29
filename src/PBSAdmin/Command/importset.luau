@@ -22,13 +22,13 @@ end
 
 function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): (number, string)
 	local args = { ... }
-	local other = args[1]
-	local boolean1 = args[2] and args[2]:lower() or ""
-	if player and other then
+	local setId = args[1]
+	local searchPizzaboxer = args[2] and args[2]:lower() or ""
+	if player and setId then
 		local HTTPS = game:GetService("HttpService")
-		if HTTPS and boolean1 == "false" then
-			local URL_ASTROS = `https://sets.pizzaboxer.xyz/api/sets/{other}/assets?page=1`
-			local URL_1 = `https://sets.pizzaboxer.xyz/api/sets/{other}`
+		if HTTPS and searchPizzaboxer == "false" then
+			local URL_ASTROS = `https://sets.pizzaboxer.xyz/api/sets/{setId}/assets?page=1`
+			local URL_1 = `https://sets.pizzaboxer.xyz/api/sets/{setId}`
 			-- Make the request to our endpoint URL
 			local response = HTTPS:GetAsync(URL_ASTROS)
 			local response2 = HTTPS:GetAsync(URL_1)
@@ -49,23 +49,20 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 			else
 				return self.Responses.Error, "Invalid"
 			end
-		elseif boolean1 == "true" then
-			local Model = insert(other, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets)
+		elseif searchPizzaboxer == "true" then
+			local Model = insert(setId, "SetTemp", game:GetService("ReplicatedStorage").PBSTools.Sets)
 			print(Model)
 			for _, Child in pairs(Model:FindFirstChild("Sets"):GetChildren()) do
-				Child:SetAttribute("AssetID", other)
+				Child:SetAttribute("AssetID", setId)
 				Child:SetAttribute("Order", #game:GetService("ReplicatedStorage").PBSTools.Sets:GetChildren() + 1)
 				print(Child)
 				Child.Parent = game:GetService("ReplicatedStorage").PBSTools.Sets --Move the children up one parent
 			end
 			Model:Destroy()
 			return self.Responses.Success, "Set Imported"
-		else
-			return self.Responses.Error, "Nothing got done"
 		end
-	else
-		return self.Responses.Error, "Invalid Parameters"
 	end
+	return self.Responses.Error, "Invalid Parameters"
 end
 
 return cmd

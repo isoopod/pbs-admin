@@ -104,14 +104,15 @@ function api.getMaxWidth(strings: { string }, textLabel: TextLabel): number
 end
 
 -- For handling a or an in a string
-function api.vowelPrefix(word: string): string
+function api.aOrAn(word: string): string
+	if word == "Trusted" then return "" end
 	local vowels = { "a", "e", "i", "o", "u" }
 	local firstChar = word:sub(1, 1):lower()
 
 	for _, vowel in vowels do
-		if firstChar == vowel then return "n" end
+		if firstChar == vowel then return "an " end
 	end
-	return ""
+	return "a "
 end
 
 local roleColors = {

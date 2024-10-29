@@ -28,7 +28,7 @@ task.spawn(function()
 		if role then
 			local message = if role.Value == ""
 				then `This place uses PBS Admin. Press {keys[1].Name} to open the console.`
-				else `You're a{Utils.vowelPrefix(role.Value)} {Utils.ColorTextForRole(role.Value .. "!", role.Value)}\n\nPress <font color='#ffcc55'>{keys[1].Name}</font> to open the console.`
+				else `You're {Utils.aOrAn(role.Value)}{Utils.ColorTextForRole(role.Value .. "!", role.Value)}\n\nPress <font color='#ffcc55'>{keys[1].Name}</font> to open the console.`
 			AdminGui.message("<font color='#ff0000'>[SYSTEM]</font>", message)
 		end
 	end

@@ -109,6 +109,7 @@ function gui.BakeCommandBar(): (CommandBar, Frame & { AutofillComponent: TextLab
 	CleanUp.BackgroundColor3 = Color3.new()
 	CleanUp.BackgroundTransparency = 0.3
 	CleanUp.Image = "rbxasset://textures/RoduxDevtools/ClearList.png"
+	CleanUp.ZIndex = 3
 	UICorner:Clone().Parent = CleanUp
 	CleanUp.Parent = OutputFrame
 
