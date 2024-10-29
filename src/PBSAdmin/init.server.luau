@@ -15,8 +15,6 @@ local Permissions = require(script.Permissions)
 -- If bytenet is not detected, will fallback to remotes.
 local Bytenet = Command.PublicUtils.Bytenet
 
-local externalLeaderstatsDetected = nil
-
 -- Initialize the commands
 Command.generateCommands()
 
@@ -30,8 +28,7 @@ local function PlayerAdded(player: Player)
 	local rank = Permissions.GetUserPermissions(player.UserId)
 
 	if script:GetAttribute("leaderstats") then
-		local leaderstats = player:WaitForChild("LeaderStats", externalLeaderstatsDetected == false and 0 or 5)
-		externalLeaderstatsDetected = leaderstats ~= nil
+		local leaderstats = player:WaitForChild("LeaderStats", 5)
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
 		if not leaderstats then
 			leaderstats = Instance.new("Folder")
