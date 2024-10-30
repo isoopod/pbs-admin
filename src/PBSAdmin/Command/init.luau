@@ -528,56 +528,66 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	},
 	role: string
 ): ()
-	if role == "" then role = "none" end
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	task.spawn(function()
+		if role == "" then role = "none" end
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 
-	-- Build a list of assets to give to the player
-	-- where most assets from lower ranks may be shared with higher ranks
-	local toClone = {}
-	for _, v in assets do
-		local rank = v.Parent.Name
-		if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
-		if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
-	end
+		-- Build a list of assets to give to the player
+		-- where most assets from lower ranks may be shared with higher ranks
+		local toClone = {}
+		for _, v in assets do
+			local rank = v.Parent.Name
+			if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
+			if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
+		end
 
-	table.sort(toClone, function(a, b)
-		local aOrder = a:GetAttribute("Order")
-		local bOrder = b:GetAttribute("Order")
+		table.sort(toClone, function(a, b)
+			local aOrder = a:GetAttribute("Order")
+			local bOrder = b:GetAttribute("Order")
 
-		if aOrder and bOrder then
-			return aOrder < bOrder -- Sort by Order if both have it
-		elseif aOrder then
-			return true -- a has Order, b does not, so a goes first
-		elseif bOrder then
-			return false -- b has Order, a does not, so b goes first
-		else
-			return false -- neither have Order, maintain their relative order
+			if aOrder and bOrder then
+				return aOrder < bOrder -- Sort by Order if both have it
+			elseif aOrder then
+				return true -- a has Order, b does not, so a goes first
+			elseif bOrder then
+				return false -- b has Order, a does not, so b goes first
+			else
+				return false -- neither have Order, maintain their relative order
+			end
+		end)
+
+		player:WaitForChild("StarterGear")
+		player:WaitForChild("Backpack")
+		player:WaitForChild("PlayerGui")
+		task.wait()
+
+		-- Cleanup existing assets
+		if humanoid then humanoid:UnequipTools() end
+		for _, v in assets do
+			local item = player.Backpack:FindFirstChild(v.Name)
+			local item2 = player.StarterGear:FindFirstChild(v.Name)
+			if item then item:Destroy() end
+			if item2 then item2:Destroy() end
+
+			local guiItem = player.PlayerGui:FindFirstChild(v.Name)
+			if guiItem then guiItem:Destroy() end
+		end
+
+		task.wait()
+
+		-- Apply assets for the player
+		for _, v in toClone do
+			if v:IsA("ObjectValue") then v = v.Value end
+
+			if v:IsA("Tool") then
+				if not script.Parent:GetAttribute("resetAssetsOnDeath") then v:Clone().Parent = player.StarterGear end
+				v:Clone().Parent = player.Backpack
+			else
+				print(player, player.PlayerGui)
+				v:Clone().Parent = player.PlayerGui
+			end
 		end
 	end)
-
-	-- Cleanup existing assets
-	if humanoid then humanoid:UnequipTools() end
-	for _, v in assets do
-		local item = player.Backpack:FindFirstChild(v.Name)
-		local item2 = player.StarterGear:FindFirstChild(v.Name)
-		if item then item:Destroy() end
-		if item2 then item2:Destroy() end
-
-		local guiItem = player.PlayerGui:FindFirstChild(v.Name)
-		if guiItem then guiItem:Destroy() end
-	end
-
-	-- Apply assets for the player
-	for _, v in toClone do
-		if v:IsA("ObjectValue") then v = v.Value end
-
-		if v:IsA("Tool") then
-			v:Clone().Parent = player.StarterGear
-			v:Clone().Parent = player.Backpack
-		else
-			v:Clone().Parent = player.PlayerGui
-		end
-	end
 end
 
 local rankColors = {
