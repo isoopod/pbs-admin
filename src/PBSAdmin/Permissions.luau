@@ -42,8 +42,8 @@ verif._CachedPermissions = {}
 function verif.GetUserPermissions(UserId: number): string
 	-- For testing, local tests set the UserId to -1 so this poses no risk in-game
 	if UserId == -1 then return "owner" end
-	-- Private server owner gets owner permissions, for the rewrite public beta (may be undesirable for other use cases)
-	if UserId == game.PrivateServerOwnerId then return "Owner" end
+	-- Private server owner gets admin permissions, for the rewrite public beta (may be undesirable for other use cases)
+	if UserId == game.PrivateServerOwnerId then return "admin" end
 
 	-- if user permissions are already stored use those
 	if verif._CachedPermissions[UserId] then return verif._CachedPermissions[UserId] end

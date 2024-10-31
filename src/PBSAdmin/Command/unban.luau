@@ -4,7 +4,7 @@ local command = require(script.Parent)
 
 local cmd: command.cmd = {} :: command.cmd
 
-cmd.minRank = 3
+cmd.minRank = 4 -- temp raised to 4 for rewrite beta
 cmd.syntax = { "<player / #userid>" }
 
 cmd.help = [[Unbans a given user from the game.

@@ -583,7 +583,6 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 				if not script.Parent:GetAttribute("resetAssetsOnDeath") then v:Clone().Parent = player.StarterGear end
 				v:Clone().Parent = player.Backpack
 			else
-				print(player, player.PlayerGui)
 				v:Clone().Parent = player.PlayerGui
 			end
 		end

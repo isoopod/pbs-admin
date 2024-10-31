@@ -5,7 +5,7 @@ local command = require(script.Parent)
 local cmd: command.cmd = {} :: command.cmd
 local permissions = require(script.Parent.Parent.Permissions)
 
-cmd.minRank = 3
+cmd.minRank = 4 -- temp raised to 4 for rewrite beta
 cmd.syntax = {
 	"<player / #userid>",
 	"<number>",
