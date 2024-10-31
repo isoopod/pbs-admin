@@ -18,6 +18,7 @@ local Bytenet = Command.PublicUtils.Bytenet
 -- Initialize the commands
 Command.generateCommands()
 
+local cacheLeaderstats
 local function PlayerAdded(player: Player)
 	-- Timeout thread if player quits before character loads
 	local thread
@@ -28,7 +29,8 @@ local function PlayerAdded(player: Player)
 	local rank = Permissions.GetUserPermissions(player.UserId)
 
 	if script:GetAttribute("leaderstats") then
-		local leaderstats = player:WaitForChild("LeaderStats", 5)
+		local leaderstats = if cacheLeaderstats then nil else player:WaitForChild("LeaderStats", 5)
+		cacheLeaderstats = leaderstats == nil
 		-- if no leaderstats is created anywhere else within 5 seconds then create our own
 		if not leaderstats then
 			leaderstats = Instance.new("Folder")
