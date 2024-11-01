@@ -21,9 +21,11 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 
 		for _, target in targetA do
 			local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid and targetB then
+			if humanoid and humanoid.RootPart and targetB then
 				if target.Character and targetB.Character then
 					humanoid.Sit = false
+					humanoid.RootPart.AssemblyLinearVelocity = Vector3.zero
+					humanoid.RootPart.AssemblyAngularVelocity = Vector3.zero
 					task.wait(0.1)
 					target.Character:PivotTo(targetB.Character:GetPivot())
 				end
