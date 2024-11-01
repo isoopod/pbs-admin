@@ -8,6 +8,10 @@ local UserInputService = game:GetService("UserInputService")
 local Player = game:GetService("Players").LocalPlayer
 local keys = { Enum.KeyCode.BackSlash } -- The first key in this array is the one the user will be told to press to open the console
 
+if table.find(keys, Enum.KeyCode.BackSlash) then
+	ContextActionService:UnbindAction("EnableKeyboardUINavigation") -- Fix possible conflict
+end
+
 local AdminGui = require(script.Parent.AdminGui)
 local Autofill = require(script.Parent.Autofill)
 local ClientCommands = require(script.Parent.ClientCommands)
@@ -112,9 +116,12 @@ elseif remote then
 	end)
 end
 
+local allowedToggleKeys = table.clone(keys)
+table.insert(allowedToggleKeys, Enum.KeyCode.Unknown) -- Mobile button tap
 local function openConsole(_, inputState: Enum.UserInputState, _inputObject: InputObject?)
 	if cmd.Visible and _inputObject and (_inputObject.KeyCode == Enum.KeyCode.Up or _inputObject.KeyCode == Enum.KeyCode.Down) then return Enum.ContextActionResult.Sink end
 	if inputState == Enum.UserInputState.Begin then
+		if _inputObject and not table.find(allowedToggleKeys, _inputObject.KeyCode) then return end
 		input:ReleaseFocus(false)
 		cmd.Visible = not cmd.Visible
 		if not cmd.Visible then suggestions.Visible = false end
