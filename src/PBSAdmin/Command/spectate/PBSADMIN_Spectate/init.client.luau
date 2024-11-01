@@ -23,7 +23,6 @@ end
 
 if other and other.Character and other.Character.Humanoid then camera.CameraSubject = other.Character.Humanoid end
 
-script.Destroying:Connect(function()
-	contextActionService:UnbindAction("PBSADMIN_SPECTATE")
-	camera.CameraSubject = character.Humanoid
-end)
+script.Destroying:Wait()
+contextActionService:UnbindAction("PBSADMIN_SPECTATE")
+camera.CameraSubject = character.Humanoid

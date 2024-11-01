@@ -24,7 +24,6 @@ end
 
 contextActionService:BindAction("PBSADMIN_CLICK_TP", handleInput, false, Enum.UserInputType.MouseButton1)
 
-script.Destroying:Connect(function()
-	if humaniod and humaniod.Parent then humaniod:SetStateEnabled(Enum.HumanoidStateType.Seated, prevState) end
-	contextActionService:UnbindAction("PBSADMIN_CLICK_TP")
-end)
+script.Destroying:Wait()
+if humaniod and humaniod.Parent then humaniod:SetStateEnabled(Enum.HumanoidStateType.Seated, prevState) end
+contextActionService:UnbindAction("PBSADMIN_CLICK_TP")

@@ -109,11 +109,10 @@ UIS.InputBegan:Connect(function(key, gameProcessed)
 end)
 
 -- does not fire when destroying through the explorer FYI as that just parents to nil
-script.Destroying:Connect(function()
-	runService:UnbindFromRenderStep("PBSADMIN_NOCLIP")
-	if Humanoid then
-		Humanoid.PlatformStand = false
-		if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
-		noclip(false)
-	end
-end)
+script.Destroying:Wait()
+runService:UnbindFromRenderStep("PBSADMIN_NOCLIP")
+if Humanoid then
+	Humanoid.PlatformStand = false
+	if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
+	noclip(false)
+end
