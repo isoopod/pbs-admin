@@ -7,7 +7,11 @@ local camera = workspace.CurrentCamera
 local character = me.Character
 
 function handleInput(_, inputState: Enum.UserInputState)
-	if inputState == Enum.UserInputState.Begin then script:Destroy() end
+	if inputState == Enum.UserInputState.Begin then
+		local humanoid = me.Character and me.Character:FindFirstChild("Humanoid")
+		if humanoid and camera then camera.CameraSubject = humanoid end
+		script:Destroy()
+	end
 	return Enum.ContextActionResult.Pass
 end
 
