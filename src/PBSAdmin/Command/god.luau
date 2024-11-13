@@ -11,7 +11,7 @@ cmd.aliasHelp = { ungod = [[Removes invinbility for players]] }
 
 function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, ...: string?): (number, string)
 	local args = { ... }
-	local other = args[1]
+	local other = args[1] or "me"
 	if player and other then
 		local targets = self:GetBulkPlayers(player, other)
 
