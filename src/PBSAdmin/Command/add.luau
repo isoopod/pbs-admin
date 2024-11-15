@@ -23,9 +23,9 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, al
 		if target then
 			if self:IsUserVerified(player, target) or verified then
 				if aliasData == "remove" then
-					data.RemoveWhitelist(player.Name, args[1])
+					data.RemoveWhitelist(player.UserId, target.UserId)
 				else
-					data.AddWhitelist(player.Name, args[1])
+					data.AddWhitelist(player.UserId, target.UserId)
 				end
 				return self.Responses.Success, `Successfully {aliasData and "removed" or "added"} permissions to build on your plot for {self:FormatUsername(target)}`
 			else
