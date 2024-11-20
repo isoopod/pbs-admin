@@ -67,5 +67,17 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 			}),
 			reliabilityType = "reliable",
 		}),
+
+		-- History command --
+		HISTORY = ByteNet.definePacket({
+			value = ByteNet.array(ByteNet.struct({
+				userid = ByteNet.uint32,
+				timestamp = ByteNet.uint32,
+				action = ByteNet.string,
+				message = ByteNet.string,
+				metadata = ByteNet.unknown,
+			})),
+			reliabilityType = "reliable",
+		}),
 	}
 end)

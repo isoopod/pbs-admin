@@ -473,7 +473,7 @@ function gui.ScrollGui(name: string): (ScreenGui, ScrollingFrame, row)
 	search.FocusLost:Connect(function(enter: boolean)
 		if enter then
 			for _, v in cmf:GetChildren() do
-				if v:IsA("Frame") then v.Visible = string.match(v.Name, `^{search.Text}`) end
+				if v:IsA("Frame") then v.Visible = string.find(v.Name, search.Text) end
 			end
 		end
 	end)

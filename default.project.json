@@ -4,6 +4,9 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
+      "PBSTools": {
+        "$path": "src/PBSTools"
+      },
       "Utils": {
         "$className": "Folder",
         "ByteNet": {

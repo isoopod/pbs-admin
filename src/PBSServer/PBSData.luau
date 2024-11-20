@@ -32,6 +32,14 @@ export type PlayerData = {
 
 type player = Player | number
 
+--[[ Example usage: 
+for user, data in PBSData.IterateOverData() do 
+	... 
+end--]]
+function data.IterateOverData(): () -> (number, PlayerData)
+	return nil :: any
+end
+
 function data.InsertOrReplacePlayerData(_player: player, _data: PlayerData?) end
 
 function data.GetPlayerData(_player: player): (PlayerData, boolean)
