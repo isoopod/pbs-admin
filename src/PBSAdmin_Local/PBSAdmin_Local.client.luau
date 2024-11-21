@@ -4,6 +4,7 @@
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TextChatService = game:GetService("TextChatService")
 local UserInputService = game:GetService("UserInputService")
 local Player = game:GetService("Players").LocalPlayer
 local keys = { Enum.KeyCode.BackSlash } -- The first key in this array is the one the user will be told to press to open the console
@@ -344,6 +345,16 @@ UserInputService.InputBegan:Connect(function(_inputObject: InputObject)
 			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
 		end
 	end
+end)
+
+-- Notify the user if they are muted
+local systemChannel: TextChannel = TextChatService:WaitForChild("TextChannels"):WaitForChild("RBXSystem")
+TextChatService.SendingMessage:Connect(function(message: TextChatMessage)
+	if not message.TextSource then return end
+	if message.TextSource.UserId ~= Player.UserId then return end
+	if message.TextSource.CanSend then return end
+
+	systemChannel:DisplaySystemMessage("You are currently muted.")
 end)
 
 -- This just sinks the up and down arrows if the command bar is open
