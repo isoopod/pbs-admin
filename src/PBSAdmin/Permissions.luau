@@ -48,7 +48,7 @@ function verif.GetUserPermissions(UserId: number): string
 
 	if datastore then
 		local s, saved = pcall(datastore.GetAsync, datastore, tostring(UserId))
-		if s then
+		if s and saved then
 			verif._CachedPermissions[UserId] = saved
 			return saved
 		end
