@@ -54,8 +54,8 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 				return self.Responses.Verify, `'{self:FormatUsername(target)}' is not phone or government id verified, are you sure you want to authorize this user? Y/N`
 			end
 		else
-			return self.Responses.Error,
-				`Other player matching '{other}' not found, make sure they aren't the only person with that approximate name, or you put a '#' in front for a UserId`
+			local body = `Other player matching '{other}' not found, make sure they aren't the only person with that approximate name, or you put a '#' in front for a UserId`
+			return self.Responses.Error, body
 		end
 	else
 		return self.Responses.Error, "Invalid Parameters"
