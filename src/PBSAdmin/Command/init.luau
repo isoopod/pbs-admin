@@ -529,7 +529,6 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 	role: string
 ): ()
 	task.spawn(function()
-		if role == "" then role = "none" end
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 
 		-- Build a list of assets to give to the player
@@ -538,7 +537,7 @@ function CommandClass.PublicUtils.GiveToolsForRole(
 		for _, v in assets do
 			local rank = v.Parent.Name
 			if rank ~= role and v:HasTag("DontShareWithHigherRank") then continue end
-			if Permissions.roleValues[if role == "none" then "" else role] >= Permissions.roleValues[if rank == "none" then "" else rank] then table.insert(toClone, v) end
+			if Permissions.roleValues[role] >= Permissions.roleValues[rank] then table.insert(toClone, v) end
 		end
 
 		table.sort(toClone, function(a, b)

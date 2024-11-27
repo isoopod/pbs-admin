@@ -15,7 +15,7 @@ local datastore
 if script.Parent:GetAttribute("permsUsesDatastore") then datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS") end
 
 -- Role to give to users with no role set who dont have succient rank in the group
-local untrustedRole = ""
+local untrustedRole = "visitor"
 
 -- Role to hand out to users with no role set if they have sufficient rank in the group
 local trustedDefualtRole = "member"
@@ -30,7 +30,7 @@ local verif = {}
 -- You can add your roles here and give them a value then use this to check if a uses is privileged enough to do something
 -- Think of the number as rank in a group and the string name as role in a group
 verif.roleValues = {
-	[""] = 0, -- no role assigned / no permissions
+	["visitor"] = 0, -- no role assigned / no permissions
 	["member"] = 1,
 	["trusted"] = 2,
 	["admin"] = 3,
@@ -42,8 +42,6 @@ verif._CachedPermissions = {}
 function verif.GetUserPermissions(UserId: number): string
 	-- For testing, local tests set the UserId to -1 so this poses no risk in-game
 	if UserId == -1 then return "owner" end
-	-- Private server owner gets admin permissions, for the rewrite public beta (may be undesirable for other use cases)
-	if UserId == game.PrivateServerOwnerId then return "admin" end
 
 	-- if user permissions are already stored use those
 	if verif._CachedPermissions[UserId] then return verif._CachedPermissions[UserId] end

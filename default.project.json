@@ -38,7 +38,7 @@
             "member": {
               "$className": "Folder"
             },
-            "none": {
+            "visitor": {
               "$className": "Folder",
               "PBSAdmin_Local": {
                 "$className": "ScreenGui",
