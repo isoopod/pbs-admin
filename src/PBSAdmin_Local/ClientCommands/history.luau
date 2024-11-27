@@ -68,7 +68,7 @@ local function openLogs(logs: { HistoryEntry })
 			cl.Content.Entry.RichText = true
 			cl.Content.Entry.Text = truncateString(`{username}{action} {v.message}`, 128, true)
 			cl.LayoutOrder = c
-			cl.Name = Utils.removeRichTextTags(cl.Content.Entry.Text)
+			cl.Name = string.lower(Utils.removeRichTextTags(cl.Content.Entry.Text))
 			cl.Parent = cmf
 
 			c += 1
