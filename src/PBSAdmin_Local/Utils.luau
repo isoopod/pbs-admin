@@ -117,7 +117,7 @@ end
 
 local roleColors = {
 	Banned = "'#b8b8b8'",
-	[""] = "'#ffffff'",
+	Visitor = "'#ffffff'",
 	Member = "'#efb838'",
 	Trusted = "'#04afec'",
 	Admin = "'#aa00aa'",
