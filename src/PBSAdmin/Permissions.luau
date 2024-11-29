@@ -14,8 +14,10 @@ local GroupService = game:GetService("GroupService")
 local datastore
 if script.Parent:GetAttribute("permsUsesDatastore") then datastore = DataStoreService:GetDataStore("PBSADMIN_PERMS") end
 
+local verif = {}
+
 -- Role to give to users with no role set who dont have succient rank in the group
-local untrustedRole = "visitor"
+verif.untrustedRole = "visitor" -- Exposed for default role command
 
 -- Role to hand out to users with no role set if they have sufficient rank in the group
 local trustedDefualtRole = "member"
@@ -24,8 +26,6 @@ local trustedDefualtRole = "member"
 local Group = 14631975
 local RankForTrusted = 25 -- >= this rank in the group will give trusted
 -- Remember that rank is the numeric value for a role in a group (you can see it in configure group)
-
-local verif = {}
 
 -- You can add your roles here and give them a value then use this to check if a uses is privileged enough to do something
 -- Think of the number as rank in a group and the string name as role in a group
@@ -66,7 +66,7 @@ function verif.GetUserPermissions(UserId: number): string
 		end
 	end
 
-	return untrustedRole
+	return verif.untrustedRole
 end
 
 function verif.EditPersistentRole(UserId: number, role: string?): ()
