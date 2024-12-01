@@ -23,8 +23,8 @@ verif.untrustedRole = "visitor" -- Exposed for default role command
 local trustedDefualtRole = "member"
 
 -- The group to check for trusted users
-local Group = 14631975
-local RankForTrusted = 25 -- >= this rank in the group will give trusted
+local Group = 35275104
+local RankForTrusted = 2 -- >= this rank in the group will give trusted
 -- Remember that rank is the numeric value for a role in a group (you can see it in configure group)
 
 -- You can add your roles here and give them a value then use this to check if a uses is privileged enough to do something
