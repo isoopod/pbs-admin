@@ -339,7 +339,7 @@ UserInputService.InputBegan:Connect(function(_inputObject: InputObject)
 			end
 		-- Autocomplete
 		elseif _inputObject.KeyCode == Enum.KeyCode.Tab and (#input.Text < #cmd.autofill.Text:gsub("<[^>]+>", "")) then
-			local text = cmd.autofill.Text
+			local text = cmd.autofill.Text:gsub("	", "") -- In the case the tab made it into the text, remove it
 			RunService.PreRender:Wait()
 			input.Text = text
 			input.CursorPosition = (utf8.len(input.Text) or 0) + 1
