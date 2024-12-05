@@ -26,13 +26,19 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 	if player and other and reason then
 		local target = self:GetPlayer(player, other, true)
 		if target then
+			local filteredText = self:FilterText(player, reason)
+			if not verified and filteredText ~= reason then
+				local msg = `Your warning for {self:FormatUsername(target)} was filtered (result: "<font color='#ff0000'>{filteredText}</font>"). Send anyway? Y/N`
+				return self.Responses.Verify, msg
+			end
+
 			if verified then
 				-- If dealing with a real player
 				if target.ClassName == "Player" then
 					if Bytenet then
-						Bytenet.MSG.sendTo({ title = "<font color='#f00'>Warning</font>", message = reason }, target)
+						Bytenet.MSG.sendTo({ title = "<font color='#f00'>Warning</font>", message = filteredText }, target)
 					elseif remote then
-						remote:FireClient(target, "<font color='#f00'>Warning</font>", reason)
+						remote:FireClient(target, "<font color='#f00'>Warning</font>", filteredText)
 					end
 				end
 
