@@ -353,6 +353,7 @@ TextChatService.SendingMessage:Connect(function(message: TextChatMessage)
 	if not message.TextSource then return end
 	if message.TextSource.UserId ~= Player.UserId then return end
 	if message.TextSource.CanSend then return end
+	if message.TextSource:GetAttribute("ShadowMuted") then return end
 
 	systemChannel:DisplaySystemMessage("You are currently muted.")
 end)
