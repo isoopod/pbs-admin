@@ -21,6 +21,13 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 
 		local targets = self:GetBulkPlayers(player, other)
 
+		local filteredTargets = {}
+		-- Filter out targets we cannot effect
+		for _, v in targets do
+			if self:CanUserModifyOther(player, v) then table.insert(filteredTargets, v) end
+		end
+		targets = filteredTargets
+
 		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		local logs = {}
@@ -32,6 +39,20 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 			local flyscript = target.Character and target.Character:FindFirstChild("PBSADMIN_FlyScript")
 			if flyscript then
 				flyscript:Destroy()
+				local humanoid = target.Character:FindFirstChildOfClass("Humanoid")
+				local hroot = humanoid and humanoid.RootPart
+				if hroot then hroot.Anchored = true end
+
+				task.defer(function()
+					local pivot = target.Character:GetPivot()
+					local _, ry = pivot:ToOrientation()
+					target.Character:PivotTo(CFrame.new(pivot.Position) * CFrame.Angles(0, ry, 0))
+
+					if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Freefall) end
+					task.wait()
+					if hroot then hroot.Anchored = false end
+				end)
+
 				table.insert(logs, `Flight removed for '{self:FormatUsername(target)}'`)
 				continue
 			elseif target.Character and aliasData ~= false then

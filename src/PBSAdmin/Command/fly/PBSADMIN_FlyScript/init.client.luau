@@ -5,7 +5,7 @@ local runService = game:GetService("RunService")
 local KeyCode = Enum.KeyCode.Space
 
 local Character = script.Parent
-local Humanoid = Character:FindFirstChild("Humanoid") or Character:WaitForChild("Humanoid")
+local Humanoid: Humanoid & any = Character:FindFirstChild("Humanoid") or Character:WaitForChild("Humanoid")
 
 local linearVelocity = Instance.new("LinearVelocity")
 linearVelocity.ForceLimitsEnabled = false
@@ -41,12 +41,15 @@ local function getMoveDirection()
 end
 
 local function updateFly()
-	Humanoid.PlatformStand = true
+	Humanoid.PlatformStand = false
+	Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
 	alignOrientation.CFrame = game.Workspace.Camera.CFrame
 	-- This is infact fine since after the tween completes, there is no reference to it so it will automatically get gc'd
 	TweenService:Create(linearVelocity, TweenInfo.new(0.3), { VectorVelocity = getMoveDirection() * 3 * Humanoid.WalkSpeed }):Play()
 end
 
+Humanoid.PlatformStand = true
+task.wait()
 runService:BindToRenderStep("PBSADMIN_FLY", Enum.RenderPriority.Input.Value + 1, updateFly)
 if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0 end
 
@@ -63,6 +66,7 @@ UIS.InputBegan:Connect(function(key, gameProcessed)
 				Flying = true
 				if Humanoid.RootPart then
 					Humanoid.PlatformStand = true
+					task.wait()
 
 					if Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0 end
 
@@ -75,7 +79,17 @@ UIS.InputBegan:Connect(function(key, gameProcessed)
 				Flying = false
 				runService:UnbindFromRenderStep("PBSADMIN_FLY")
 
-				Humanoid.PlatformStand = false
+				Humanoid.RootPart.Anchored = true
+				Humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+
+				task.defer(function()
+					local pivot = Character:GetPivot()
+					local _, ry = pivot:ToOrientation()
+					Character:PivotTo(CFrame.new(pivot.Position) * CFrame.Angles(0, ry, 0))
+
+					task.wait()
+					Humanoid.RootPart.Anchored = false
+				end)
 
 				if Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
 
@@ -91,6 +105,6 @@ end)
 script.Destroying:Wait()
 runService:UnbindFromRenderStep("PBSADMIN_FLY")
 if Humanoid then
-	Humanoid.PlatformStand = false
+	Humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
 	if Humanoid.RootPart and Humanoid.RootPart:FindFirstChild("Running") then Humanoid.RootPart.Running.Volume = 0.65 end
 end

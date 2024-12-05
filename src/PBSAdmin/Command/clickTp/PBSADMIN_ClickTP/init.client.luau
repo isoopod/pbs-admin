@@ -1,5 +1,5 @@
 local player = game:GetService("Players").LocalPlayer
-local contextActionService = game:GetService("ContextActionService")
+local UserInputService = game:GetService("UserInputService")
 local mouse = player:GetMouse()
 
 local character = player.Character or player.CharacterAdded:Wait()
@@ -10,20 +10,18 @@ humaniod.Sit = false
 humaniod:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
 task.wait(0.1)
 
-function handleInput(_, inputState: Enum.UserInputState)
-	if inputState == Enum.UserInputState.Begin then
-		if character then
-			local rotation = character:GetPivot()
-			local rX, rY, rZ = rotation:ToEulerAnglesXYZ()
+UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean): ()
+	if not processed then
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			if character then
+				local rotation = character:GetPivot()
+				local rX, rY, rZ = rotation:ToEulerAnglesXYZ()
 
-			character:PivotTo(CFrame.new(mouse.Hit.Position + Vector3.new(0, character:GetExtentsSize().Y / 2, 0)) * CFrame.Angles(rX, rY, rZ))
+				character:PivotTo(CFrame.new(mouse.Hit.Position + Vector3.new(0, character:GetExtentsSize().Y / 2, 0)) * CFrame.Angles(rX, rY, rZ))
+			end
 		end
 	end
-	return Enum.ContextActionResult.Pass
-end
-
-contextActionService:BindAction("PBSADMIN_CLICK_TP", handleInput, false, Enum.UserInputType.MouseButton1)
+end)
 
 script.Destroying:Wait()
 if humaniod and humaniod.Parent then humaniod:SetStateEnabled(Enum.HumanoidStateType.Seated, prevState) end
-contextActionService:UnbindAction("PBSADMIN_CLICK_TP")
