@@ -12,7 +12,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 	local other = args[1] or "me"
 	if player and other then
 		local target = self:GetPlayer(player, other)
-		if target then
+		if target and self:CanUserModifyOther(player, target) then
 			-- Toggle the flight script for this palyer
 			-- If they already have flight, disable it
 			if target.Character and target.Character:FindFirstChild("PBSADMIN_ClickTP") then

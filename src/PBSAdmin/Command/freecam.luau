@@ -16,7 +16,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 	local other = args[1] or "me"
 	if player and other then
 		local target = self:GetPlayer(player, other)
-		if target then
+		if target and self:CanUserModifyOther(player, target) then
 			-- Attempt to disable noclip and invis
 			pcall(function()
 				-- Use the targets percise name, since this command does not take bulk players and the other commands do

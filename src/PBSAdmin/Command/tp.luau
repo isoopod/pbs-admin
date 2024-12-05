@@ -16,8 +16,15 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 		local targetA = self:GetBulkPlayers(player, otherA)
 		local targetB = self:GetPlayer(player, otherB)
 
+		local filteredTargets = {}
+		-- Filter out targets we cannot effect
+		for _, v in targetA do
+			if self:CanUserModifyOther(player, v) then table.insert(filteredTargets, v) end
+		end
+		targetA = filteredTargets
+
 		if not targetB then return self.Responses.Error, "Could not find destination player" end
-		if #targetA == 0 then return self.Responses.Error, "Affected 0 players" end
+		if #targetA == 0 then return self.Responses.Error, "Teleported 0 players" end
 
 		for _, target in targetA do
 			local humanoid: Humanoid? = target and target.Character and target.Character:FindFirstChildOfClass("Humanoid")

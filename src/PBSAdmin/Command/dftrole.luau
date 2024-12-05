@@ -3,7 +3,7 @@ local permissions = require(script.Parent.Parent.Permissions)
 
 local cmd: command.cmd = {} :: command.cmd
 
-cmd.minRank = 3
+cmd.minRank = 4
 cmd.syntax = { { "visitor", "member", "trusted", "admin" } }
 
 cmd.help = [[Changes the default role to give new players.

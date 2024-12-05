@@ -362,6 +362,7 @@ function Command.CanUserModifyOther(_self: _Command, player: Player, other: Play
 	if
 		Permissions.roleValues[Permissions.GetUserPermissions(player.UserId)] < Permissions.roleValues[Permissions.GetUserPermissions(other.UserId)]
 		and Permissions.GetUserPermissions(player.UserId) ~= "owner"
+		and player ~= other
 	then
 		return false
 	end

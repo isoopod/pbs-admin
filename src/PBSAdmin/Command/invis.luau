@@ -15,6 +15,13 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData, ...: st
 	if player then
 		local targets = self:GetBulkPlayers(player, other)
 
+		local filteredTargets = {}
+		-- Filter out targets we cannot effect
+		for _, v in targets do
+			if self:CanUserModifyOther(player, v) then table.insert(filteredTargets, v) end
+		end
+		targets = filteredTargets
+
 		if #targets == 0 then return self.Responses.Error, "Affected 0 players" end
 
 		for _, target in targets do

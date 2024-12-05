@@ -20,7 +20,7 @@ function cmd.__call(self: command.Command, player: Player, _, aliasData: any?, .
 	local other = args[1] or "me"
 	if player then
 		local target = self:GetPlayer(player, other)
-		if target then
+		if target and self:CanUserModifyOther(player, target) then
 			local humanoid = target.Character and target.Character:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				-- forcing the rigtype is different
