@@ -49,7 +49,7 @@ end
 
 function api.lintParamerter(parameter: string | { string }, inp: string): boolean
 	if inp == "-help" then return true end
-	if parameter == "<player or #userid>" then
+	if parameter == "<player / #userid>" then
 		if inp:sub(1, 1) == "#" then return tonumber(inp:sub(2)) ~= nil end
 	end
 	-- unpack the parameter if it is a psuedo alias

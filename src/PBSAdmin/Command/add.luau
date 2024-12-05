@@ -9,7 +9,7 @@ local data = require(PBSServer.PBSData)
 
 cmd.minRank = 1
 cmd.aliases = { remove = "remove" }
-cmd.syntax = { "<player or #userid>" }
+cmd.syntax = { "<player / #userid>" }
 
 cmd.help = [[Gives a player build permissions for you plot (if plots are enabled)]]
 cmd.aliasHelp = { remove = [[Removes a player's build permissions for your plot (if plots are enabled)]] }

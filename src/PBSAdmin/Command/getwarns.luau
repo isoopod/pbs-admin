@@ -18,7 +18,7 @@ end
 local cmd: command.cmd = {} :: command.cmd
 
 cmd.minRank = 3
-cmd.syntax = { "<player or #userid>" }
+cmd.syntax = { "<player / #userid>" }
 
 cmd.help = [[Opens a list containing all the warnings for a player.]]
 
