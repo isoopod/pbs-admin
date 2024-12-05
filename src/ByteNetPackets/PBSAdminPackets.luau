@@ -71,8 +71,8 @@ return ByteNet.defineNamespace("PBSAdmin", function()
 		-- History command --
 		HISTORY = ByteNet.definePacket({
 			value = ByteNet.array(ByteNet.struct({
-				userid = ByteNet.uint32,
-				timestamp = ByteNet.uint32,
+				userid = ByteNet.float64, -- Roblox has more userids than can fit in a u32, using a f64 should be good up to 9.7 quadrillion users.
+				timestamp = ByteNet.uint32, -- This will become an issue on the 7th of February, 2106 at 06:28:15 UTC
 				action = ByteNet.string,
 				message = ByteNet.string,
 				metadata = ByteNet.unknown,
