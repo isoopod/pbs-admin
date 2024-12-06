@@ -40,11 +40,11 @@ verif.roleValues = {
 verif._CachedPermissions = {}
 
 function verif.GetUserPermissions(UserId: number): string
-	-- For testing, local tests set the UserId to negative numbers so this poses no risk in-game
-	if UserId < 0 then return "owner" end
-
 	-- if user permissions are already stored use those
 	if verif._CachedPermissions[UserId] then return verif._CachedPermissions[UserId] end
+
+	-- For testing, local tests set the UserId to negative numbers so this poses no risk in-game
+	if UserId < 0 then return "owner" end
 
 	if datastore then
 		local s, saved = pcall(datastore.GetAsync, datastore, tostring(UserId))
@@ -66,6 +66,7 @@ function verif.GetUserPermissions(UserId: number): string
 		end
 	end
 
+	verif._CachedPermissions[UserId] = verif.untrustedRole
 	return verif.untrustedRole
 end
 
