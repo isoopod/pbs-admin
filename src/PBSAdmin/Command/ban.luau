@@ -48,11 +48,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 			if table.find(cmd.syntax[3] :: { string }, units) then
 				if verified then
 					local length = convertUnit(duration, units)
-					--local unbanDate = DateTime.fromUnixTimestamp(os.time() + length)
-					local displayReason = "You have been banned from this PBS."--[[\nYour ban expires on {unbanDate:FormatUniversalTime(
-							"LLLL",
-							"en-us"
-						)}{if reason then `\nAn additional reason has been attached: {reason}` else ""}` This part comes with the ban notice]]
+					local displayReason = "You have been banned from this PBS."
 					local s, e = pcall(Players.BanAsync, Players, {
 						UserIds = { target.UserId },
 						ApplyToUniverse = true,
@@ -62,7 +58,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 						ExcludeAltAccounts = false,
 					})
 					if not s then return self.Responses.Error, `BanAsync error: {e}` end
-					permissions.EditPersistentRole(target.UserId)
+					permissions.EditPersistentRole(target.UserId, "visitor")
 					return self.Responses.Success, `{self:FormatUsername(target)} has been banned for {duration} {units}`
 				else
 					return self.Responses.Verify, `Are you sure you want to ban {self:FormatUsername(target)}?`
