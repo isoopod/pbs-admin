@@ -18,7 +18,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 		local filteredTargets = {}
 		-- Filter out targets we cannot effect
 		for _, v in targets do
-			if self:CanUserModifyOther(player, v) then table.insert(filteredTargets, targets) end
+			if self:CanUserModifyOther(player, v) then table.insert(filteredTargets, v) end
 		end
 		targets = filteredTargets
 
