@@ -1,17 +1,18 @@
+> [!CAUTION]
+> This is the alpha branch used in rewrite, and is currently unstable. Use at your own risk.
+
+> [!WARNING]
+> Currently, making this standalone requires some modification. The fallback remotes are broken right now, so you will have to set up bytenet. (When this version is ready, a standalone build will be published here)
+
 # PBS Admin
-PBS Admin exists to make it simple to manage permissions in your PBS. Compared to its predecessor, PBS Admin includes a simplified set of commands and the ability to manage players not currently in the server by using their UserId. PBS Admin can also be used to verify a players permissions in other scripts, allowing you to make sure a player should be able to do something.
+PBS Admin exists to make it simple to manage permissions in your PBS. PBS Admin is a modular and robust admin system designed from the ground up to integrate into a personal server. PBS Admin features a GUI reminiscent of Kohls Beta, while offering a refined modern user experience including smart autocomplete and command linting as you type. PBS Admin also serves as a comprehensive way to manage default tools based on a user's role.
 
-### [Installation Guide](docs/Installation.md)
+The modular system makes it simple to add custom commands. The permissions system can also be used to integrate validation into other systems. 
+PBS Admin is packaged with basic administrative commands to manage your personal server, as well as some of the fun commands you would expect from Kohls. The modular system makes it very easy to remove commands you do not want, and edit the rank required to use each command. 
 
-### [Usage Guide](docs/Usage.md)
+PBS Admin is included in PBS: Rewritten, but standalone versions and documentation can be found here.
 
-### [Modding/Integration Guide](docs/Modding.md)
+> [!NOTE]
+> A complete overhaul to the documentation is currently in progress
 
-### PBS Admin can integrate with our discord server.
-This feature is only available for PBS's hosted under our roblox group, to ensure the safety of the API key. To enable this feature you will need to message @isoopod, and I will create the Secret for your PBS. Note that you can only test this feature in a team test or the live game, as Secrets do not work in local tests.
-We aim to make hosting PBSes under the group much easier in the future.
-
-### Agreement
-If using the integration feature, you are not to modify the permissions module in a way that would break the TOS of RoVer's API, Discord, or ROBLOX.
-Anyone is allowed to create their own custom commands as long as they follow the ROBLOX terms and conditions.
-you may freely get a users permissions from the module anywhere else, but you should only call .EditPersistentRole or directly edit the attributes for things like moderator integration with a custom leaderboard GUI
+### [License](LICENSE)
