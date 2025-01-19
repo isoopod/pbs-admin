@@ -32,6 +32,7 @@
           "$path": "src/PBSAdmin",
           "RoleAssets": {
             "$className": "Folder",
+            "$ignoreUnknownInstances": false,
             "admin": {
               "$className": "Folder"
             },
