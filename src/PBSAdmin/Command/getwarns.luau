@@ -1,19 +1,11 @@
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local command = require(script.Parent)
 
 local datastore = DataStoreService:GetDataStore("PBSADMIN_WARNS")
 
 local Bytenet = command.PublicUtils.Bytenet
-local remote
-if not Bytenet then
-	remote = Instance.new("RemoteEvent")
-	remote.Name = "PBSADMIN_LOGS"
-	remote.Archivable = false
-	remote.Parent = ReplicatedStorage
-end
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -33,11 +25,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...): (number, 
 				local tbl = HttpService:JSONDecode(warns or "[]")
 				if #tbl == 0 then return self.Responses.Error, `{target} had not recieved any warnings.` end
 
-				if Bytenet then
-					Bytenet.LOGS.sendTo(tbl, player)
-				else
-					remote:FireClient(player, tbl)
-				end
+				Bytenet.LOGS.sendTo(tbl, player)
 				return self.Responses.Success, `Opened warnings for {target}`
 			else
 				return self.Responses.Error, `Datastore error: {warns}`

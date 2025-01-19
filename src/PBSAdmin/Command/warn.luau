@@ -1,16 +1,11 @@
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local command = require(script.Parent)
 
 local datastore = DataStoreService:GetDataStore("PBSADMIN_WARNS")
 
 local Bytenet = command.PublicUtils.Bytenet
-local remote: RemoteEvent?
-if not Bytenet then task.spawn(function()
-	remote = ReplicatedStorage:WaitForChild("PBSADMIN_MSG")
-end) end
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -34,13 +29,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 
 			if verified then
 				-- If dealing with a real player
-				if target.ClassName == "Player" then
-					if Bytenet then
-						Bytenet.MSG.sendTo({ title = "<font color='#f00'>Warning</font>", message = filteredText }, target)
-					elseif remote then
-						remote:FireClient(target, "<font color='#f00'>Warning</font>", filteredText)
-					end
-				end
+				if target.ClassName == "Player" then Bytenet.MSG.sendTo({ title = "<font color='#f00'>Warning</font>", message = filteredText }, target) end
 
 				local s, e = pcall(datastore.UpdateAsync, datastore, tostring(target.UserId), function(current: string)
 					local tbl = HttpService:JSONDecode(current or "[]")

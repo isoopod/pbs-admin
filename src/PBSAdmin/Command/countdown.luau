@@ -1,15 +1,6 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local command = require(script.Parent)
 
 local Bytenet = command.PublicUtils.Bytenet
-local remote
-if not Bytenet then
-	remote = Instance.new("RemoteEvent")
-	remote.Name = "PBSADMIN_HINT"
-	remote.Archivable = false
-	remote.Parent = ReplicatedStorage
-end
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -33,13 +24,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 		task.spawn(function()
 			for i = 0, length do
 				local t = tostring(length - i)
-				if Bytenet then
-					Bytenet.HINT.sendToList({ message = t, duration = 1 }, targets)
-				else
-					for _, p in targets do
-						remote:FireClient(p, t, 1)
-					end
-				end
+				Bytenet.HINT.sendToList({ message = t, duration = 1 }, targets)
 				task.wait(1)
 			end
 		end)

@@ -5,7 +5,6 @@ Use this to give yourself owner
 See the GitHub (https://github.com/isoopod/pbs-admin) for further instructions and documentation
 ]]
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Command = require(script.Command)
 local Permissions = require(script.Permissions)
 
@@ -82,29 +81,11 @@ if not script:GetAttribute("resetAssetsOnDeath") then
 	if gui then gui.ResetOnSpawn = false end
 end
 
--- Default to normal events
-local messagePlayer, GetAutofill
-if not Bytenet then
-	messagePlayer = Instance.new("RemoteEvent")
-	messagePlayer.Name = "PBSAdminRemote"
-	messagePlayer.Archivable = false
-	messagePlayer.Parent = ReplicatedStorage
-
-	GetAutofill = Instance.new("RemoteFunction")
-	GetAutofill.Name = "PBSAdminGetAutofill"
-	GetAutofill.Archivable = false
-	GetAutofill.Parent = ReplicatedStorage
-end
-
 local cachedCommands = {}
 
 local function handleCommand(player: Player, command: string)
 	local function commandReturn(response: number, body: string)
-		if Bytenet then
-			Bytenet.CommandReturn.sendTo({ response = response, body = body }, player)
-		elseif messagePlayer then
-			messagePlayer:FireClient(player, response, body)
-		end
+		Bytenet.CommandReturn.sendTo({ response = response, body = body }, player)
 
 		-- Log commands
 		if body ~= "Invalid command" and body ~= "You do not have permissions to execute this command." then table.insert(Command.logs, 1, `[{player}]: {command}`) end
@@ -158,14 +139,10 @@ local function handleCommand(player: Player, command: string)
 	end
 end
 
-if Bytenet then
-	Bytenet.ExecuteCommand.listen(function(data, player)
-		if not player then return end
-		handleCommand(player, data)
-	end)
-elseif messagePlayer then
-	messagePlayer.OnServerEvent:Connect(handleCommand)
-end
+Bytenet.ExecuteCommand.listen(function(data, player)
+	if not player then return end
+	handleCommand(player, data)
+end)
 
 local function handleAutofill(player: Player, fullInfo: boolean?): { syntax: { [string]: { string | { string } } }, help: { [string]: string }? }
 	local rank = Permissions.GetUserPermissions(player.UserId)
@@ -173,37 +150,33 @@ local function handleAutofill(player: Player, fullInfo: boolean?): { syntax: { [
 	return { syntax = Command.getAutofillForRank(rank) }
 end
 
-if Bytenet then
-	Bytenet.GetAutofill.listen(function(data, player)
-		if not player then return end
-		local autofill = handleAutofill(player, data)
+Bytenet.GetAutofill.listen(function(data, player)
+	if not player then return end
+	local autofill = handleAutofill(player, data)
 
-		-- process the packet
-		-- bytenet cant deal with string | {stirng} so we have to send string and {string} as seperate maps per command to retain order
-		local sendable = { syntax = {} }
-		if data then sendable.help = {} end
-		for k, v in autofill.syntax do
-			local sets, singletons = {}, {}
-			for i, syntax in v do
-				if type(syntax) == "table" then
-					sets[i] = syntax
-				else
-					singletons[i] = syntax
-				end
-			end
-			sendable.syntax[k] = { sets = sets, singletons = singletons }
-		end
-		if data then
-			for k, v in autofill.help do
-				sendable.help[k] = v
+	-- process the packet
+	-- bytenet cant deal with string | {stirng} so we have to send string and {string} as seperate maps per command to retain order
+	local sendable = { syntax = {} }
+	if data then sendable.help = {} end
+	for k, v in autofill.syntax do
+		local sets, singletons = {}, {}
+		for i, syntax in v do
+			if type(syntax) == "table" then
+				sets[i] = syntax
+			else
+				singletons[i] = syntax
 			end
 		end
+		sendable.syntax[k] = { sets = sets, singletons = singletons }
+	end
+	if data then
+		for k, v in autofill.help do
+			sendable.help[k] = v
+		end
+	end
 
-		Bytenet.AutofillReturn.sendTo(sendable, player)
-	end)
-elseif GetAutofill then
-	GetAutofill.OnServerInvoke = handleAutofill
-end
+	Bytenet.AutofillReturn.sendTo(sendable, player)
+end)
 
 Players.PlayerRemoving:Connect(function(player: Player)
 	Permissions.PlayerRemoving(player)

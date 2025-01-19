@@ -1,15 +1,6 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local command = require(script.Parent)
 
 local Bytenet = command.PublicUtils.Bytenet
-local remote
-if not Bytenet then
-	remote = Instance.new("RemoteEvent")
-	remote.Name = "PBSADMIN_HINT"
-	remote.Archivable = false
-	remote.Parent = ReplicatedStorage
-end
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -33,11 +24,7 @@ function cmd.__call(self: command.Command, player: Player, verified, _, ...: str
 		end
 
 		filteredText = `{player}: {filteredText}`
-		if Bytenet then
-			Bytenet.HINT.sendToAll({ message = filteredText, duration = duration })
-		else
-			remote:FireAllClients(filteredText, duration)
-		end
+		Bytenet.HINT.sendToAll({ message = filteredText, duration = duration })
 		return self.Responses.Success, `Hint sent successfully.`
 	else
 		return self.Responses.Error, "Invalid Parameters"

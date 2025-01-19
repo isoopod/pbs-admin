@@ -1,17 +1,7 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local ClientCommands = require(script.Parent.ClientCommands)
+local Utils = require(script.Parent.Utils)
 
--- bytenet integration
-local Bytenet
-if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets) end
-	end
-end
-
-local get: RemoteFunction?
-if not Bytenet then get = ReplicatedStorage:WaitForChild("PBSAdminGetAutofill") end
+local Bytenet = Utils.Bytenet
 
 local api = {}
 
@@ -26,23 +16,20 @@ function api.buildAutofill()
 
 	-- Get autofill
 	local autofillTable = {}
-	if Bytenet then
-		task.defer(function()
-			Bytenet.GetAutofill.send(false)
-		end)
-		local result = Bytenet.AutofillReturn.wait()
-		-- reconstruct table
-		for k, v in result.syntax do
-			local newEntry = {}
-			for _, source in v do
-				for i: number, syntax: string | { string } in source do
-					newEntry[i] = syntax
-				end
+
+	task.defer(function()
+		Bytenet.GetAutofill.send(false)
+	end)
+	local result = Bytenet.AutofillReturn.wait()
+	-- reconstruct table
+	for k, v in result.syntax do
+		local newEntry = {}
+		for _, source in v do
+			for i: number, syntax: string | { string } in source do
+				newEntry[i] = syntax
 			end
-			autofillTable[k] = newEntry
 		end
-	elseif get then
-		autofillTable = get:InvokeServer()
+		autofillTable[k] = newEntry
 	end
 
 	for name, syntax in autofillTable do
@@ -60,27 +47,24 @@ function api.getVerboseAutofill()
 	if cache then return cache end
 	-- Get autofill
 	local autofillTable = {}
-	if Bytenet then
-		task.defer(function()
-			Bytenet.GetAutofill.send(true)
-		end)
-		local result = Bytenet.AutofillReturn.wait()
-		-- reconstruct table
-		for k, v in result.syntax do
-			local newEntry = {}
-			for _, source in v do
-				for i: number, syntax: string | { string } in source do
-					newEntry[i] = syntax
-				end
+
+	task.defer(function()
+		Bytenet.GetAutofill.send(true)
+	end)
+	local result = Bytenet.AutofillReturn.wait()
+	-- reconstruct table
+	for k, v in result.syntax do
+		local newEntry = {}
+		for _, source in v do
+			for i: number, syntax: string | { string } in source do
+				newEntry[i] = syntax
 			end
-			autofillTable[k] = {}
-			autofillTable[k].syntax = newEntry
 		end
-		for k, v in result.help do
-			autofillTable[k].help = v
-		end
-	elseif get then
-		autofillTable = get:InvokeServer(true)
+		autofillTable[k] = {}
+		autofillTable[k].syntax = newEntry
+	end
+	for k, v in result.help do
+		autofillTable[k].help = v
 	end
 
 	for k, v in ClientCommands.cmdData do

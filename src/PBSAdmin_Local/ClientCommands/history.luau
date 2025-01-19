@@ -2,16 +2,11 @@
 -- There is nothing that enforces a module under here to register a command.
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AdminGui = require(script.Parent.Parent.AdminGui)
 local Utils = require(script.Parent.Parent.Utils)
 
--- bytenet integration
 local Bytenet = Utils.Bytenet
-
-local remote: RemoteEvent
-if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSADMIN_HISTORY") end
 
 local function truncateString(str, maxLength, addEllipsis)
 	if #str <= maxLength then
@@ -124,12 +119,6 @@ local function openLogs(logs: { HistoryEntry })
 	end
 end
 
-if Bytenet then
-	Bytenet.HISTORY.listen(function(data)
-		openLogs(data)
-	end)
-else
-	remote.OnClientEvent:Connect(function(...)
-		openLogs(...)
-	end)
-end
+Bytenet.HISTORY.listen(function(data)
+	openLogs(data)
+end)

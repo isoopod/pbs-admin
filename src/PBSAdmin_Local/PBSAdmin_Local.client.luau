@@ -2,7 +2,6 @@
 -- Cannot actually do anything
 
 local ContextActionService = game:GetService("ContextActionService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TextChatService = game:GetService("TextChatService")
 local UserInputService = game:GetService("UserInputService")
@@ -49,11 +48,7 @@ suggestions.Parent = script.Parent
 
 local isMobile: ImageButton?
 
--- bytenet integration
 local Bytenet = Utils.Bytenet
-
-local remote: RemoteEvent?
-if not Bytenet then remote = ReplicatedStorage:WaitForChild("PBSAdminRemote") end
 
 local responseTags = {
 	'<font color="#ff3d3d">', -- error
@@ -90,11 +85,7 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	local command = commandData[1]
 	table.remove(commandData, 1)
 	if not ClientCommands.cmdData[command] then
-		if Bytenet then
-			Bytenet.ExecuteCommand.send(input.Text)
-		elseif remote then
-			remote:FireServer(input.Text)
-		end
+		Bytenet.ExecuteCommand.send(input.Text)
 	else
 		local clientCmd = ClientCommands.cmdData[command]
 		commandResponse(clientCmd(unpack(commandData)))
@@ -107,15 +98,9 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	if cmd.Visible then input:CaptureFocus() end
 end)
 
-if Bytenet then
-	Bytenet.CommandReturn.listen(function(data)
-		commandResponse(data.response, data.body)
-	end)
-elseif remote then
-	remote.OnClientEvent:Connect(function(response: number, body: string)
-		commandResponse(response, body)
-	end)
-end
+Bytenet.CommandReturn.listen(function(data)
+	commandResponse(data.response, data.body)
+end)
 
 local allowedToggleKeys = table.clone(keys)
 table.insert(allowedToggleKeys, Enum.KeyCode.Unknown) -- Mobile button tap
