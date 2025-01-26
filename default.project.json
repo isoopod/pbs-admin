@@ -26,7 +26,8 @@
               "isVerified_only": {"Bool": false},
               "leaderstats": {"Bool": true},
               "resetAssetsOnDeath": {"Bool": false},
-              "permsUsesDatastore": {"Bool": false}
+              "permsUsesDatastore": {"Bool": false},
+              "cloud_banlist": {"Bool": true}
             }
           },
           "$path": "src/PBSAdmin",
