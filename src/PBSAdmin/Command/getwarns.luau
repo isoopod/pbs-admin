@@ -5,7 +5,7 @@ local command = require(script.Parent)
 
 local datastore = DataStoreService:GetDataStore("PBSADMIN_WARNS")
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -25,7 +25,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...): (number, 
 				local tbl = HttpService:JSONDecode(warns or "[]")
 				if #tbl == 0 then return self.Responses.Error, `{target} had not recieved any warnings.` end
 
-				Bytenet.LOGS.sendTo(tbl, player)
+				PakNet.LOGS:Fire(player, tbl)
 				return self.Responses.Success, `Opened warnings for {target}`
 			else
 				return self.Responses.Error, `Datastore error: {warns}`

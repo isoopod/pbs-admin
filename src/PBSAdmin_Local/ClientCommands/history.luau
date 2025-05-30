@@ -6,7 +6,7 @@ local Players = game:GetService("Players")
 local AdminGui = require(script.Parent.Parent.AdminGui)
 local Utils = require(script.Parent.Parent.Utils)
 
-local Bytenet = Utils.Bytenet
+local PakNet = Utils.PakNet
 
 local function truncateString(str, maxLength, addEllipsis)
 	if #str <= maxLength then
@@ -119,6 +119,4 @@ local function openLogs(logs: { HistoryEntry })
 	end
 end
 
-Bytenet.HISTORY.listen(function(data)
-	openLogs(data)
-end)
+PakNet.HISTORY.OnClientEvent:Connect(openLogs)

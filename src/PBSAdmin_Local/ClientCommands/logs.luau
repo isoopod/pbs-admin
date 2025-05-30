@@ -4,7 +4,7 @@
 local AdminGui = require(script.Parent.Parent.AdminGui)
 local Utils = require(script.Parent.Parent.Utils)
 
-local Bytenet = Utils.Bytenet
+local PakNet = Utils.PakNet
 
 local function truncateString(str, maxLength, addEllipsis)
 	if #str <= maxLength then
@@ -32,6 +32,4 @@ local function openLogs(logs: { string })
 	end
 end
 
-Bytenet.LOGS.listen(function(data)
-	openLogs(data)
-end)
+PakNet.LOGS.OnClientEvent:Connect(openLogs)

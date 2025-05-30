@@ -1,6 +1,6 @@
 local command = require(script.Parent)
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -10,7 +10,7 @@ cmd.syntax = {}
 cmd.help = [[Opens a list of all commands executed by all players in this server.]]
 
 function cmd.__call(self: command.Command, player: Player): (number, string)
-	Bytenet.LOGS.sendTo(command.logs, player)
+	PakNet.LOGS:Fire(player, command.logs)
 	return self.Responses.Success, "Opened logs"
 end
 

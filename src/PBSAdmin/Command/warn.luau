@@ -5,7 +5,7 @@ local command = require(script.Parent)
 
 local datastore = DataStoreService:GetDataStore("PBSADMIN_WARNS")
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -29,7 +29,7 @@ function cmd.__call(self: command.Command, player: Player, verified: boolean, _,
 
 			if verified then
 				-- If dealing with a real player
-				if target.ClassName == "Player" then Bytenet.MSG.sendTo({ title = "<font color='#f00'>Warning</font>", message = filteredText }, target) end
+				if target.ClassName == "Player" then PakNet.MSG:Fire(target, { title = "<font color='#f00'>Warning</font>", message = filteredText }) end
 
 				local s, e = pcall(datastore.UpdateAsync, datastore, tostring(target.UserId), function(current: string)
 					local tbl = HttpService:JSONDecode(current or "[]")

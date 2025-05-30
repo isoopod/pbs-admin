@@ -1,6 +1,6 @@
 local command = require(script.Parent)
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -24,7 +24,7 @@ function cmd.__call(self: command.Command, player: Player, _, _, ...: string?): 
 		task.spawn(function()
 			for i = 0, length do
 				local t = tostring(length - i)
-				Bytenet.HINT.sendToList({ message = t, duration = 1 }, targets)
+				PakNet.HINT:FireList(targets, { message = t, duration = 1 })
 				task.wait(1)
 			end
 		end)

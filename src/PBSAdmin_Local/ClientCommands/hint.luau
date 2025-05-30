@@ -4,10 +4,10 @@
 local AdminGui = require(script.Parent.Parent.AdminGui)
 local Utils = require(script.Parent.Parent.Utils)
 
--- bytenet integration
-local Bytenet = Utils.Bytenet
+-- PakNet integration
+local PakNet = Utils.PakNet
 
-Bytenet.HINT.listen(function(data)
+PakNet.HINT.OnClientEvent:Connect(function(data: { duration: number?, message: string })
 	-- This data comes from the server and should already be filtered
 	AdminGui.hint(data.message, data.duration)
 end)

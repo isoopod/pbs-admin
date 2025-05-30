@@ -48,7 +48,7 @@ suggestions.Parent = script.Parent
 
 local isMobile: ImageButton?
 
-local Bytenet = Utils.Bytenet
+local PakNet = Utils.PakNet
 
 local responseTags = {
 	'<font color="#ff3d3d">', -- error
@@ -85,7 +85,7 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	local command = commandData[1]
 	table.remove(commandData, 1)
 	if not ClientCommands.cmdData[command] then
-		Bytenet.ExecuteCommand.send(input.Text)
+		PakNet.ExecuteCommand:FireServer(input.Text)
 	else
 		local clientCmd = ClientCommands.cmdData[command]
 		commandResponse(clientCmd(unpack(commandData)))
@@ -98,9 +98,7 @@ input.FocusLost:Connect(function(enterPressed: boolean)
 	if cmd.Visible then input:CaptureFocus() end
 end)
 
-Bytenet.CommandReturn.listen(function(data)
-	commandResponse(data.response, data.body)
-end)
+PakNet.CommandReturn.OnClientEvent:Connect(commandResponse)
 
 local allowedToggleKeys = table.clone(keys)
 table.insert(allowedToggleKeys, Enum.KeyCode.Unknown) -- Mobile button tap

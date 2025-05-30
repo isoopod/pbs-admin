@@ -6,7 +6,7 @@ local command = require(script.Parent)
 
 local PBSConfiguration = require(ReplicatedStorage.PBSTools.PBSConfiguration)
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -99,7 +99,7 @@ function cmd.__call(self: command.Command, player: Player): (number, string)
 
 	local globalHistory = mergeSortedArraysByTimestamp(arrays)
 
-	Bytenet.HISTORY.sendTo(globalHistory, player)
+	PakNet.HISTORY:Fire(player, globalHistory)
 	return self.Responses.Success, "Opened history"
 end
 

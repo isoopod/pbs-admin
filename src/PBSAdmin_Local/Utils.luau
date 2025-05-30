@@ -140,10 +140,10 @@ function api.removeRichTextTags(input: string): string
 	return input:gsub("<[^>]+>", "")
 end
 
--- bytenet integration
+-- PakNet integration
 if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then api.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets) end
+	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
+		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then api.PakNet = require(ReplicatedStorage.Utils.PakNetSchemas.PBSAdminPackets) end
 	end
 end
 

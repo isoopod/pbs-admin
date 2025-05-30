@@ -1,6 +1,6 @@
 local command = require(script.Parent)
 
-local Bytenet = command.PublicUtils.Bytenet
+local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
@@ -24,7 +24,7 @@ function cmd.__call(self: command.Command, player: Player, verified, _, ...: str
 		end
 
 		filteredText = `{player}: {filteredText}`
-		Bytenet.HINT.sendToAll({ message = filteredText, duration = duration })
+		PakNet.HINT:FireAll({ message = filteredText, duration = duration })
 		return self.Responses.Success, `Hint sent successfully.`
 	else
 		return self.Responses.Error, "Invalid Parameters"

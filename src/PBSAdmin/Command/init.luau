@@ -614,11 +614,11 @@ function CommandClass.PublicUtils.FilterText(text: string, userid: number?): str
 	return if s2 then filteredText else ""
 end
 
--- If you are using PBS Admin with ByteNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
+-- If you are using PBS Admin with PakNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
 if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("ByteNetPackets") then
-		if ReplicatedStorage.Utils.ByteNetPackets:FindFirstChild("PBSAdminPackets") then
-			CommandClass.PublicUtils.Bytenet = require(ReplicatedStorage.Utils.ByteNetPackets.PBSAdminPackets)
+	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
+		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
+			CommandClass.PublicUtils.PakNet = require(ReplicatedStorage.Utils.PakNetSchemas.PBSAdminPackets)
 		end
 	end
 end

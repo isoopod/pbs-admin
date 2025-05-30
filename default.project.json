@@ -4,16 +4,16 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
+      "Packages": {
+        "$path": "Packages/"
+      },
       "PBSTools": {
         "$path": "src/PBSTools"
       },
       "Utils": {
         "$className": "Folder",
-        "ByteNet": {
-          "$path": "Packages/_Index/ffrostflame_bytenet@0.4.6/bytenet/default.project.json"
-        },
-        "ByteNetPackets": {
-          "$path": "src/ByteNetPackets"
+        "PakNetSchemas": {
+          "$path": "src/PakNetSchemas"
         }
       }
     },
@@ -26,8 +26,7 @@
               "isVerified_only": {"Bool": false},
               "leaderstats": {"Bool": true},
               "resetAssetsOnDeath": {"Bool": false},
-              "permsUsesDatastore": {"Bool": false},
-              "cloud_banlist": {"Bool": true}
+              "permsUsesDatastore": {"Bool": false}
             }
           },
           "$path": "src/PBSAdmin",
@@ -56,57 +55,6 @@
           }
         },
         "$path": "src/PBSServer"
-      }
-    },
-
-    "Workspace": {
-      "$properties": {
-        "FilteringEnabled": true
-      },
-      "Baseplate": {
-        "$className": "Part",
-        "$properties": {
-          "Anchored": true,
-          "Color": [
-            0.38823,
-            0.37254,
-            0.38823
-          ],
-          "Locked": true,
-          "Position": [
-            0,
-            -10,
-            0
-          ],
-          "Size": [
-            512,
-            20,
-            512
-          ]
-        }
-      }
-    },
-    "Lighting": {
-      "$properties": {
-        "Ambient": [
-          0,
-          0,
-          0
-        ],
-        "Brightness": 2,
-        "GlobalShadows": true,
-        "Outlines": false,
-        "Technology": "Voxel"
-      }
-    },
-    "SoundService": {
-      "$properties": {
-        "RespectFilteringEnabled": true
-      }
-    },
-    "TextChatService": {
-      "$properties": {
-        "ChatVersion": "TextChatService"
       }
     }
   }

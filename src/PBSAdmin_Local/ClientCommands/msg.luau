@@ -4,9 +4,9 @@
 local AdminGui = require(script.Parent.Parent.AdminGui)
 local Utils = require(script.Parent.Parent.Utils)
 
-local Bytenet = Utils.Bytenet
+local PakNet = Utils.PakNet
 
-Bytenet.MSG.listen(function(data)
+PakNet.MSG.OnClientEvent:Connect(function(data)
 	-- This data comes from the server and should already be filtered
 	AdminGui.message(data.title, data.message, data.typewrite, data.duration)
 end)
