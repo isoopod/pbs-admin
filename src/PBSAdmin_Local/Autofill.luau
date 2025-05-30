@@ -32,7 +32,6 @@ function api.getVerboseAutofill()
 	if cache then return cache end
 	-- Get autofill
 	local autofillTable = PakNet.GetAutofill:InvokeServer(true)
-	print(autofillTable)
 
 	for k, v in ClientCommands.cmdData do
 		local help = `[No role+] {v.help}`

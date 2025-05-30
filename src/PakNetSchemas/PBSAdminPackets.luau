@@ -15,7 +15,7 @@ return PakNet:Mount(script, {
 
 	-- Return information for a command
 	CommandReturn = PakNet:DefineRemote({
-		params = PakNet:Schema(PakNet.String16, PakNet.String16), -- response, body
+		params = PakNet:Schema(PakNet.UInt8, PakNet.String16), -- response, body
 		remoteType = "r",
 		rateLimit = {
 			limit = 0,
@@ -39,7 +39,6 @@ return PakNet:Mount(script, {
 				help = PakNet.Nullable(PakNet.Map(PakNet.String16, PakNet.String16)),
 			}),
 			function(autofill: { syntax: { [string]: { string | { string } } }, help: { [string]: string }? })
-				print("encoding")
 				local sendable = { syntax = {} }
 
 				for k, v in autofill.syntax do
@@ -63,7 +62,6 @@ return PakNet:Mount(script, {
 				return sendable
 			end,
 			function(result)
-				print("decoding")
 				local autofillTable = {}
 
 				for k, v in result.syntax do

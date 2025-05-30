@@ -86,7 +86,7 @@ local cachedCommands = {}
 
 local function handleCommand(player: Player, command: string)
 	local function commandReturn(response: number, body: string)
-		PakNet.CommandReturn:Fire(player, { response = response, body = body })
+		PakNet.CommandReturn:Fire(player, response, body)
 		-- Log commands
 		if body ~= "Invalid command" and body ~= "You do not have permissions to execute this command." then table.insert(Command.logs, 1, `[{player}]: {command}`) end
 	end
