@@ -1,8 +1,10 @@
 [package]
-name = "infin/pbs-admin"
+name = "pbs-community/pbs-admin"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
+exclude = ["**"]
+private = true
 
 [dependencies]
 PakNet = "isoopod/paknet@^0.3"
