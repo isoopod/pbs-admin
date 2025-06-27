@@ -615,11 +615,9 @@ function CommandClass.PublicUtils.FilterText(text: string, userid: number?): str
 end
 
 -- If you are using PBS Admin with PakNet outside of PBS:Rewrite, you will probably need to change the paths here and in PBSAdmin_Local
-if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
-		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
-			CommandClass.PublicUtils.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
-		end
+if ReplicatedStorage:FindFirstChild("PBSReplicated") then
+	if ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
+		CommandClass.PublicUtils.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
 	end
 end
 

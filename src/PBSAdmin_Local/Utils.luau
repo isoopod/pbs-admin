@@ -141,11 +141,9 @@ function api.removeRichTextTags(input: string): string
 end
 
 -- PakNet integration
-if ReplicatedStorage:FindFirstChild("Utils") then
-	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
-		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
-			api.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
-		end
+if ReplicatedStorage:FindFirstChild("PBSReplicated") then
+	if ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
+		api.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
 	end
 end
 
