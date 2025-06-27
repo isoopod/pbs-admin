@@ -618,7 +618,7 @@ end
 if ReplicatedStorage:FindFirstChild("Utils") then
 	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
 		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
-			CommandClass.PublicUtils.PakNet = require(ReplicatedStorage.Utils.PakNetSchemas.PBSAdminPackets)
+			CommandClass.PublicUtils.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
 		end
 	end
 end

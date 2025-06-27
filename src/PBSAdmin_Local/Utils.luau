@@ -143,7 +143,9 @@ end
 -- PakNet integration
 if ReplicatedStorage:FindFirstChild("Utils") then
 	if ReplicatedStorage.Utils:FindFirstChild("PakNetSchemas") then
-		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then api.PakNet = require(ReplicatedStorage.Utils.PakNetSchemas.PBSAdminPackets) end
+		if ReplicatedStorage.Utils.PakNetSchemas:FindFirstChild("PBSAdminPackets") then
+			api.PakNet = require(ReplicatedStorage.PBSReplicated.Utils.PakNetSchemas.PBSAdminPackets)
+		end
 	end
 end
 

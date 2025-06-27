@@ -10,10 +10,13 @@
       "PBSTools": {
         "$path": "src/PBSTools"
       },
-      "Utils": {
+      "PBSReplicated": {
         "$className": "Folder",
-        "PakNetSchemas": {
-          "$path": "src/PakNetSchemas"
+        "Utils": {
+          "$className": "Folder",
+          "PakNetSchemas": {
+            "$path": "src/PakNetSchemas"
+          }
         }
       }
     },
