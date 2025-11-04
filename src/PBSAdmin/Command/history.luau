@@ -10,7 +10,7 @@ local PakNet = command.PublicUtils.PakNet
 
 local cmd: command.cmd = {} :: command.cmd
 
-cmd.minRank = 3
+cmd.minRank = 2
 cmd.syntax = {}
 
 cmd.help = `Opens a list of PBS related actions (e.g. place, delete) performed by all players from the past {PBSConfiguration.LogDuration} hours.`
